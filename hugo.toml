@@ -1,0 +1,33 @@
+baseURL = "https://sly-aaron.github.io/"
+title = "Sly Aaron Notes"
+theme = "hugo-geekdoc"
+pluralizeListTitles = false
+
+# Geekdoc / Hugo 基础配置
+pygmentsUseClasses = true
+pygmentsCodeFences = true
+disablePathToLower = true
+enableGitInfo = true
+enableRobotsTXT = true
+
+# GitHub Pages 推荐的缓存目录配置
+[caches]
+  [caches.images]
+    dir = ":cacheDir/images"
+
+[markup]
+  [markup.goldmark.renderer]
+    unsafe = true
+  [markup.tableOfContents]
+    startLevel = 1
+    endLevel = 9
+
+[taxonomies]
+  tag = "tags"
+
+[params]
+  geekdocDarkModeDim = false
+  geekdocDarkModeCode = false
+  geekdocBackToTop = true
+  geekdocTagsToMenu = true
+  geekdocFileTreeSortBy = "title"
