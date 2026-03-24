@@ -1,15 +1,17 @@
 ---
-title: "首页"
+title: 首页
 geekdocNav: false
 ---
+---
 
-# 欢迎来到我的知识博客
+这是我的安全知识库，目前只整理三个方向：
 
-这里主要记录：
+- [CTF](/ctf/)
+- [电子取证](/digital-forensics/)
+- [应急响应](/incident-response/)
 
-- Hugo 搭建
-- GitHub Pages 部署
-- 研究笔记
-- 工具使用记录
+这里主要用于沉淀：
 
-{{< toc-tree >}}
+- 题目分析与做题记录
+- 电子取证方法与工具使用
+- 应急响应排查思路与案例整理

@@ -21,6 +21,11 @@ enableRobotsTXT = true
   [markup.tableOfContents]
     startLevel = 1
     endLevel = 9
+  [markup.goldmark.renderHooks.image]
+    useEmbedded = "always"
+
+  [markup.goldmark.renderHooks.link]
+    useEmbedded = "always"
 
 [taxonomies]
   tag = "tags"
@@ -31,3 +36,4 @@ enableRobotsTXT = true
   geekdocBackToTop = true
   geekdocTagsToMenu = true
   geekdocFileTreeSortBy = "title"
+  geekdocMenuBundle = true

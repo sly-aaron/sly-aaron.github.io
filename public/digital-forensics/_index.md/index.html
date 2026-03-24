@@ -12,8 +12,10 @@
 <meta name="generator" content="Hugo 0.159.0">
 
 
+  <meta name="description" content=" title: 应急响应 这里记录应急响应相关内容，包括：
+入侵排查 日志分析 Webshell 与后门痕迹分析 主机异常行为排查 处置流程与复盘 " />
 
-    <title>Sly Aaron Notes</title>
+    <title>电子取证 | Sly Aaron Notes</title>
 
     <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg" />
 <link
@@ -32,24 +34,57 @@
     
 
     
+  <meta
+    property="og:title"
+    content="电子取证"
+  />
   <meta property="og:site_name" content="Sly Aaron Notes" />
-<meta property="og:type" content="website" />
-<meta property="og:url" content="http://localhost:1313/" />
+  <meta property="og:description" content=" title: 应急响应 这里记录应急响应相关内容，包括：
+入侵排查 日志分析 Webshell 与后门痕迹分析 主机异常行为排查 处置流程与复盘 " />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://localhost:1313/digital-forensics/_index.md/" />
 
-
+<meta property="article:section" content="Digital Forensics" />
 
 
   <meta name="twitter:card" content="summary" />
-<meta name="twitter:title" content="首页" />
+<meta name="twitter:title" content="电子取证" />
+  <meta name="twitter:description" content=" title: 应急响应 这里记录应急响应相关内容，包括：
+入侵排查 日志分析 Webshell 与后门痕迹分析 主机异常行为排查 处置流程与复盘 " />
 
 
   <script type="application/ld+json">
   {
       "@context": "http://schema.org",
-      "@type": "WebSite",
-      "name": "Sly Aaron Notes",
-      "url": "http://localhost:1313/",""""
-      "inLanguage": "en"
+      "@type": "TechArticle",
+      "articleSection": "Digital Forensics",
+      "name": "电子取证",
+      "url" : "http://localhost:1313/digital-forensics/_index.md/",
+      "headline": "电子取证",
+      "description": " title: 应急响应 这里记录应急响应相关内容，包括：\n入侵排查 日志分析 Webshell 与后门痕迹分析 主机异常行为排查 处置流程与复盘 ",""
+      "wordCount" : "9",
+      "inLanguage": "en",
+      "isFamilyFriendly": "true",
+      "mainEntityOfPage": {
+          "@type": "WebPage",
+          "@id": "http://localhost:1313/digital-forensics/_index.md/"
+      },
+      "copyrightHolder" : "Sly Aaron Notes",
+      "copyrightYear" : "0001",
+      "dateCreated": "0001-01-01T00:00:00.00Z",
+      "datePublished": "0001-01-01T00:00:00.00Z",
+      "dateModified": "0001-01-01T00:00:00.00Z",
+      "publisher":{
+          "@type":"Organization",
+          "name": "Sly Aaron Notes",
+          "url": "http://localhost:1313/",
+          "logo": {
+              "@type": "ImageObject",
+              "url": "http://localhost:1313/brand.svg",
+              "width":"32",
+              "height":"32"
+          }
+      }
   }
   </script>
 
@@ -116,7 +151,7 @@
   href="/custom.css"
   media="all"
 />
-  <link href="http://localhost:1313/" rel="canonical" type="text/html" />
+  <link href="http://localhost:1313/digital-forensics/_index.md/" rel="canonical" type="text/html" />
 
 <!-- Made with Geekdoc theme https://github.com/thegeeklab/hugo-geekdoc -->
 
@@ -142,6 +177,21 @@
       
       <header class="gdoc-header">
   <div class="container flex align-center justify-between">
+    
+      <label for="menu-control" class="gdoc-nav__control">
+        <div tabindex="0" role="button" aria-pressed="false">
+          <input type="checkbox" class="hidden" id="menu-control" />
+
+          <svg class="gdoc-icon gdoc_menu">
+            <title>Open Navigation</title>
+            <use xlink:href="#gdoc_menu"></use>
+          </svg>
+          <svg class="gdoc-icon gdoc_arrow_back">
+            <title>Close Navigation</title>
+            <use xlink:href="#gdoc_arrow_back"></use>
+          </svg>
+        </div>
+      </label>
     
     <div>
       <a class="gdoc-brand gdoc-header__link flex gap-16 align-center" href="http://localhost:1313/">
@@ -213,6 +263,174 @@
 
       <main class="container flex flex-even">
         
+          <aside class="gdoc-nav">
+            <nav>
+  
+  <script defer src="/js/search-caed05b8.bundle.min.js"></script><div class="gdoc-search flex align-center">
+    <svg class="gdoc-icon gdoc_search"><use xlink:href="#gdoc_search"></use></svg>
+    <input
+      type="text"
+      id="gdoc-search-input"
+      class="gdoc-search__input"
+      placeholder="Search..."
+      aria-label="Search"
+      maxlength="64"
+      data-site-base-url="http://localhost:1313/"
+      data-site-lang="en"
+    />
+    <ul id="gdoc-search-results" class="gdoc-search__list"></ul>
+  </div>
+
+
+
+
+  <section class="gdoc-nav--main">
+    <h2>Navigation</h2>
+    
+      
+
+  
+  
+
+
+  <ul class="gdoc-nav__list">
+    
+      
+      
+
+
+      <li>
+        
+        
+          
+          
+          
+          
+          
+          
+          
+
+          
+          
+
+          
+            <input
+              type="checkbox"
+              
+                class="hidden"
+              
+            />
+            <label
+              
+            >
+              <span class="flex">
+                
+                <a
+                  href="/ctf"
+                  class="gdoc-nav__entry"
+                  
+                >
+                  CTF
+                </a>
+              </span>
+              
+            </label>
+          
+        
+
+        
+      </li>
+    
+      
+      
+
+
+      <li>
+        
+        
+          
+          
+          
+          
+          
+          
+          
+
+          
+          
+
+          
+            <input
+              type="checkbox"
+              
+                class="hidden"
+              
+            />
+            <label
+              
+            >
+              <span class="flex">
+                
+                <a
+                  href="/digital-forensics"
+                  class="gdoc-nav__entry"
+                  
+                >
+                  电子取证
+                </a>
+              </span>
+              
+            </label>
+          
+        
+
+        
+      </li>
+    
+      
+      
+
+
+      <li>
+        
+        
+          
+          
+          
+          
+          
+          
+          
+
+          
+          
+
+          
+        
+
+        
+      </li>
+    
+  </ul>
+
+
+
+
+
+
+    
+  </section>
+
+  
+
+
+  <section class="gdoc-nav--more">
+    
+  </section>
+</nav>
+
+          </aside>
+        
 
 
         <div class="gdoc-page">
@@ -246,7 +464,23 @@
         
   
   
-    <li itemprop='itemListElement' itemscope itemtype='https://schema.org/ListItem'><span itemprop='name'>首页</span><meta itemprop='position' content='1' /></li>
+    
+    
+    
+    
+  
+  
+    
+    
+    
+    
+  
+  
+    <li itemprop='itemListElement' itemscope itemtype='https://schema.org/ListItem'><a itemscope itemtype='https://schema.org/WebPage' itemprop='item' itemid='/' href='/'><span itemprop='name'>首页</span></a><meta itemprop='position' content='1' /></li><li> / </li><li itemprop='itemListElement' itemscope itemtype='https://schema.org/ListItem'><a itemscope itemtype='https://schema.org/WebPage' itemprop='item' itemid='/digital-forensics/' href='/digital-forensics/'><span itemprop='name'>Digital-Forensics</span></a><meta itemprop='position' content='2' /></li><li> / </li><li itemprop='itemListElement' itemscope itemtype='https://schema.org/ListItem'><span itemprop='name'>电子取证</span><meta itemprop='position' content='3' /></li>
+  
+
+  
+
   
 
       </ol>
@@ -261,19 +495,25 @@
     class="gdoc-markdown gdoc-markdown__align--left"
     id="main-content" tabindex="-1"
   >
-    <h1>首页</h1>
+    <h1>电子取证</h1>
+    
     <hr>
-<p>这是我的安全知识库，目前只整理三个方向：</p>
+<div class="flex align-center gdoc-page__anchorwrap">
+    <h2 id="title-应急响应"
+    >
+        title: 应急响应
+    </h2>
+    <a data-clipboard-text="http://localhost:1313/digital-forensics/_index.md/#title-应急响应" class="gdoc-page__anchor clip flex align-center" title="Anchor to: title: 应急响应" aria-label="Anchor to: title: 应急响应" href="#title-%e5%ba%94%e6%80%a5%e5%93%8d%e5%ba%94">
+        <svg class="gdoc-icon gdoc_link"><use xlink:href="#gdoc_link"></use></svg>
+    </a>
+</div>
+<p>这里记录应急响应相关内容，包括：</p>
 <ul>
-<li><a href="/ctf/">CTF</a></li>
-<li><a href="/digital-forensics/">电子取证</a></li>
-<li><a href="/incident-response/">应急响应</a></li>
-</ul>
-<p>这里主要用于沉淀：</p>
-<ul>
-<li>题目分析与做题记录</li>
-<li>电子取证方法与工具使用</li>
-<li>应急响应排查思路与案例整理</li>
+<li>入侵排查</li>
+<li>日志分析</li>
+<li>Webshell 与后门痕迹分析</li>
+<li>主机异常行为排查</li>
+<li>处置流程与复盘</li>
 </ul>
 
   </article>
@@ -319,37 +559,6 @@
     
 
     
-    
-      
-  
-  
-
-  
-    
-    
-
-    
-    
-      
-      
-      
-
-      
-        
-      
-      
-
-      
-
-      
-
-      
-    
-
-    
-    
-  
-
     
   
     

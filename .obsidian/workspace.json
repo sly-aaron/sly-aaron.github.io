@@ -1,0 +1,295 @@
+{
+  "main": {
+    "id": "8f743d39c469d61b",
+    "type": "split",
+    "children": [
+      {
+        "id": "8e9165577b27c531",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "7536e7785ddc3639",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "content/_index.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "_index"
+            }
+          },
+          {
+            "id": "1470c4016a876ef9",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "content/ctf/_index.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "_index"
+            }
+          },
+          {
+            "id": "37b7285148389fa9",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "content/incident-response/_index.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "_index"
+            }
+          },
+          {
+            "id": "627e31bce4d341f6",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "archetypes/default.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "default"
+            }
+          },
+          {
+            "id": "7dd71e2514a76a76",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "content/ctf/_index.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "_index"
+            }
+          },
+          {
+            "id": "ab0a8a05f931c486",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "content/ctf/test/index.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "index"
+            }
+          }
+        ],
+        "currentTab": 5
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "68252f371f912394",
+    "type": "split",
+    "children": [
+      {
+        "id": "a396688b91103d38",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "2251a98a80a9853b",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "文件列表"
+            }
+          },
+          {
+            "id": "35de0cfff902e286",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "搜索"
+            }
+          },
+          {
+            "id": "9ae24892a3bc89e5",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "书签"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "7daf7db38b78b760",
+    "type": "split",
+    "children": [
+      {
+        "id": "4b92075ebb48dc52",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "90222506a70c89bc",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "content/_index.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "_index 的反向链接列表"
+            }
+          },
+          {
+            "id": "3ab4fad18b0de82d",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "content/_index.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "_index 的出链列表"
+            }
+          },
+          {
+            "id": "4385ea722e77e571",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "标签"
+            }
+          },
+          {
+            "id": "20cb5aa2575a2a4a",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "添加笔记属性"
+            }
+          },
+          {
+            "id": "f1af89e2d7701e38",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "content/_index.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "_index 的大纲"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "templater-obsidian:Templater": false,
+      "switcher:打开快速切换": false,
+      "graph:查看关系图谱": false,
+      "canvas:新建白板": false,
+      "daily-notes:打开/创建今天的日记": false,
+      "templates:插入模板": false,
+      "command-palette:打开命令面板": false,
+      "bases:新建数据库": false,
+      "attachment-manager:Toggle visibility of attachment folder": false
+    }
+  },
+  "active": "ab0a8a05f931c486",
+  "lastOpenFiles": [
+    "public/ctf/test/attachments/index-20260324175831023.png",
+    "public/ctf/test/attachments/index-20260324175821667.png",
+    "public/ctf/test/attachments",
+    "content/ctf/test/attachments/index-20260324175831023.png",
+    "content/ctf/test/attachments/index-20260324175821667.png",
+    "content/ctf/test/attachments",
+    "content/ctf/test/index.md_Attachments/index-20260324173136187.png",
+    "content/ctf/test/index.md",
+    "public/tags/ctf/page/1/index.html",
+    "public/tags/ctf/page/1",
+    "public/tags/ctf/page",
+    "public/tags/ctf/index.xml",
+    "public/tags/ctf/index.html",
+    "public/tags/ctf",
+    "public/ctf/test/test/index.html",
+    "public/ctf/test/test",
+    "public/ctf/test/test.md_Attachments/test-20260324173136187.png",
+    "public/ctf/test/index.md_Attachments/index-20260324173136187.png",
+    "public/ctf/test/_index.md_Attachments/_index-20260324173136187.png",
+    "Pasted image 20260324173112.png",
+    "Pasted image 20260324173020.png",
+    "public/ctf/test/index/IMG-20260324173011047.png",
+    "content/ctf/_index.md",
+    "content/digital-forensics/_index.md",
+    "content/incident-response/_index.md",
+    "content/_index.md",
+    "data/menu/main.yaml.md",
+    "archetypes/default.md",
+    "public/incident-responce/_index.md",
+    "public/digital-forensics/_index.md",
+    "public/ctf/_index.md",
+    "content/guide/_index.md",
+    "content/guide/hugo-start.md"
+  ]
+}

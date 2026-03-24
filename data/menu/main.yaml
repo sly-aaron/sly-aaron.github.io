@@ -1,0 +1,11 @@
+---
+main:
+  - name: CTF
+    ref: "/ctf/"
+    sub:
+      - name: 测试
+        ref: "/ctf/test/"
+  - name: 电子取证
+    ref: "/digital-forensics/"
+  - name: 应急响应
+    ref: "/incident-response/"
