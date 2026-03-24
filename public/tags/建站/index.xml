@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>建站 on Sly Aaron Notes</title>
+    <link>http://localhost:1313/tags/%E5%BB%BA%E7%AB%99/</link>
+    <description>Recent content in 建站 on Sly Aaron Notes</description>
+    <generator>Hugo</generator>
+    <language>en</language>
+    <atom:link href="http://localhost:1313/tags/%E5%BB%BA%E7%AB%99/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Hugo 从零开始</title>
+      <link>http://localhost:1313/guide/hugo-start/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/guide/hugo-start/</guid>
+      <description>&lt;div class=&#34;flex align-center gdoc-page__anchorwrap&#34;&gt;&#xA;    &lt;h1 id=&#34;hugo-从零开始&#34;&#xA;    &gt;&#xA;        Hugo 从零开始&#xA;    &lt;/h1&gt;&#xA;    &lt;a data-clipboard-text=&#34;http://localhost:1313/guide/hugo-start/#hugo-从零开始&#34; class=&#34;gdoc-page__anchor clip flex align-center&#34; title=&#34;Anchor to: Hugo 从零开始&#34; aria-label=&#34;Anchor to: Hugo 从零开始&#34; href=&#34;#hugo-%e4%bb%8e%e9%9b%b6%e5%bc%80%e5%a7%8b&#34;&gt;&#xA;        &lt;svg class=&#34;gdoc-icon gdoc_link&#34;&gt;&lt;use xlink:href=&#34;#gdoc_link&#34;&gt;&lt;/use&gt;&lt;/svg&gt;&#xA;    &lt;/a&gt;&#xA;&lt;/div&gt;&#xA;&lt;p&gt;这是我的第一篇 Hugo 笔记。&lt;/p&gt;&#xA;&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;hugo server -D&#xA;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
+    </item>
+  </channel>
+</rss>
