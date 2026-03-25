@@ -10,3 +10,7 @@ tags:
 ![](attachments/index-20260324175821667.png)
 
 ![](attachments/index-20260324175831023.png)
+
+git add . 
+git commit -m "deploy: update site" 
+git push origin main

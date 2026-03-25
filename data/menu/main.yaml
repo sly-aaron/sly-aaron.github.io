@@ -5,6 +5,8 @@ main:
     sub:
       - name: 测试
         ref: "/ctf/test/"
+      - name: 青少年CTF S1 · 2026 公益赛
+        ref: "/ctf/qsnctf/"
   - name: 电子取证
     ref: "/digital-forensics/"
   - name: 应急响应
