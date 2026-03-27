@@ -11,3 +11,6 @@ main:
     ref: "/digital-forensics/"
   - name: 应急响应
     ref: "/incident-response/"
+    sub:
+      - name: 第二届solar杯·应急响应挑战赛
+        ref: "/incident-response/solar2/"

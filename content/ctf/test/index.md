@@ -11,6 +11,8 @@ tags:
 
 ![](attachments/index-20260324175831023.png)
 
+hugo server
+
 git add . 
 git commit -m "deploy: update site" 
 git push origin main

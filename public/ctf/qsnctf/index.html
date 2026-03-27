@@ -49,7 +49,7 @@
     />
     <meta
       property="article:modified_time"
-      content="2026-03-25T00:00:00+00:00"
+      content="2026-03-25T19:33:08+08:00"
     />
 
 
@@ -79,7 +79,7 @@
       "copyrightYear" : "2026",
       "dateCreated": "2026-03-25T00:00:00.00Z",
       "datePublished": "2026-03-25T00:00:00.00Z",
-      "dateModified": "2026-03-25T00:00:00.00Z",
+      "dateModified": "2026-03-25T19:33:08.00Z",
       "publisher":{
           "@type":"Organization",
           "name": "Sly Aaron Notes",
@@ -539,6 +539,62 @@
         
 
         
+          
+  
+  
+
+
+  <ul class="gdoc-nav__list">
+    
+      
+      
+
+
+      <li>
+        
+        
+          
+          
+          
+          
+          
+          
+          
+
+          
+          
+
+          
+            <input
+              type="checkbox"
+              
+                class="hidden"
+              
+            />
+            <label
+              
+            >
+              <span class="flex">
+                
+                <a
+                  href="/incident-response/solar2"
+                  class="gdoc-nav__entry"
+                  
+                >
+                  第二届solar杯·应急响应挑战赛
+                </a>
+              </span>
+              
+            </label>
+          
+        
+
+        
+      </li>
+    
+  </ul>
+
+        
       </li>
     
   </ul>
@@ -869,14 +925,14 @@
 <p><img src="/ctf/qsnctf/%E9%9D%92%E5%B0%91%E5%B9%B4ctf%E5%AD%A3%E8%B5%9B.md_Attachments/%E9%9D%92%E5%B0%91%E5%B9%B4ctf%E5%AD%A3%E8%B5%9B-20260325105940464.png" alt=""></p>
 <p>直接base64解不出来，应该还有其他加密
 这里最史的一点就是这个加密算法需要通过单图盲水印看出来
-byd这个单图盲水印极其模糊，根本看不清
-<img src="/ctf/qsnctf/%E9%9D%92%E5%B0%91%E5%B9%B4ctf%E5%AD%A3%E8%B5%9B.md_Attachments/under_the_sea_fft.png" alt="">
-只能隐约看出RC4这几个字符
-算了，总之继续找密钥吧，应该在txt里
-<img src="/ctf/qsnctf/%E9%9D%92%E5%B0%91%E5%B9%B4ctf%E5%AD%A3%E8%B5%9B.md_Attachments/%E9%9D%92%E5%B0%91%E5%B9%B4ctf%E5%AD%A3%E8%B5%9B-20260325110142107.png" alt="">
-依旧零宽度字符隐写
-<img src="/ctf/qsnctf/%E9%9D%92%E5%B0%91%E5%B9%B4ctf%E5%AD%A3%E8%B5%9B.md_Attachments/%E9%9D%92%E5%B0%91%E5%B9%B4ctf%E5%AD%A3%E8%B5%9B-20260325110208220.png" alt="">
-哈？啥意思，再看看txt
+byd这个单图盲水印极其模糊，根本看不清</p>
+<p><img src="/ctf/qsnctf/%E9%9D%92%E5%B0%91%E5%B9%B4ctf%E5%AD%A3%E8%B5%9B.md_Attachments/under_the_sea_fft.png" alt=""></p>
+<p>只能隐约看出RC4这几个字符
+算了，总之继续找密钥吧，应该在txt里</p>
+<p><img src="/ctf/qsnctf/%E9%9D%92%E5%B0%91%E5%B9%B4ctf%E5%AD%A3%E8%B5%9B.md_Attachments/%E9%9D%92%E5%B0%91%E5%B9%B4ctf%E5%AD%A3%E8%B5%9B-20260325110142107.png" alt=""></p>
+<p>依旧零宽度字符隐写</p>
+<p><img src="/ctf/qsnctf/%E9%9D%92%E5%B0%91%E5%B9%B4ctf%E5%AD%A3%E8%B5%9B.md_Attachments/%E9%9D%92%E5%B0%91%E5%B9%B4ctf%E5%AD%A3%E8%B5%9B-20260325110208220.png" alt=""></p>
+<p>哈？啥意思，再看看txt
 问ai得到key，我说实话这个key也是纯史</p>
 <ul>
 <li>第一部分明给 <code>十一时四十五分</code> → <code>1145</code></li>
@@ -885,11 +941,11 @@ byd这个单图盲水印极其模糊，根本看不清
 <li>第四部分“归零” → 末尾补 <code>0</code></li>
 </ul>
 <p>拼起来就是：</p>
-<p>1145 + 1419 + 1981 + 0 = 1145141919810
-<img src="/ctf/qsnctf/%E9%9D%92%E5%B0%91%E5%B9%B4ctf%E5%AD%A3%E8%B5%9B.md_Attachments/%E9%9D%92%E5%B0%91%E5%B9%B4ctf%E5%AD%A3%E8%B5%9B-20260325110328222.png" alt="">
-然后解码得到做坐标
-<img src="/ctf/qsnctf/%E9%9D%92%E5%B0%91%E5%B9%B4ctf%E5%AD%A3%E8%B5%9B.md_Attachments/%E9%9D%92%E5%B0%91%E5%B9%B4ctf%E5%AD%A3%E8%B5%9B-20260325110357964.png" alt="">
-最后得到城市合肥</p>
+<p>1145 + 1419 + 1981 + 0 = 1145141919810</p>
+<p><img src="/ctf/qsnctf/%E9%9D%92%E5%B0%91%E5%B9%B4ctf%E5%AD%A3%E8%B5%9B.md_Attachments/%E9%9D%92%E5%B0%91%E5%B9%B4ctf%E5%AD%A3%E8%B5%9B-20260325110328222.png" alt=""></p>
+<p>然后解码得到做坐标</p>
+<p><img src="/ctf/qsnctf/%E9%9D%92%E5%B0%91%E5%B9%B4ctf%E5%AD%A3%E8%B5%9B.md_Attachments/%E9%9D%92%E5%B0%91%E5%B9%B4ctf%E5%AD%A3%E8%B5%9B-20260325110357964.png" alt=""></p>
+<p>最后得到城市合肥</p>
 <pre tabindex="0"><code>flag{hefei}
 </code></pre><div class="flex align-center gdoc-page__anchorwrap">
     <h2 id="web"
@@ -2158,6 +2214,37 @@ c = 1700417169121122663533115557962248145399896218753766731202382465576471979567
     
 
     
+    
+      
+  
+  
+
+  
+    
+    
+
+    
+    
+      
+      
+      
+
+      
+        
+      
+      
+
+      
+
+      
+
+      
+    
+
+    
+    
+  
+
     
   
 

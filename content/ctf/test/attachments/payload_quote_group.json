@@ -1,0 +1,1 @@
+{"name":"quote_group","field":"type","group_by":"type' || 'x"}
