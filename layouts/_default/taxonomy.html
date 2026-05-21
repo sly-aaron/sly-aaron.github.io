@@ -1,30 +1,52 @@
 {{ define "main" }}
-  <section class="hero hero--section">
-    <div class="hero__copy">
-      <p class="eyebrow">Tag archive</p>
-      <h1>{{ .Title }}</h1>
-      <p class="hero__lead">
-        这里收集所有带有这个标签的文章，适合横向回顾同一主题下的笔记。
-      </p>
+  {{ $pages := .Pages.ByLastmod.Reverse }}
+  {{ $displayTitle := .Title }}
+  {{ if eq $displayTitle "Ctf" }}
+    {{ $displayTitle = "CTF" }}
+  {{ end }}
+
+  <section class="index-page">
+    <div class="index-hero">
+      <div class="index-hero__copy">
+        <p class="eyebrow">Tag archive</p>
+        <h1>{{ $displayTitle }}</h1>
+        <p class="index-hero__lead">
+          这里收集所有带有这个标签的文章，适合横向回顾同一主题下的笔记。
+        </p>
+      </div>
+
+      <dl class="index-stats">
+        <div class="index-stat">
+          <dt>文章数</dt>
+          <dd>{{ len $pages }}</dd>
+        </div>
+        <div class="index-stat">
+          <dt>标签</dt>
+          <dd>{{ $displayTitle }}</dd>
+        </div>
+      </dl>
     </div>
 
-    <aside class="hero__panel">
-      <div class="metric">
-        <span>文章数</span>
-        <strong>{{ len .Pages }}</strong>
+    <section class="index-block">
+      <div class="index-list">
+        {{ range $pages }}
+          <a class="index-row" href="{{ .RelPermalink }}">
+            <div class="index-row__top">
+              <span class="index-row__title">{{ .Title }}</span>
+              <span class="index-row__meta">{{ .Date.Format "2006-01-02" }} · {{ .ReadingTime }} min</span>
+            </div>
+            <span class="index-row__desc">
+              {{ with .Summary }}
+                {{ . | plainify | htmlUnescape | truncate 180 }}
+              {{ else }}
+                {{ .Params.description | default "打开阅读全文。" }}
+              {{ end }}
+            </span>
+          </a>
+        {{ else }}
+          <div class="index-empty">这个标签下还没有文章。</div>
+        {{ end }}
       </div>
-      <div class="metric">
-        <span>标签</span>
-        <strong>{{ .Title }}</strong>
-      </div>
-    </aside>
-  </section>
-
-  <section class="block">
-    <div class="card-grid card-grid--posts">
-      {{ range .Pages.ByLastmod.Reverse }}
-        {{ partial "article-card.html" . }}
-      {{ end }}
-    </div>
+    </section>
   </section>
 {{ end }}

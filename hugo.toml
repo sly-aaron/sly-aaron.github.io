@@ -26,7 +26,6 @@ enableRobotsTXT = true
     endLevel = 9
   [markup.goldmark.renderHooks.image]
     useEmbedded = "always"
-
   [markup.goldmark.renderHooks.link]
     useEmbedded = "always"
 
@@ -34,7 +33,7 @@ enableRobotsTXT = true
   tag = "tags"
 
 [params]
-  description = "安全知识库、CTF 记录、电子取证与应急响应笔记"
+  description = "安全知识库、CTF 记录、电子取证与应急响应笔记。"
   geekdocDarkModeDim = false
   geekdocDarkModeCode = false
   geekdocBackToTop = true

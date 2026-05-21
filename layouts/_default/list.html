@@ -1,72 +1,81 @@
 {{ define "main" }}
-  <section class="hero hero--section">
-    <div class="hero__copy">
-      <p class="eyebrow">
-        {{ if .IsSection }}Section{{ else }}Index{{ end }}
-      </p>
-      <h1>{{ .Title }}</h1>
-      {{ with .Params.description }}
-        <p class="hero__lead">{{ . }}</p>
-      {{ else }}
-        {{ with .Summary }}
-          <p class="hero__lead">{{ . | plainify | htmlUnescape }}</p>
-        {{ end }}
-      {{ end }}
+  {{ $pages := .RegularPagesRecursive.ByLastmod.Reverse }}
+
+  <section class="index-page">
+    <div class="index-hero">
+      <div class="index-hero__copy">
+        <p class="eyebrow">
+          {{ if .IsSection }}Section{{ else }}Index{{ end }}
+        </p>
+        <h1>{{ .Title }}</h1>
+        <p class="index-hero__lead">
+          {{ with .Params.description }}
+            {{ . }}
+          {{ else }}
+            {{ with .Summary }}
+              {{ . | plainify | htmlUnescape }}
+            {{ else }}
+              这里收集这一目录下的公开文章。
+            {{ end }}
+          {{ end }}
+        </p>
+      </div>
+
+      <dl class="index-stats">
+        <div class="index-stat">
+          <dt>文章</dt>
+          <dd>{{ len $pages }}</dd>
+        </div>
+        <div class="index-stat">
+          <dt>路径</dt>
+          <dd>{{ .RelPermalink }}</dd>
+        </div>
+        <div class="index-stat">
+          <dt>更新</dt>
+          <dd>
+            {{ with first 1 $pages }}
+              {{ with index . 0 }}
+                {{ .Lastmod.Format "2006-01-02" }}
+              {{ else }}
+                -
+              {{ end }}
+            {{ else }}
+              -
+            {{ end }}
+          </dd>
+        </div>
+      </dl>
     </div>
 
-    <aside class="hero__panel">
-      <div class="metric">
-        <span>子分区</span>
-        <strong>{{ len .Sections }}</strong>
+    <section class="index-block">
+      <div class="index-list">
+        {{ range $pages }}
+          <a class="index-row" href="{{ .RelPermalink }}">
+            <div class="index-row__top">
+              <span class="index-row__title">{{ .Title }}</span>
+              <span class="index-row__meta">{{ .Date.Format "2006-01-02" }} · {{ .ReadingTime }} min</span>
+            </div>
+            <span class="index-row__desc">
+              {{ with .Summary }}
+                {{ . | plainify | htmlUnescape | truncate 180 }}
+              {{ else }}
+                {{ .Params.description | default "打开阅读全文。" }}
+              {{ end }}
+            </span>
+          </a>
+        {{ else }}
+          <div class="index-empty">这一层还没有文章。</div>
+        {{ end }}
       </div>
-      <div class="metric">
-        <span>文章</span>
-        <strong>{{ len .RegularPagesRecursive }}</strong>
-      </div>
-      <div class="metric">
-        <span>路径</span>
-        <strong>{{ .RelPermalink }}</strong>
-      </div>
-    </aside>
+    </section>
+
+    {{ with .Content }}
+      <details class="index-overview">
+        <summary>总览</summary>
+        <div class="prose">
+          {{ . }}
+        </div>
+      </details>
+    {{ end }}
   </section>
-
-  {{ with .Content }}
-    <section class="intro-block prose">
-      {{ . }}
-    </section>
-  {{ end }}
-
-  {{ if .Sections }}
-    <section class="block">
-      <div class="block__head">
-        <div>
-          <p class="eyebrow">Nested sections</p>
-          <h2>子目录</h2>
-        </div>
-      </div>
-      <div class="card-grid card-grid--sections">
-        {{ range .Sections.ByWeight }}
-          {{ partial "section-card.html" (dict "menu" nil "page" . "site" site) }}
-        {{ end }}
-      </div>
-    </section>
-  {{ end }}
-
-  {{ if .RegularPagesRecursive }}
-    <section class="block">
-      <div class="block__head">
-        <div>
-          <p class="eyebrow">Articles</p>
-          <h2>文章索引</h2>
-        </div>
-        <p class="block__lead">按时间排列，卡片式浏览更快地找到内容。</p>
-      </div>
-
-      <div class="card-grid card-grid--posts">
-        {{ range .RegularPagesRecursive.ByLastmod.Reverse }}
-          {{ partial "article-card.html" . }}
-        {{ end }}
-      </div>
-    </section>
-  {{ end }}
 {{ end }}
