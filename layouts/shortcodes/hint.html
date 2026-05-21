@@ -1,6 +1,13 @@
 {{- $type := default "note" (.Get "type") -}}
-{{- $title := default ($type | title) (.Get "title") -}}
+{{- $typeLabel := title $type -}}
+{{- $titleParam := .Get "title" -}}
+{{- $title := default $typeLabel $titleParam -}}
 <aside class="callout callout--{{ $type | lower }}">
-  <div class="callout__title">{{ $title }}</div>
+  <div class="callout__title">
+    <span class="callout__badge">{{ $typeLabel }}</span>
+    {{- with $titleParam -}}
+      <span class="callout__headline">{{ $title }}</span>
+    {{- end -}}
+  </div>
   <div class="callout__body">{{ .Inner | $.Page.RenderString }}</div>
 </aside>

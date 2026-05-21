@@ -1,0 +1,18 @@
+{{- if eq .Type "alert" -}}
+  {{- $typeLabel := title .AlertType -}}
+  <blockquote class="callout callout--{{ .AlertType | lower }}" data-alert-type="{{ .AlertType | lower }}">
+    <div class="callout__title">
+      <span class="callout__badge">{{ $typeLabel }}</span>
+      {{- with .AlertTitle -}}
+        <span class="callout__headline">{{ . }}</span>
+      {{- end -}}
+    </div>
+    <div class="callout__body">
+      {{ .Text }}
+    </div>
+  </blockquote>
+{{- else -}}
+  <blockquote class="blockquote">
+    {{ .Text }}
+  </blockquote>
+{{- end -}}
