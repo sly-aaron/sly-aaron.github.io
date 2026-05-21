@@ -17,6 +17,10 @@
       {{ $incident := site.GetPage "/incident-response/" }}
       <a class="site-nav__link{{ if and $incident (or (eq .RelPermalink $incident.RelPermalink) (hasPrefix .RelPermalink $incident.RelPermalink)) }} is-active{{ end }}" href="{{ "/incident-response/" | relURL }}">应急响应</a>
       <a class="site-nav__link{{ if eq .Section "tags" }} is-active{{ end }}" href="{{ "/tags/" | relURL }}">标签</a>
+      <button class="theme-toggle" type="button" aria-label="切换深浅色主题" aria-pressed="false">
+        <span class="theme-toggle__icon" aria-hidden="true">☾</span>
+        <span class="theme-toggle__text">Dark</span>
+      </button>
     </nav>
   </div>
 </header>

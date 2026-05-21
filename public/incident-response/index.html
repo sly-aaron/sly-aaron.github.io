@@ -3,7 +3,14 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="color-scheme" content="light dark" /><title>应急响应 · Sly Aaron Notes</title>
+    <meta name="color-scheme" content="light dark" />
+    <script>
+      (function () {
+        var key = "site-theme";
+        var saved = localStorage.getItem(key);
+        document.documentElement.dataset.theme = saved || "light";
+      })();
+    </script><title>应急响应 · Sly Aaron Notes</title>
     <meta name="description" content="应急响应排查、日志分析、Webshell 与后门痕迹、主机异常行为记录。" />
     <meta property="og:site_name" content="Sly Aaron Notes" />
     <meta property="og:title" content="应急响应 · Sly Aaron Notes" />
@@ -42,6 +49,10 @@
       
       <a class="site-nav__link is-active" href="/incident-response/">应急响应</a>
       <a class="site-nav__link" href="/tags/">标签</a>
+      <button class="theme-toggle" type="button" aria-label="切换深浅色主题" aria-pressed="false">
+        <span class="theme-toggle__icon" aria-hidden="true">☾</span>
+        <span class="theme-toggle__text">Dark</span>
+      </button>
     </nav>
   </div>
 </header>

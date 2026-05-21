@@ -3,7 +3,14 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="color-scheme" content="light dark" /><title>测试 · Sly Aaron Notes</title>
+    <meta name="color-scheme" content="light dark" />
+    <script>
+      (function () {
+        var key = "site-theme";
+        var saved = localStorage.getItem(key);
+        document.documentElement.dataset.theme = saved || "light";
+      })();
+    </script><title>测试 · Sly Aaron Notes</title>
     <meta name="description" content="测试用
 hugo server
 git add . git commit -m “deploy: update site” git push origin main
@@ -48,6 +55,10 @@ git add . git commit -m “deploy: update site” git push origin main
       
       <a class="site-nav__link" href="/incident-response/">应急响应</a>
       <a class="site-nav__link" href="/tags/">标签</a>
+      <button class="theme-toggle" type="button" aria-label="切换深浅色主题" aria-pressed="false">
+        <span class="theme-toggle__icon" aria-hidden="true">☾</span>
+        <span class="theme-toggle__text">Dark</span>
+      </button>
     </nav>
   </div>
 </header>
@@ -58,34 +69,10 @@ git add . git commit -m “deploy: update site” git push origin main
   
 
   <article class="post-page">
-    <header class="post-header">
-      <div class="post-header__copy">
-        
-          <a class="eyebrow eyebrow--link" href="/ctf/">CTF</a>
-        
-        <h1>测试</h1>
-        
-          
-            <p class="post-header__lead">测试用
-hugo server
-git add . git commit -m “deploy: update site” git push origin main
-</p>
-          
-        
-      </div>
-
-      <div class="post-header__meta" aria-label="文章信息">
-        <time datetime="2026-03-24">发布 2026-03-24</time>
-        <span>约 1 分钟</span>
-        <span>1 个标签</span>
-        <span>更新 2026-03-27</span>
-      </div>
-    </header>
-
     <div class="post-layout">
       <aside class="post-index" aria-label="文章索引">
         <div class="post-index__head">
-          <p class="sidebar-kicker">Article Index</p>
+          <p class="sidebar-kicker">文章索引</p>
           <h2>CTF</h2>
           <span>2 篇文章</span>
         </div>
@@ -109,7 +96,21 @@ git add . git commit -m “deploy: update site” git push origin main
         </nav>
       </aside>
 
-      <div class="post-main prose">
+      <main class="post-main prose">
+        <header class="post-header">
+          
+            <a class="eyebrow eyebrow--link" href="/ctf/">CTF</a>
+          
+          <h1>测试</h1>
+          <div class="post-header__meta" aria-label="文章信息">
+            <time datetime="2026-03-24">发布 2026-03-24</time>
+            <span>约 1 分钟</span>
+            <span>1 个标签</span>
+            <span>更新 2026-03-27</span>
+          </div>
+          
+        </header>
+
         <p>测试用</p>
 <p><img src="/ctf/test/attachments/index-20260324175821667.png" alt=""></p>
 <p><img src="/ctf/test/attachments/index-20260324175831023.png" alt=""></p>
@@ -118,14 +119,35 @@ git add . git commit -m “deploy: update site” git push origin main
 git commit -m &ldquo;deploy: update site&rdquo;
 git push origin main</p>
 
-      </div>
+
+        <footer class="post-footer">
+          
+            <div class="tag-cloud tag-cloud--article">
+              
+                <a class="tag-pill" href="/tags/ctf/">
+                  <span>ctf</span>
+                </a>
+              
+            </div>
+          
+
+          <nav class="post-nav" aria-label="上一篇下一篇">
+            
+            
+              <a class="post-nav__item post-nav__item--next" href="/ctf/qsnctf/">
+                <span>下一篇</span>
+                <strong>青少年CTF S1 · 2026 公益赛</strong>
+              </a>
+            
+          </nav>
+        </footer>
+      </main>
 
       <aside class="post-sidebar" aria-label="内容索引">
         
           <nav class="toc-panel" aria-label="内容索引">
             <div class="toc-panel__head">
-              <p class="sidebar-kicker">Content Index</p>
-              <p class="toc-panel__title">内容索引</p>
+              <p class="sidebar-kicker">内容索引</p>
             </div>
             <div class="toc-panel__body">
               <nav id="TableOfContents"></nav>
@@ -152,28 +174,6 @@ git push origin main</p>
         </div>
       </aside>
     </div>
-
-    <footer class="post-footer">
-      
-        <div class="tag-cloud tag-cloud--article">
-          
-            <a class="tag-pill" href="/tags/ctf/">
-              <span>ctf</span>
-            </a>
-          
-        </div>
-      
-
-      <nav class="post-nav" aria-label="上一篇下一篇">
-        
-        
-          <a class="post-nav__item post-nav__item--next" href="/ctf/qsnctf/">
-            <span>下一篇</span>
-            <strong>青少年CTF S1 · 2026 公益赛</strong>
-          </a>
-        
-      </nav>
-    </footer>
   </article>
 
     </main>

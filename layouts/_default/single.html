@@ -3,35 +3,10 @@
   {{ $indexPages := $indexSection.RegularPagesRecursive.ByLastmod.Reverse }}
 
   <article class="post-page">
-    <header class="post-header">
-      <div class="post-header__copy">
-        {{ with .CurrentSection }}
-          <a class="eyebrow eyebrow--link" href="{{ .RelPermalink }}">{{ .Title }}</a>
-        {{ else }}
-          <p class="eyebrow">Article</p>
-        {{ end }}
-        <h1>{{ .Title }}</h1>
-        {{ with .Params.description }}
-          <p class="post-header__lead">{{ . | plainify | htmlUnescape | truncate 140 }}</p>
-        {{ else }}
-          {{ with .Summary }}
-            <p class="post-header__lead">{{ . | plainify | htmlUnescape | truncate 140 }}</p>
-          {{ end }}
-        {{ end }}
-      </div>
-
-      <div class="post-header__meta" aria-label="文章信息">
-        <time datetime="{{ .Date.Format "2006-01-02" }}">发布 {{ .Date.Format "2006-01-02" }}</time>
-        <span>约 {{ .ReadingTime }} 分钟</span>
-        <span>{{ len .Params.tags }} 个标签</span>
-        <span>更新 {{ .Lastmod.Format "2006-01-02" }}</span>
-      </div>
-    </header>
-
     <div class="post-layout">
       <aside class="post-index" aria-label="文章索引">
         <div class="post-index__head">
-          <p class="sidebar-kicker">Article Index</p>
+          <p class="sidebar-kicker">文章索引</p>
           <h2>{{ $indexSection.Title }}</h2>
           <span>{{ len $indexPages }} 篇文章</span>
         </div>
@@ -48,16 +23,60 @@
         </nav>
       </aside>
 
-      <div class="post-main prose">
+      <main class="post-main prose">
+        <header class="post-header">
+          {{ with .CurrentSection }}
+            <a class="eyebrow eyebrow--link" href="{{ .RelPermalink }}">{{ .Title }}</a>
+          {{ else }}
+            <p class="eyebrow">Article</p>
+          {{ end }}
+          <h1>{{ .Title }}</h1>
+          <div class="post-header__meta" aria-label="文章信息">
+            <time datetime="{{ .Date.Format "2006-01-02" }}">发布 {{ .Date.Format "2006-01-02" }}</time>
+            <span>约 {{ .ReadingTime }} 分钟</span>
+            <span>{{ len .Params.tags }} 个标签</span>
+            <span>更新 {{ .Lastmod.Format "2006-01-02" }}</span>
+          </div>
+          {{ with .Params.description }}
+            <p class="post-header__lead">{{ . | plainify | htmlUnescape | truncate 140 }}</p>
+          {{ end }}
+        </header>
+
         {{ .Content }}
-      </div>
+
+        <footer class="post-footer">
+          {{ with .Params.tags }}
+            <div class="tag-cloud tag-cloud--article">
+              {{ range . }}
+                <a class="tag-pill" href="{{ (printf "/tags/%s/" (urlize .)) | relURL }}">
+                  <span>{{ . }}</span>
+                </a>
+              {{ end }}
+            </div>
+          {{ end }}
+
+          <nav class="post-nav" aria-label="上一篇下一篇">
+            {{ with .PrevInSection }}
+              <a class="post-nav__item post-nav__item--prev" href="{{ .RelPermalink }}">
+                <span>上一篇</span>
+                <strong>{{ .Title }}</strong>
+              </a>
+            {{ end }}
+            {{ with .NextInSection }}
+              <a class="post-nav__item post-nav__item--next" href="{{ .RelPermalink }}">
+                <span>下一篇</span>
+                <strong>{{ .Title }}</strong>
+              </a>
+            {{ end }}
+          </nav>
+        </footer>
+      </main>
 
       <aside class="post-sidebar" aria-label="内容索引">
         {{ with .TableOfContents }}
           <nav class="toc-panel" aria-label="内容索引">
             <div class="toc-panel__head">
-              <p class="sidebar-kicker">Content Index</p>
-              <p class="toc-panel__title">内容索引</p>
+              <p class="sidebar-kicker">内容索引</p>
             </div>
             <div class="toc-panel__body">
               {{ . }}
@@ -84,32 +103,5 @@
         </div>
       </aside>
     </div>
-
-    <footer class="post-footer">
-      {{ with .Params.tags }}
-        <div class="tag-cloud tag-cloud--article">
-          {{ range . }}
-            <a class="tag-pill" href="{{ (printf "/tags/%s/" (urlize .)) | relURL }}">
-              <span>{{ . }}</span>
-            </a>
-          {{ end }}
-        </div>
-      {{ end }}
-
-      <nav class="post-nav" aria-label="上一篇下一篇">
-        {{ with .PrevInSection }}
-          <a class="post-nav__item post-nav__item--prev" href="{{ .RelPermalink }}">
-            <span>上一篇</span>
-            <strong>{{ .Title }}</strong>
-          </a>
-        {{ end }}
-        {{ with .NextInSection }}
-          <a class="post-nav__item post-nav__item--next" href="{{ .RelPermalink }}">
-            <span>下一篇</span>
-            <strong>{{ .Title }}</strong>
-          </a>
-        {{ end }}
-      </nav>
-    </footer>
   </article>
 {{ end }}

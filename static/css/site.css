@@ -1167,3 +1167,405 @@ samp {
     display: block;
   }
 }
+
+/* Document-style reading mode. This intentionally removes the heavy card
+   treatment from article pages while keeping the useful three-column indexes. */
+:root {
+  --doc-bg: #f7f5ef;
+  --doc-surface: #fdfbf6;
+  --doc-text: #24211d;
+  --doc-muted: #76706a;
+  --doc-line: rgba(36, 33, 29, 0.14);
+  --doc-line-strong: rgba(36, 33, 29, 0.24);
+  --doc-accent: #8a5738;
+  --doc-accent-2: #2f6f76;
+  --doc-code-bg: #efebe2;
+  --doc-shadow: none;
+}
+
+:root[data-theme="dark"] {
+  --doc-bg: #11100f;
+  --doc-surface: #151413;
+  --doc-text: #e7e0d3;
+  --doc-muted: #a79f92;
+  --doc-line: rgba(231, 224, 211, 0.16);
+  --doc-line-strong: rgba(231, 224, 211, 0.28);
+  --doc-accent: #d59a6f;
+  --doc-accent-2: #78bac0;
+  --doc-code-bg: #211f1d;
+  --doc-shadow: none;
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+html[data-theme="light"] {
+  color-scheme: light;
+}
+
+body {
+  background: var(--doc-bg);
+  color: var(--doc-text);
+}
+
+body::before {
+  display: none;
+}
+
+a:hover {
+  color: var(--doc-accent);
+}
+
+.site-header {
+  background: color-mix(in srgb, var(--doc-bg) 94%, transparent);
+  border-bottom-color: var(--doc-line);
+}
+
+.brand__mark {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: var(--doc-text);
+  color: var(--doc-bg);
+  box-shadow: none;
+}
+
+.brand__text small,
+.site-nav__link,
+.post-header__meta,
+.article-index__meta,
+.post-index__head span,
+.toc-panel__body a,
+.meta-list dt,
+.site-footer__copy,
+.site-footer__links a {
+  color: var(--doc-muted);
+}
+
+.site-nav__link {
+  border-radius: 0;
+  padding: 8px 6px;
+  border-bottom: 1px solid transparent;
+}
+
+.site-nav__link:hover,
+.site-nav__link.is-active {
+  background: transparent;
+  box-shadow: none;
+  transform: none;
+  color: var(--doc-text);
+  border-bottom-color: var(--doc-text);
+}
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 10px;
+  border: 1px solid var(--doc-line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--doc-muted);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.9rem;
+}
+
+.theme-toggle:hover {
+  color: var(--doc-text);
+  border-color: var(--doc-line-strong);
+}
+
+.site-shell--page {
+  width: min(1360px, calc(100vw - 48px));
+  padding-top: 32px;
+}
+
+.post-page,
+.post-layout {
+  animation: none;
+}
+
+.post-layout {
+  grid-template-columns: 240px minmax(0, 1fr) 260px;
+  gap: 36px;
+}
+
+.post-header,
+.post-main,
+.post-index,
+.post-sidebar,
+.toc-panel,
+.meta-panel,
+.inline-toc,
+.hero__copy,
+.hero__panel,
+.intro-block,
+.section-card,
+.post-card {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+.section-card:hover,
+.post-card:hover {
+  transform: none;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.section-card__link,
+.post-card__link {
+  padding: 14px 0;
+  gap: 8px;
+}
+
+.section-card,
+.post-card {
+  border-bottom: 1px solid var(--doc-line);
+}
+
+.section-card h3,
+.post-card h3 {
+  color: var(--doc-text);
+  font-size: 1.05rem;
+}
+
+.section-card p,
+.post-card p {
+  color: var(--doc-muted);
+}
+
+.section-card__top,
+.post-card__top,
+.post-card__footer {
+  color: var(--doc-muted);
+}
+
+.post-card__footer {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.post-card__tags em {
+  background: transparent;
+  color: var(--doc-accent);
+  padding: 0;
+}
+
+.card-grid--sections,
+.card-grid--posts {
+  gap: 0;
+}
+
+.block__head {
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--doc-line);
+}
+
+.post-header,
+.post-main,
+.post-index,
+.post-sidebar,
+.toc-panel,
+.meta-panel {
+  padding: 0;
+}
+
+.post-main {
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.post-header {
+  margin-bottom: 2.8rem;
+  padding-bottom: 1.6rem;
+  border-bottom: 1px solid var(--doc-line);
+}
+
+.post-header h1 {
+  font-size: clamp(1.85rem, 3vw, 2.7rem);
+  line-height: 1.18;
+  max-width: none;
+}
+
+.post-header__lead {
+  color: var(--doc-muted);
+}
+
+.post-header__meta {
+  margin-top: 1rem;
+  gap: 14px;
+  font-size: 0.88rem;
+}
+
+.post-header__meta time,
+.post-header__meta span {
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--doc-muted);
+}
+
+.eyebrow,
+.sidebar-kicker {
+  color: var(--doc-accent);
+}
+
+.post-index,
+.post-sidebar {
+  top: 86px;
+  height: calc(100vh - 112px);
+  max-height: calc(100vh - 112px);
+  border-color: var(--doc-line);
+}
+
+.post-index {
+  padding-right: 22px;
+  border-right: 1px solid var(--doc-line);
+}
+
+.post-sidebar {
+  padding-left: 22px;
+  border-left: 1px solid var(--doc-line);
+}
+
+.post-index__head,
+.toc-panel__head {
+  border-bottom-color: var(--doc-line);
+}
+
+.post-index__head h2 {
+  font-size: 1.05rem;
+}
+
+.article-index__link {
+  padding: 7px 0;
+  border: 0;
+  border-radius: 0;
+  color: var(--doc-muted);
+}
+
+.article-index__link:hover,
+.article-index__link.is-active {
+  transform: none;
+  background: transparent;
+  border-color: transparent;
+  color: var(--doc-text);
+}
+
+.article-index__link.is-active {
+  box-shadow: none;
+}
+
+.article-index__link.is-active .article-index__title {
+  color: var(--doc-accent-2);
+}
+
+.toc-panel__body li ul {
+  border-left-color: var(--doc-line);
+}
+
+.toc-panel__body a:hover {
+  color: var(--doc-text);
+}
+
+.meta-panel {
+  border-top-color: var(--doc-line);
+}
+
+.prose {
+  color: var(--doc-text);
+  font-size: 1.02rem;
+  line-height: 1.82;
+}
+
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6 {
+  color: var(--doc-text);
+}
+
+.prose blockquote {
+  background: transparent;
+  border-left-color: var(--doc-line-strong);
+}
+
+.prose pre {
+  background: #1f1f1d;
+  border: 0;
+  border-radius: 8px;
+}
+
+.prose code:not(pre code) {
+  background: var(--doc-code-bg);
+  color: var(--doc-text);
+}
+
+.prose .callout,
+.prose .gdoc-hint {
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  border-left-color: var(--callout-accent, var(--doc-accent));
+}
+
+.callout__badge {
+  border-radius: 4px;
+}
+
+.tag-pill,
+.post-nav__item {
+  background: transparent;
+  border: 1px solid var(--doc-line);
+  border-radius: 8px;
+  box-shadow: none;
+}
+
+.tag-pill:hover,
+.post-nav__item:hover {
+  transform: none;
+  background: transparent;
+  border-color: var(--doc-line-strong);
+}
+
+.site-footer__inner {
+  border-top-color: var(--doc-line);
+}
+
+@media (max-width: 1024px) {
+  .site-shell--page {
+    width: min(920px, calc(100vw - 32px));
+  }
+
+  .post-layout {
+    gap: 28px;
+  }
+
+  .post-index,
+  .post-sidebar {
+    padding: 0;
+    border: 0;
+  }
+}
+
+@media (max-width: 720px) {
+  .post-header,
+  .post-main,
+  .post-index,
+  .post-sidebar,
+  .toc-panel,
+  .meta-panel,
+  .prose .callout,
+  .inline-toc {
+    padding: 0;
+    border-radius: 0;
+  }
+}

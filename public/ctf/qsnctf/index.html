@@ -3,7 +3,14 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="color-scheme" content="light dark" /><title>青少年CTF S1 · 2026 公益赛 · Sly Aaron Notes</title>
+    <meta name="color-scheme" content="light dark" />
+    <script>
+      (function () {
+        var key = "site-theme";
+        var saved = localStorage.getItem(key);
+        document.documentElement.dataset.theme = saved || "light";
+      })();
+    </script><title>青少年CTF S1 · 2026 公益赛 · Sly Aaron Notes</title>
     <meta name="description" content=" 目录 misc 哦 玫坏的压缩包 Ollama Prompt Injection 好，把他们上市！ 找到呆唯 消失的Yui web easy_php Serialization silent_logger 时间胶囊留言板 preg_replace 答案之书 Callback reverse AES？ CheckMe …" />
     <meta property="og:site_name" content="Sly Aaron Notes" />
     <meta property="og:title" content="青少年CTF S1 · 2026 公益赛 · Sly Aaron Notes" />
@@ -42,6 +49,10 @@
       
       <a class="site-nav__link" href="/incident-response/">应急响应</a>
       <a class="site-nav__link" href="/tags/">标签</a>
+      <button class="theme-toggle" type="button" aria-label="切换深浅色主题" aria-pressed="false">
+        <span class="theme-toggle__icon" aria-hidden="true">☾</span>
+        <span class="theme-toggle__text">Dark</span>
+      </button>
     </nav>
   </div>
 </header>
@@ -52,31 +63,10 @@
   
 
   <article class="post-page">
-    <header class="post-header">
-      <div class="post-header__copy">
-        
-          <a class="eyebrow eyebrow--link" href="/ctf/">CTF</a>
-        
-        <h1>青少年CTF S1 · 2026 公益赛</h1>
-        
-          
-            <p class="post-header__lead"> 目录 misc 哦 玫坏的压缩包 Ollama Prompt Injection 好，把他们上市！ 找到呆唯 消失的Yui web easy_php Serialization silent_logger 时间胶囊留言板 preg_replace 答案之书 Callback …</p>
-          
-        
-      </div>
-
-      <div class="post-header__meta" aria-label="文章信息">
-        <time datetime="2026-03-25">发布 2026-03-25</time>
-        <span>约 13 分钟</span>
-        <span>1 个标签</span>
-        <span>更新 2026-03-27</span>
-      </div>
-    </header>
-
     <div class="post-layout">
       <aside class="post-index" aria-label="文章索引">
         <div class="post-index__head">
-          <p class="sidebar-kicker">Article Index</p>
+          <p class="sidebar-kicker">文章索引</p>
           <h2>CTF</h2>
           <span>2 篇文章</span>
         </div>
@@ -100,7 +90,21 @@
         </nav>
       </aside>
 
-      <div class="post-main prose">
+      <main class="post-main prose">
+        <header class="post-header">
+          
+            <a class="eyebrow eyebrow--link" href="/ctf/">CTF</a>
+          
+          <h1>青少年CTF S1 · 2026 公益赛</h1>
+          <div class="post-header__meta" aria-label="文章信息">
+            <time datetime="2026-03-25">发布 2026-03-25</time>
+            <span>约 13 分钟</span>
+            <span>1 个标签</span>
+            <span>更新 2026-03-27</span>
+          </div>
+          
+        </header>
+
         <details class="inline-toc" open>
     <summary>目录</summary>
     <div class="inline-toc__body">
@@ -1461,14 +1465,35 @@ c = 1700417169121122663533115557962248145399896218753766731202382465576471979567
 </span></span><span style="display:flex;"><span><span style="color:#a6e22e">p</span><span style="color:#f92672">.</span><span style="color:#a6e22e">sendline</span>(<span style="color:#a6e22e">payload</span>)
 </span></span><span style="display:flex;"><span><span style="color:#a6e22e">p</span><span style="color:#f92672">.</span><span style="color:#a6e22e">interactive</span>()
 </span></span></code></pre></div>
-      </div>
+
+        <footer class="post-footer">
+          
+            <div class="tag-cloud tag-cloud--article">
+              
+                <a class="tag-pill" href="/tags/ctf/">
+                  <span>ctf</span>
+                </a>
+              
+            </div>
+          
+
+          <nav class="post-nav" aria-label="上一篇下一篇">
+            
+              <a class="post-nav__item post-nav__item--prev" href="/ctf/test/">
+                <span>上一篇</span>
+                <strong>测试</strong>
+              </a>
+            
+            
+          </nav>
+        </footer>
+      </main>
 
       <aside class="post-sidebar" aria-label="内容索引">
         
           <nav class="toc-panel" aria-label="内容索引">
             <div class="toc-panel__head">
-              <p class="sidebar-kicker">Content Index</p>
-              <p class="toc-panel__title">内容索引</p>
+              <p class="sidebar-kicker">内容索引</p>
             </div>
             <div class="toc-panel__body">
               <nav id="TableOfContents">
@@ -1547,28 +1572,6 @@ c = 1700417169121122663533115557962248145399896218753766731202382465576471979567
         </div>
       </aside>
     </div>
-
-    <footer class="post-footer">
-      
-        <div class="tag-cloud tag-cloud--article">
-          
-            <a class="tag-pill" href="/tags/ctf/">
-              <span>ctf</span>
-            </a>
-          
-        </div>
-      
-
-      <nav class="post-nav" aria-label="上一篇下一篇">
-        
-          <a class="post-nav__item post-nav__item--prev" href="/ctf/test/">
-            <span>上一篇</span>
-            <strong>测试</strong>
-          </a>
-        
-        
-      </nav>
-    </footer>
   </article>
 
     </main>

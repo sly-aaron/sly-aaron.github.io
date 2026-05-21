@@ -3,7 +3,14 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="color-scheme" content="light dark" /><title>第二届solar杯·应急响应挑战赛 · Sly Aaron Notes</title>
+    <meta name="color-scheme" content="light dark" />
+    <script>
+      (function () {
+        var key = "site-theme";
+        var saved = localStorage.getItem(key);
+        document.documentElement.dataset.theme = saved || "light";
+      })();
+    </script><title>第二届solar杯·应急响应挑战赛 · Sly Aaron Notes</title>
     <meta name="description" content=" 目录 前言 日志排查 任务1 任务2 任务3 任务4 任务5 任务6 任务7 Solar内存取证 linux内存取证 确定linux内核 准备和内核完全匹配的Linux symbols(重点) 任务1 任务2 任务3 任务4 任务5 仿真DMZ环境应急响应 任务1 任务2 任务3 任务4 任务5 任务6 任务7 任务 …" />
     <meta property="og:site_name" content="Sly Aaron Notes" />
     <meta property="og:title" content="第二届solar杯·应急响应挑战赛 · Sly Aaron Notes" />
@@ -42,6 +49,10 @@
       
       <a class="site-nav__link is-active" href="/incident-response/">应急响应</a>
       <a class="site-nav__link" href="/tags/">标签</a>
+      <button class="theme-toggle" type="button" aria-label="切换深浅色主题" aria-pressed="false">
+        <span class="theme-toggle__icon" aria-hidden="true">☾</span>
+        <span class="theme-toggle__text">Dark</span>
+      </button>
     </nav>
   </div>
 </header>
@@ -52,31 +63,10 @@
   
 
   <article class="post-page">
-    <header class="post-header">
-      <div class="post-header__copy">
-        
-          <a class="eyebrow eyebrow--link" href="/incident-response/">应急响应</a>
-        
-        <h1>第二届solar杯·应急响应挑战赛</h1>
-        
-          
-            <p class="post-header__lead"> 目录 前言 日志排查 任务1 任务2 任务3 任务4 任务5 任务6 任务7 Solar内存取证 linux内存取证 确定linux内核 准备和内核完全匹配的Linux symbols(重点) 任务1 任务2 任务3 任务4 任务5 仿真DMZ环境应急响应 任务1 任务2 任务 …</p>
-          
-        
-      </div>
-
-      <div class="post-header__meta" aria-label="文章信息">
-        <time datetime="2026-03-27">发布 2026-03-27</time>
-        <span>约 4 分钟</span>
-        <span>1 个标签</span>
-        <span>更新 2026-03-27</span>
-      </div>
-    </header>
-
     <div class="post-layout">
       <aside class="post-index" aria-label="文章索引">
         <div class="post-index__head">
-          <p class="sidebar-kicker">Article Index</p>
+          <p class="sidebar-kicker">文章索引</p>
           <h2>应急响应</h2>
           <span>1 篇文章</span>
         </div>
@@ -93,7 +83,21 @@
         </nav>
       </aside>
 
-      <div class="post-main prose">
+      <main class="post-main prose">
+        <header class="post-header">
+          
+            <a class="eyebrow eyebrow--link" href="/incident-response/">应急响应</a>
+          
+          <h1>第二届solar杯·应急响应挑战赛</h1>
+          <div class="post-header__meta" aria-label="文章信息">
+            <time datetime="2026-03-27">发布 2026-03-27</time>
+            <span>约 4 分钟</span>
+            <span>1 个标签</span>
+            <span>更新 2026-03-27</span>
+          </div>
+          
+        </header>
+
         <details class="inline-toc" open>
     <summary>目录</summary>
     <div class="inline-toc__body">
@@ -1026,14 +1030,30 @@ webshell 的 key 是 md5 加密的，解密后字符为 key</p>
 </span></span></code></pre></div><p><img src="/incident-response/solar2/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B.md_Attachments/%E7%AC%AC%E4%BA%8C%E5%B1%8Asolar%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%AF%94%E8%B5%9B-20260326092635725.png" alt=""></p>
 <pre tabindex="0"><code>flag{192.168.0.144:82}
 </code></pre>
-      </div>
+
+        <footer class="post-footer">
+          
+            <div class="tag-cloud tag-cloud--article">
+              
+                <a class="tag-pill" href="/tags/incident-response/">
+                  <span>incident-response</span>
+                </a>
+              
+            </div>
+          
+
+          <nav class="post-nav" aria-label="上一篇下一篇">
+            
+            
+          </nav>
+        </footer>
+      </main>
 
       <aside class="post-sidebar" aria-label="内容索引">
         
           <nav class="toc-panel" aria-label="内容索引">
             <div class="toc-panel__head">
-              <p class="sidebar-kicker">Content Index</p>
-              <p class="toc-panel__title">内容索引</p>
+              <p class="sidebar-kicker">内容索引</p>
             </div>
             <div class="toc-panel__body">
               <nav id="TableOfContents">
@@ -1131,23 +1151,6 @@ webshell 的 key 是 md5 加密的，解密后字符为 key</p>
         </div>
       </aside>
     </div>
-
-    <footer class="post-footer">
-      
-        <div class="tag-cloud tag-cloud--article">
-          
-            <a class="tag-pill" href="/tags/incident-response/">
-              <span>incident-response</span>
-            </a>
-          
-        </div>
-      
-
-      <nav class="post-nav" aria-label="上一篇下一篇">
-        
-        
-      </nav>
-    </footer>
   </article>
 
     </main>
