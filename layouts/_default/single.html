@@ -1,27 +1,48 @@
 {{ define "main" }}
   {{ $indexSection := .FirstSection | default .CurrentSection }}
-  {{ $indexPages := $indexSection.RegularPagesRecursive.ByLastmod.Reverse }}
-  {{ $tags := .Params.tags | default (slice) }}
+  {{ $incidentRoot := site.GetPage "/incident-response/" }}
+  {{ $incidentIndex := index hugo.Data.indexes "incident-response" | default dict }}
+  {{ $isIncidentPage := and $incidentRoot (hasPrefix .RelPermalink $incidentRoot.RelPermalink) }}
+  {{ $indexPages := slice }}
+
+  {{ if not $isIncidentPage }}
+    {{ range $indexSection.RegularPagesRecursive }}
+      {{ $key := default .Path .File.Path }}
+      {{ $key = replaceRE `([0-9]{4}年[^0-9]*)([1-9])月` `${1}0${2}月` $key }}
+      {{ $indexPages = $indexPages | append (dict "page" . "key" $key) }}
+    {{ end }}
+    {{ $indexPages = sort $indexPages "key" }}
+  {{ end }}
 
   <article class="post-page">
     <div class="post-layout">
       <aside class="post-index" aria-label="文章索引">
         <div class="post-index__head">
           <p class="sidebar-kicker">文章索引</p>
-          <h2>{{ $indexSection.Title }}</h2>
-          <span>{{ len $indexPages }} 篇文章</span>
+          {{ if $isIncidentPage }}
+            <h2>{{ $incidentRoot.Title }}</h2>
+            <span>{{ len $incidentRoot.Pages }} 篇文章</span>
+          {{ else }}
+            <h2>{{ $indexSection.Title }}</h2>
+            <span>{{ len $indexPages }} 篇文章</span>
+          {{ end }}
         </div>
 
-        <nav class="article-index" aria-label="{{ $indexSection.Title }} 文章列表">
-          {{ range $indexPages }}
-            <a class="article-index__link{{ if eq .RelPermalink $.RelPermalink }} is-active{{ end }}" href="{{ .RelPermalink }}">
-              <span class="article-index__title">{{ .Title }}</span>
-              <span class="article-index__meta">
-                {{ .Date.Format "2006-01-02" }} / {{ .ReadingTime }} min
-              </span>
-            </a>
-          {{ end }}
-        </nav>
+        {{ if $isIncidentPage }}
+          {{ partial "index-tree.html" (dict "root" $incidentRoot "current" . "config" $incidentIndex "variant" "sidebar" "recursive" false) }}
+        {{ else }}
+          <nav class="article-index" aria-label="{{ $indexSection.Title }} 文章列表">
+            {{ range $indexPages }}
+              {{ $page := .page }}
+              <a class="article-index__link{{ if eq $page.RelPermalink $.RelPermalink }} is-active{{ end }}" href="{{ $page.RelPermalink }}">
+                <span class="article-index__title">{{ $page.Title }}</span>
+                <span class="article-index__meta">
+                  {{ $page.Date.Format "2006-01-02" }} / {{ $page.ReadingTime }} min
+                </span>
+              </a>
+            {{ end }}
+          </nav>
+        {{ end }}
       </aside>
 
       <main class="post-main prose">
@@ -35,7 +56,6 @@
           <div class="post-header__meta" aria-label="文章信息">
             <time datetime="{{ .Date.Format "2006-01-02" }}">发布 {{ .Date.Format "2006-01-02" }}</time>
             <span>约 {{ .ReadingTime }} 分钟</span>
-            <span>{{ len $tags }} 个标签</span>
             <span>更新 {{ .Lastmod.Format "2006-01-02" }}</span>
           </div>
           {{ with .Params.description }}
@@ -46,16 +66,6 @@
         {{ .Content }}
 
         <footer class="post-footer">
-          {{ with $tags }}
-            <div class="tag-cloud tag-cloud--article">
-              {{ range . }}
-                <a class="tag-pill" href="{{ (printf "/tags/%s/" (urlize .)) | relURL }}">
-                  <span>{{ . }}</span>
-                </a>
-              {{ end }}
-            </div>
-          {{ end }}
-
           <nav class="post-nav" aria-label="上一篇下一篇">
             {{ with .PrevInSection }}
               <a class="post-nav__item post-nav__item--prev" href="{{ .RelPermalink }}">

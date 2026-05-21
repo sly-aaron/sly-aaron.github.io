@@ -1,0 +1,8 @@
+groups:
+  - title: 比赛 WP
+    patterns:
+      - 比赛
+      - 月赛
+      - solar
+  - title: 其他内容
+    fallback: true

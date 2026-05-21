@@ -1,6 +1,9 @@
 {{ define "main" }}
   {{ $sections := hugo.Data.menu.main }}
   {{ $latestPages := site.RegularPages.ByLastmod.Reverse }}
+  {{ $incidentRoot := site.GetPage "/incident-response/" }}
+  {{ $incidentIndex := index hugo.Data.indexes "incident-response" | default dict }}
+  {{ $incidentGroups := $incidentIndex.groups | default (slice) }}
 
   <section class="index-page">
     <div class="index-hero">
@@ -22,8 +25,8 @@
           <dd>{{ len site.RegularPages }}</dd>
         </div>
         <div class="index-stat">
-          <dt>标签</dt>
-          <dd>{{ len site.Taxonomies.tags }}</dd>
+          <dt>应急分组</dt>
+          <dd>{{ len $incidentGroups }}</dd>
         </div>
         <div class="index-stat">
           <dt>最近更新</dt>
@@ -66,6 +69,20 @@
         {{ end }}
       </div>
     </section>
+
+    {{ with $incidentRoot }}
+      <section class="index-block">
+        <div class="index-block__head">
+          <div>
+            <p class="eyebrow">Index</p>
+            <h2>应急响应索引</h2>
+          </div>
+          <p class="index-block__lead">比赛 WP 和其他内容分组展示，条目按文件名排序。</p>
+        </div>
+
+        {{ partial "index-tree.html" (dict "root" . "current" $ "config" $incidentIndex "variant" "main" "recursive" false) }}
+      </section>
+    {{ end }}
 
     <section class="index-block">
       <div class="index-block__head">

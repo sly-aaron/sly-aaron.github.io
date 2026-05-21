@@ -12,13 +12,6 @@
 
     <div class="post-card__footer">
       <time datetime="{{ $page.Date.Format "2006-01-02" }}">{{ $page.Date.Format "2006-01-02" }}</time>
-      {{ with $page.Params.tags }}
-        <span class="post-card__tags">
-          {{ range first 3 . }}
-            <em>{{ . }}</em>
-          {{ end }}
-        </span>
-      {{ end }}
     </div>
   </a>
 </article>

@@ -1,0 +1,163 @@
+{{- $root := .root -}}
+{{- $current := .current | default $root -}}
+{{- $variant := .variant | default "main" -}}
+{{- $recursive := .recursive | default false -}}
+{{- $config := .config | default dict -}}
+
+{{- $source := slice -}}
+{{- if $recursive -}}
+  {{- range $root.RegularPagesRecursive -}}
+    {{- $key := default .Path .File.Path -}}
+    {{- $key = replaceRE `([0-9]{4}年[^0-9]*)([1-9])月` `${1}0${2}月` $key -}}
+    {{- $source = $source | append (dict "page" . "key" $key) -}}
+  {{- end -}}
+{{- else -}}
+  {{- range $root.Pages -}}
+    {{- $key := default .Path .File.Path -}}
+    {{- $key = replaceRE `([0-9]{4}年[^0-9]*)([1-9])月` `${1}0${2}月` $key -}}
+    {{- $source = $source | append (dict "page" . "key" $key) -}}
+  {{- end -}}
+{{- end -}}
+{{- $source = sort $source "key" -}}
+
+{{- $groupsCfg := $config.groups | default (slice) -}}
+{{- $hasGroups := gt (len $groupsCfg) 0 -}}
+
+{{- if $hasGroups -}}
+  {{- $groups := slice -}}
+  {{- $fallbackTitle := "其他内容" -}}
+  {{- $fallbackSeen := false -}}
+
+  {{- range $groupCfg := $groupsCfg -}}
+    {{- if $groupCfg.fallback -}}
+      {{- $fallbackSeen = true -}}
+      {{- with $groupCfg.title -}}
+        {{- $fallbackTitle = . -}}
+      {{- end -}}
+    {{- else -}}
+      {{- $items := slice -}}
+      {{- $patterns := $groupCfg.patterns | default (slice) -}}
+      {{- range $source -}}
+        {{- $page := .page -}}
+        {{- $haystack := printf "%s %s %s" $page.Title $page.Path $page.File.Path -}}
+        {{- $matched := false -}}
+        {{- range $pattern := $patterns -}}
+          {{- if and (not $matched) (gt (len (findRE $pattern $haystack)) 0) -}}
+            {{- $matched = true -}}
+          {{- end -}}
+        {{- end -}}
+        {{- if $matched -}}
+          {{- $items = $items | append . -}}
+        {{- end -}}
+      {{- end -}}
+      {{- $groups = $groups | append (dict "title" ($groupCfg.title | default "未命名") "items" $items) -}}
+    {{- end -}}
+  {{- end -}}
+
+  {{- $fallbackItems := slice -}}
+  {{- range $source -}}
+    {{- $page := .page -}}
+    {{- $haystack := printf "%s %s %s" $page.Title $page.Path $page.File.Path -}}
+    {{- $matched := false -}}
+    {{- range $groupCfg := $groupsCfg -}}
+      {{- if and (not $groupCfg.fallback) (not $matched) -}}
+        {{- range $pattern := ($groupCfg.patterns | default (slice)) -}}
+          {{- if and (not $matched) (gt (len (findRE $pattern $haystack)) 0) -}}
+            {{- $matched = true -}}
+          {{- end -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+    {{- if not $matched -}}
+      {{- $fallbackItems = $fallbackItems | append . -}}
+    {{- end -}}
+  {{- end -}}
+
+  {{- if or $fallbackSeen (gt (len $fallbackItems) 0) -}}
+    {{- $groups = $groups | append (dict "title" $fallbackTitle "items" $fallbackItems) -}}
+  {{- end -}}
+
+  {{- if eq $variant "sidebar" -}}
+    <nav class="article-index__groups" aria-label="{{ $root.Title }} 文章列表">
+      {{- range $groups -}}
+        <section class="article-index__group">
+          <p class="article-index__group-title">{{ .title }}</p>
+          <div class="article-index__group-items">
+            {{- range .items -}}
+              {{- $page := .page -}}
+              <a class="article-index__link article-index__link--nested{{ if eq $page.RelPermalink $current.RelPermalink }} is-active{{ end }}" href="{{ $page.RelPermalink }}">
+                <span class="article-index__title">{{ $page.Title }}</span>
+                <span class="article-index__meta">{{ $page.Date.Format "2006-01-02" }} / {{ $page.ReadingTime }} min</span>
+              </a>
+            {{- else -}}
+              <div class="article-index__empty">这一组还没有文章。</div>
+            {{- end -}}
+          </div>
+        </section>
+      {{- end -}}
+    </nav>
+  {{- else -}}
+    <div class="index-tree">
+      {{- range $groups -}}
+        <section class="index-tree__group">
+          <p class="index-tree__group-title">{{ .title }}</p>
+          <div class="index-tree__items">
+            {{- range .items -}}
+              {{- $page := .page -}}
+              <a class="index-row index-row--nested{{ if eq $page.RelPermalink $current.RelPermalink }} is-active{{ end }}" href="{{ $page.RelPermalink }}">
+                <div class="index-row__top">
+                  <span class="index-row__title">{{ $page.Title }}</span>
+                  <span class="index-row__meta">{{ $page.Date.Format "2006-01-02" }} · {{ $page.ReadingTime }} min</span>
+                </div>
+                <span class="index-row__desc">
+                  {{ with $page.Summary }}
+                    {{ . | plainify | htmlUnescape | truncate 180 }}
+                  {{ else }}
+                    {{ $page.Params.description | default "打开阅读全文。" }}
+                  {{ end }}
+                </span>
+              </a>
+            {{- else -}}
+              <div class="index-empty">这一组还没有文章。</div>
+            {{- end -}}
+          </div>
+        </section>
+      {{- end -}}
+    </div>
+  {{- end -}}
+{{- else -}}
+  {{- if eq $variant "sidebar" -}}
+    <nav class="article-index" aria-label="{{ $root.Title }} 文章列表">
+      {{- range $source -}}
+        {{- $page := .page -}}
+        <a class="article-index__link{{ if eq $page.RelPermalink $current.RelPermalink }} is-active{{ end }}" href="{{ $page.RelPermalink }}">
+          <span class="article-index__title">{{ $page.Title }}</span>
+          <span class="article-index__meta">{{ $page.Date.Format "2006-01-02" }} / {{ $page.ReadingTime }} min</span>
+        </a>
+      {{- else -}}
+        <div class="article-index__empty">这一层还没有文章。</div>
+      {{- end -}}
+    </nav>
+  {{- else -}}
+    <div class="index-list">
+      {{- range $source -}}
+        {{- $page := .page -}}
+        <a class="index-row{{ if eq $page.RelPermalink $current.RelPermalink }} is-active{{ end }}" href="{{ $page.RelPermalink }}">
+          <div class="index-row__top">
+            <span class="index-row__title">{{ $page.Title }}</span>
+            <span class="index-row__meta">{{ $page.Date.Format "2006-01-02" }} · {{ $page.ReadingTime }} min</span>
+          </div>
+          <span class="index-row__desc">
+            {{ with $page.Summary }}
+              {{ . | plainify | htmlUnescape | truncate 180 }}
+            {{ else }}
+              {{ $page.Params.description | default "打开阅读全文。" }}
+            {{ end }}
+          </span>
+        </a>
+      {{- else -}}
+        <div class="index-empty">这一层还没有文章。</div>
+      {{- end -}}
+    </div>
+  {{- end -}}
+{{- end -}}

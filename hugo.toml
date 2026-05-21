@@ -12,6 +12,7 @@ pygmentsCodeFences = true
 disablePathToLower = true
 enableGitInfo = true
 enableRobotsTXT = true
+disableKinds = ["taxonomy", "term"]
 
 # GitHub Pages 推荐的缓存目录配置
 [caches]
@@ -29,15 +30,12 @@ enableRobotsTXT = true
   [markup.goldmark.renderHooks.link]
     useEmbedded = "always"
 
-[taxonomies]
-  tag = "tags"
-
 [params]
   description = "安全知识库、CTF 记录、电子取证与应急响应笔记。"
   geekdocDarkModeDim = false
   geekdocDarkModeCode = false
   geekdocBackToTop = true
-  geekdocTagsToMenu = true
+  geekdocTagsToMenu = false
   geekdocFileTreeSortBy = "title"
   geekdocMenuBundle = true
   geekdocToC = 4
