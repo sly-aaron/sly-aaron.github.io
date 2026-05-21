@@ -21,7 +21,7 @@
     <link rel="stylesheet" href="/css/site.css" />
     
   </head>
-  <body class="site-body  page">
+  <body class="site-body  kind-page page">
     <a class="skip-link" href="#content">跳到正文</a>
     <header class="site-header">
   <div class="site-header__inner">
@@ -46,40 +46,53 @@
   </div>
 </header>
 
-    <main id="content" class="site-shell">
+    <main id="content" class="site-shell site-shell--page">
       
+  
+  
+
   <article class="post-page">
-    <header class="post-hero">
-      <div class="post-hero__copy">
+    <header class="post-header">
+      <div class="post-header__copy">
         
           <a class="eyebrow eyebrow--link" href="/incident-response/">应急响应</a>
         
         <h1>第二届solar杯·应急响应挑战赛</h1>
         
           
-            <p class="hero__lead"> 目录 前言 日志排查 任务1 任务2 任务3 任务4 任务5 任务6 任务7 Solar内存取证 linux内存取证 确定linux内核 准备和内核完全匹配的Linux symbols(重点) 任务1 任务2 任务3 任务4 任务5 仿真DMZ环境应急响应 任务1 任务2 任务3 任务4 任务5 任务6 任务7 任务8 任务9 任务10 任务11 任务12 任务13 任务14 任务15 任务16 任务17 应急溯源 任务1 任务2 任务3 任务4 任务5 任务6 任务7 任务8 前言 # solar赛复现，不过没复现reverse 而且有些题在qsnctf靶场没找到 所以就剩这四道题了
-</p>
+            <p class="post-header__lead"> 目录 前言 日志排查 任务1 任务2 任务3 任务4 任务5 任务6 任务7 Solar内存取证 linux内存取证 确定linux内核 准备和内核完全匹配的Linux symbols(重点) 任务1 任务2 任务3 任务4 任务5 仿真DMZ环境应急响应 任务1 任务2 任务 …</p>
           
         
       </div>
 
-      <aside class="hero__panel hero__panel--compact">
-        <div class="metric">
-          <span>发布日期</span>
-          <strong>2026-03-27</strong>
-        </div>
-        <div class="metric">
-          <span>阅读</span>
-          <strong>4 min</strong>
-        </div>
-        <div class="metric">
-          <span>标签</span>
-          <strong>1</strong>
-        </div>
-      </aside>
+      <div class="post-header__meta" aria-label="文章信息">
+        <time datetime="2026-03-27">发布 2026-03-27</time>
+        <span>约 4 分钟</span>
+        <span>1 个标签</span>
+        <span>更新 2026-03-27</span>
+      </div>
     </header>
 
     <div class="post-layout">
+      <aside class="post-index" aria-label="文章索引">
+        <div class="post-index__head">
+          <p class="sidebar-kicker">Article Index</p>
+          <h2>应急响应</h2>
+          <span>1 篇文章</span>
+        </div>
+
+        <nav class="article-index" aria-label="应急响应 文章列表">
+          
+            <a class="article-index__link is-active" href="/incident-response/solar2/">
+              <span class="article-index__title">第二届solar杯·应急响应挑战赛</span>
+              <span class="article-index__meta">
+                2026-03-27 / 4 min
+              </span>
+            </a>
+          
+        </nav>
+      </aside>
+
       <div class="post-main prose">
         <details class="inline-toc" open>
     <summary>目录</summary>
@@ -1015,10 +1028,13 @@ webshell 的 key 是 md5 加密的，解密后字符为 key</p>
 </code></pre>
       </div>
 
-      <aside class="post-sidebar">
+      <aside class="post-sidebar" aria-label="内容索引">
         
-          <nav class="toc-panel" aria-label="目录">
-            <p class="toc-panel__title">目录</p>
+          <nav class="toc-panel" aria-label="内容索引">
+            <div class="toc-panel__head">
+              <p class="sidebar-kicker">Content Index</p>
+              <p class="toc-panel__title">内容索引</p>
+            </div>
             <div class="toc-panel__body">
               <nav id="TableOfContents">
   <ul>
@@ -1100,15 +1116,15 @@ webshell 的 key 是 md5 加密的，解密后字符为 key</p>
           <p class="meta-panel__title">页面信息</p>
           <dl class="meta-list">
             <div>
-              <dt>Section</dt>
+              <dt>栏目</dt>
               <dd>incident-response</dd>
             </div>
             <div>
-              <dt>Reading time</dt>
+              <dt>阅读</dt>
               <dd>4 min</dd>
             </div>
             <div>
-              <dt>Lastmod</dt>
+              <dt>更新</dt>
               <dd>2026-03-27 23:33</dd>
             </div>
           </dl>

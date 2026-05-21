@@ -21,7 +21,7 @@
     <link rel="stylesheet" href="/css/site.css" />
     
   </head>
-  <body class="site-body  page">
+  <body class="site-body  kind-page page">
     <a class="skip-link" href="#content">跳到正文</a>
     <header class="site-header">
   <div class="site-header__inner">
@@ -46,39 +46,60 @@
   </div>
 </header>
 
-    <main id="content" class="site-shell">
+    <main id="content" class="site-shell site-shell--page">
       
+  
+  
+
   <article class="post-page">
-    <header class="post-hero">
-      <div class="post-hero__copy">
+    <header class="post-header">
+      <div class="post-header__copy">
         
           <a class="eyebrow eyebrow--link" href="/ctf/">CTF</a>
         
         <h1>青少年CTF S1 · 2026 公益赛</h1>
         
           
-            <p class="hero__lead"> 目录 misc 哦 玫坏的压缩包 Ollama Prompt Injection 好，把他们上市！ 找到呆唯 消失的Yui web easy_php Serialization silent_logger 时间胶囊留言板 preg_replace 答案之书 Callback reverse AES？ CheckMe except_expert oi_feelings ez_re muffin_cake ezpy crypto 0x42f NO ASCII Knapsack big e easy RC4 字符串的秘密 Half a key Four Ways to the Truth pwn misc # 哦 # 描述：文件看起来好眼熟 图片怎么一模一样 </p>
+            <p class="post-header__lead"> 目录 misc 哦 玫坏的压缩包 Ollama Prompt Injection 好，把他们上市！ 找到呆唯 消失的Yui web easy_php Serialization silent_logger 时间胶囊留言板 preg_replace 答案之书 Callback …</p>
           
         
       </div>
 
-      <aside class="hero__panel hero__panel--compact">
-        <div class="metric">
-          <span>发布日期</span>
-          <strong>2026-03-25</strong>
-        </div>
-        <div class="metric">
-          <span>阅读</span>
-          <strong>13 min</strong>
-        </div>
-        <div class="metric">
-          <span>标签</span>
-          <strong>1</strong>
-        </div>
-      </aside>
+      <div class="post-header__meta" aria-label="文章信息">
+        <time datetime="2026-03-25">发布 2026-03-25</time>
+        <span>约 13 分钟</span>
+        <span>1 个标签</span>
+        <span>更新 2026-03-27</span>
+      </div>
     </header>
 
     <div class="post-layout">
+      <aside class="post-index" aria-label="文章索引">
+        <div class="post-index__head">
+          <p class="sidebar-kicker">Article Index</p>
+          <h2>CTF</h2>
+          <span>2 篇文章</span>
+        </div>
+
+        <nav class="article-index" aria-label="CTF 文章列表">
+          
+            <a class="article-index__link" href="/ctf/test/">
+              <span class="article-index__title">测试</span>
+              <span class="article-index__meta">
+                2026-03-24 / 1 min
+              </span>
+            </a>
+          
+            <a class="article-index__link is-active" href="/ctf/qsnctf/">
+              <span class="article-index__title">青少年CTF S1 · 2026 公益赛</span>
+              <span class="article-index__meta">
+                2026-03-25 / 13 min
+              </span>
+            </a>
+          
+        </nav>
+      </aside>
+
       <div class="post-main prose">
         <details class="inline-toc" open>
     <summary>目录</summary>
@@ -1442,10 +1463,13 @@ c = 1700417169121122663533115557962248145399896218753766731202382465576471979567
 </span></span></code></pre></div>
       </div>
 
-      <aside class="post-sidebar">
+      <aside class="post-sidebar" aria-label="内容索引">
         
-          <nav class="toc-panel" aria-label="目录">
-            <p class="toc-panel__title">目录</p>
+          <nav class="toc-panel" aria-label="内容索引">
+            <div class="toc-panel__head">
+              <p class="sidebar-kicker">Content Index</p>
+              <p class="toc-panel__title">内容索引</p>
+            </div>
             <div class="toc-panel__body">
               <nav id="TableOfContents">
   <ul>
@@ -1508,15 +1532,15 @@ c = 1700417169121122663533115557962248145399896218753766731202382465576471979567
           <p class="meta-panel__title">页面信息</p>
           <dl class="meta-list">
             <div>
-              <dt>Section</dt>
+              <dt>栏目</dt>
               <dd>ctf</dd>
             </div>
             <div>
-              <dt>Reading time</dt>
+              <dt>阅读</dt>
               <dd>13 min</dd>
             </div>
             <div>
-              <dt>Lastmod</dt>
+              <dt>更新</dt>
               <dd>2026-03-27 23:33</dd>
             </div>
           </dl>

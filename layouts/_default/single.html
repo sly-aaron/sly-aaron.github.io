@@ -1,7 +1,10 @@
 {{ define "main" }}
+  {{ $indexSection := .FirstSection | default .CurrentSection }}
+  {{ $indexPages := $indexSection.RegularPagesRecursive.ByLastmod.Reverse }}
+
   <article class="post-page">
-    <header class="post-hero">
-      <div class="post-hero__copy">
+    <header class="post-header">
+      <div class="post-header__copy">
         {{ with .CurrentSection }}
           <a class="eyebrow eyebrow--link" href="{{ .RelPermalink }}">{{ .Title }}</a>
         {{ else }}
@@ -9,39 +12,53 @@
         {{ end }}
         <h1>{{ .Title }}</h1>
         {{ with .Params.description }}
-          <p class="hero__lead">{{ . }}</p>
+          <p class="post-header__lead">{{ . | plainify | htmlUnescape | truncate 140 }}</p>
         {{ else }}
           {{ with .Summary }}
-            <p class="hero__lead">{{ . | plainify | htmlUnescape }}</p>
+            <p class="post-header__lead">{{ . | plainify | htmlUnescape | truncate 140 }}</p>
           {{ end }}
         {{ end }}
       </div>
 
-      <aside class="hero__panel hero__panel--compact">
-        <div class="metric">
-          <span>发布日期</span>
-          <strong>{{ .Date.Format "2006-01-02" }}</strong>
-        </div>
-        <div class="metric">
-          <span>阅读</span>
-          <strong>{{ .ReadingTime }} min</strong>
-        </div>
-        <div class="metric">
-          <span>标签</span>
-          <strong>{{ len .Params.tags }}</strong>
-        </div>
-      </aside>
+      <div class="post-header__meta" aria-label="文章信息">
+        <time datetime="{{ .Date.Format "2006-01-02" }}">发布 {{ .Date.Format "2006-01-02" }}</time>
+        <span>约 {{ .ReadingTime }} 分钟</span>
+        <span>{{ len .Params.tags }} 个标签</span>
+        <span>更新 {{ .Lastmod.Format "2006-01-02" }}</span>
+      </div>
     </header>
 
     <div class="post-layout">
+      <aside class="post-index" aria-label="文章索引">
+        <div class="post-index__head">
+          <p class="sidebar-kicker">Article Index</p>
+          <h2>{{ $indexSection.Title }}</h2>
+          <span>{{ len $indexPages }} 篇文章</span>
+        </div>
+
+        <nav class="article-index" aria-label="{{ $indexSection.Title }} 文章列表">
+          {{ range $indexPages }}
+            <a class="article-index__link{{ if eq .RelPermalink $.RelPermalink }} is-active{{ end }}" href="{{ .RelPermalink }}">
+              <span class="article-index__title">{{ .Title }}</span>
+              <span class="article-index__meta">
+                {{ .Date.Format "2006-01-02" }} / {{ .ReadingTime }} min
+              </span>
+            </a>
+          {{ end }}
+        </nav>
+      </aside>
+
       <div class="post-main prose">
         {{ .Content }}
       </div>
 
-      <aside class="post-sidebar">
+      <aside class="post-sidebar" aria-label="内容索引">
         {{ with .TableOfContents }}
-          <nav class="toc-panel" aria-label="目录">
-            <p class="toc-panel__title">目录</p>
+          <nav class="toc-panel" aria-label="内容索引">
+            <div class="toc-panel__head">
+              <p class="sidebar-kicker">Content Index</p>
+              <p class="toc-panel__title">内容索引</p>
+            </div>
             <div class="toc-panel__body">
               {{ . }}
             </div>
@@ -52,15 +69,15 @@
           <p class="meta-panel__title">页面信息</p>
           <dl class="meta-list">
             <div>
-              <dt>Section</dt>
+              <dt>栏目</dt>
               <dd>{{ .Section }}</dd>
             </div>
             <div>
-              <dt>Reading time</dt>
+              <dt>阅读</dt>
               <dd>{{ .ReadingTime }} min</dd>
             </div>
             <div>
-              <dt>Lastmod</dt>
+              <dt>更新</dt>
               <dd>{{ .Lastmod.Format "2006-01-02 15:04" }}</dd>
             </div>
           </dl>

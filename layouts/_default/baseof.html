@@ -34,10 +34,10 @@
     <link rel="stylesheet" href="{{ "css/site.css" | relURL }}" />
     {{ block "head" . }}{{ end }}
   </head>
-  <body class="site-body {{ if .IsHome }}is-home{{ end }} {{ .Kind }}">
+  <body class="site-body {{ if .IsHome }}is-home{{ end }} kind-{{ .Kind }} {{ .Kind }}">
     <a class="skip-link" href="#content">跳到正文</a>
     {{ partial "site-header.html" . }}
-    <main id="content" class="site-shell">
+    <main id="content" class="site-shell{{ if .IsPage }} site-shell--page{{ end }}">
       {{ block "main" . }}{{ end }}
     </main>
     {{ partial "site-footer.html" . }}
