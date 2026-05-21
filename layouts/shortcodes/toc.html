@@ -1,0 +1,8 @@
+{{- if .Page.TableOfContents -}}
+  <details class="inline-toc" open>
+    <summary>目录</summary>
+    <div class="inline-toc__body">
+      {{ .Page.TableOfContents }}
+    </div>
+  </details>
+{{- end -}}

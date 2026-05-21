@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="{{ site.Language.LanguageCode | default "zh-CN" }}">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    {{- $title := site.Title -}}
+    {{- if not .IsHome -}}
+      {{- $title = printf "%s · %s" .Title site.Title -}}
+    {{- end -}}
+    {{- $description := site.Params.description | default "笔记、写作与安全研究" -}}
+    {{- with .Params.description -}}
+      {{- $description = . -}}
+    {{- else -}}
+      {{- with .Summary -}}
+        {{- $description = (. | plainify | htmlUnescape | truncate 160) -}}
+      {{- end -}}
+    {{- end -}}
+    <title>{{ $title }}</title>
+    <meta name="description" content="{{ $description }}" />
+    <meta property="og:site_name" content="{{ site.Title }}" />
+    <meta property="og:title" content="{{ $title }}" />
+    <meta property="og:description" content="{{ $description }}" />
+    <meta property="og:type" content="{{ if .IsHome }}website{{ else }}article{{ end }}" />
+    <meta property="og:url" content="{{ .Permalink }}" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700;900&family=Noto+Serif+SC:wght@500;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="{{ "css/site.css" | relURL }}" />
+    {{ block "head" . }}{{ end }}
+  </head>
+  <body class="site-body {{ if .IsHome }}is-home{{ end }} {{ .Kind }}">
+    <a class="skip-link" href="#content">跳到正文</a>
+    {{ partial "site-header.html" . }}
+    <main id="content" class="site-shell">
+      {{ block "main" . }}{{ end }}
+    </main>
+    {{ partial "site-footer.html" . }}
+    <script src="{{ "js/site.js" | relURL }}" defer></script>
+    {{ block "footer" . }}{{ end }}
+  </body>
+</html>

@@ -1,0 +1,87 @@
+{{ define "main" }}
+  <section class="hero hero--home">
+    <div class="hero__copy">
+      <p class="eyebrow">Private vault · public highlights</p>
+      <h1>{{ site.Title }}</h1>
+      <p class="hero__lead">
+        {{ site.Params.description | default "安全知识库、CTF 记录、电子取证与应急响应笔记。" }}
+      </p>
+      <div class="hero__actions">
+        <a class="button button--primary" href="#latest">最近更新</a>
+        <a class="button button--ghost" href="#sections">分区索引</a>
+      </div>
+    </div>
+
+    <aside class="hero__panel">
+      <div class="metric">
+        <span>分区</span>
+        <strong>3</strong>
+      </div>
+      <div class="metric">
+        <span>公开文章</span>
+        <strong>{{ len site.RegularPages }}</strong>
+      </div>
+      <div class="metric">
+        <span>最近构建</span>
+        <strong>{{ now.Format "2006-01-02" }}</strong>
+      </div>
+    </aside>
+  </section>
+
+  {{ with .Content }}
+    <section class="intro-block prose">
+      {{ . }}
+    </section>
+  {{ end }}
+
+  <section id="sections" class="block">
+    <div class="block__head">
+      <div>
+        <p class="eyebrow">Section index</p>
+        <h2>分区索引</h2>
+      </div>
+      <p class="block__lead">把每个目录页变成可扫、可点、可继续往下读的入口。</p>
+    </div>
+
+    <div class="card-grid card-grid--sections">
+      {{ range slice "/ctf/" "/digital-forensics/" "/incident-response/" }}
+        {{ partial "section-card.html" (dict "page" (site.GetPage .) "site" site) }}
+      {{ end }}
+    </div>
+  </section>
+
+  <section id="latest" class="block">
+    <div class="block__head">
+      <div>
+        <p class="eyebrow">Recent notes</p>
+        <h2>最近文章</h2>
+      </div>
+      <p class="block__lead">按最新更新时间排序，优先展示成稿内容。</p>
+    </div>
+
+    <div class="card-grid card-grid--posts">
+      {{ range first 6 (site.RegularPages.ByLastmod.Reverse) }}
+        {{ partial "article-card.html" . }}
+      {{ end }}
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="block__head">
+      <div>
+        <p class="eyebrow">Tags</p>
+        <h2>话题聚合</h2>
+      </div>
+      <p class="block__lead">用标签快速回到某类内容。</p>
+    </div>
+
+    <div class="tag-cloud">
+      {{ range first 12 (site.Taxonomies.tags.ByCount) }}
+        <a class="tag-pill" href="{{ .Page.RelPermalink }}">
+          <span>{{ .Page.Title }}</span>
+          <strong>{{ .Count }}</strong>
+        </a>
+      {{ end }}
+    </div>
+  </section>
+{{ end }}

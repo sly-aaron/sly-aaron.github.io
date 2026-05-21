@@ -1,0 +1,98 @@
+{{ define "main" }}
+  <article class="post-page">
+    <header class="post-hero">
+      <div class="post-hero__copy">
+        {{ with .CurrentSection }}
+          <a class="eyebrow eyebrow--link" href="{{ .RelPermalink }}">{{ .Title }}</a>
+        {{ else }}
+          <p class="eyebrow">Article</p>
+        {{ end }}
+        <h1>{{ .Title }}</h1>
+        {{ with .Params.description }}
+          <p class="hero__lead">{{ . }}</p>
+        {{ else }}
+          {{ with .Summary }}
+            <p class="hero__lead">{{ . | plainify | htmlUnescape }}</p>
+          {{ end }}
+        {{ end }}
+      </div>
+
+      <aside class="hero__panel hero__panel--compact">
+        <div class="metric">
+          <span>发布日期</span>
+          <strong>{{ .Date.Format "2006-01-02" }}</strong>
+        </div>
+        <div class="metric">
+          <span>阅读</span>
+          <strong>{{ .ReadingTime }} min</strong>
+        </div>
+        <div class="metric">
+          <span>标签</span>
+          <strong>{{ len .Params.tags }}</strong>
+        </div>
+      </aside>
+    </header>
+
+    <div class="post-layout">
+      <div class="post-main prose">
+        {{ .Content }}
+      </div>
+
+      <aside class="post-sidebar">
+        {{ with .TableOfContents }}
+          <nav class="toc-panel" aria-label="目录">
+            <p class="toc-panel__title">目录</p>
+            <div class="toc-panel__body">
+              {{ . }}
+            </div>
+          </nav>
+        {{ end }}
+
+        <div class="meta-panel">
+          <p class="meta-panel__title">页面信息</p>
+          <dl class="meta-list">
+            <div>
+              <dt>Section</dt>
+              <dd>{{ .Section }}</dd>
+            </div>
+            <div>
+              <dt>Reading time</dt>
+              <dd>{{ .ReadingTime }} min</dd>
+            </div>
+            <div>
+              <dt>Lastmod</dt>
+              <dd>{{ .Lastmod.Format "2006-01-02 15:04" }}</dd>
+            </div>
+          </dl>
+        </div>
+      </aside>
+    </div>
+
+    <footer class="post-footer">
+      {{ with .Params.tags }}
+        <div class="tag-cloud tag-cloud--article">
+          {{ range . }}
+            <a class="tag-pill" href="{{ (printf "/tags/%s/" (urlize .)) | relURL }}">
+              <span>{{ . }}</span>
+            </a>
+          {{ end }}
+        </div>
+      {{ end }}
+
+      <nav class="post-nav" aria-label="上一篇下一篇">
+        {{ with .PrevInSection }}
+          <a class="post-nav__item post-nav__item--prev" href="{{ .RelPermalink }}">
+            <span>上一篇</span>
+            <strong>{{ .Title }}</strong>
+          </a>
+        {{ end }}
+        {{ with .NextInSection }}
+          <a class="post-nav__item post-nav__item--next" href="{{ .RelPermalink }}">
+            <span>下一篇</span>
+            <strong>{{ .Title }}</strong>
+          </a>
+        {{ end }}
+      </nav>
+    </footer>
+  </article>
+{{ end }}

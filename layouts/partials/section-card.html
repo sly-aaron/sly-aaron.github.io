@@ -1,0 +1,53 @@
+{{ $page := .page }}
+{{ $item := .item }}
+{{ $href := "" }}
+{{ $title := "" }}
+{{ $summary := "" }}
+{{ $count := 0 }}
+
+{{ if $page }}
+  {{ $href = $page.RelPermalink }}
+  {{ $title = $page.Title }}
+  {{ if $page.Summary }}
+    {{ $summary = $page.Summary | plainify | htmlUnescape | truncate 140 }}
+  {{ else if $page.Params.description }}
+    {{ $summary = $page.Params.description }}
+  {{ end }}
+  {{ $count = len $page.RegularPagesRecursive }}
+{{ else if $item }}
+  {{ $ref := index .item "ref" | default "" }}
+  {{ if $ref }}
+    {{ $href = $ref | relURL }}
+    {{ $target := site.GetPage (replaceRE "^/+|/+$" "" $ref) }}
+    {{ if $target }}
+      {{ $page = $target }}
+      {{ $title = $target.Title }}
+      {{ if $target.Summary }}
+        {{ $summary = $target.Summary | plainify | htmlUnescape | truncate 140 }}
+      {{ else if $target.Params.description }}
+        {{ $summary = $target.Params.description }}
+      {{ else }}
+        {{ $summary = "进入这个分区查看文章索引。" }}
+      {{ end }}
+      {{ $count = len $target.RegularPagesRecursive }}
+    {{ else }}
+      {{ $title = index .item "name" | default $ref }}
+      {{ $summary = "进入这个分区查看文章索引。" }}
+    {{ end }}
+  {{ else }}
+    {{ $title = index .item "name" }}
+    {{ $summary = "进入这个分区查看文章索引。" }}
+  {{ end }}
+{{ end }}
+
+<article class="section-card">
+  <a class="section-card__link" href="{{ $href }}">
+    <div class="section-card__top">
+      <span class="section-card__section">Section</span>
+      <span class="section-card__count">{{ $count }} items</span>
+    </div>
+    <h3>{{ $title }}</h3>
+    <p>{{ $summary }}</p>
+    <span class="section-card__action">打开目录 →</span>
+  </a>
+</article>

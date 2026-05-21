@@ -1,10 +1,13 @@
 baseURL = "https://sly-aaron.github.io/"
 title = "Sly Aaron Notes"
 theme = "hugo-geekdoc"
+languageCode = "zh-CN"
 pluralizeListTitles = false
+paginate = 8
+summaryLength = 32
 
 # Geekdoc / Hugo 基础配置
-pygmentsUseClasses = true
+pygmentsUseClasses = false
 pygmentsCodeFences = true
 disablePathToLower = true
 enableGitInfo = true
@@ -31,6 +34,7 @@ enableRobotsTXT = true
   tag = "tags"
 
 [params]
+  description = "安全知识库、CTF 记录、电子取证与应急响应笔记"
   geekdocDarkModeDim = false
   geekdocDarkModeCode = false
   geekdocBackToTop = true

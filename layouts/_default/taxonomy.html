@@ -1,0 +1,30 @@
+{{ define "main" }}
+  <section class="hero hero--section">
+    <div class="hero__copy">
+      <p class="eyebrow">Tag archive</p>
+      <h1>{{ .Title }}</h1>
+      <p class="hero__lead">
+        这里收集所有带有这个标签的文章，适合横向回顾同一主题下的笔记。
+      </p>
+    </div>
+
+    <aside class="hero__panel">
+      <div class="metric">
+        <span>文章数</span>
+        <strong>{{ len .Pages }}</strong>
+      </div>
+      <div class="metric">
+        <span>标签</span>
+        <strong>{{ .Title }}</strong>
+      </div>
+    </aside>
+  </section>
+
+  <section class="block">
+    <div class="card-grid card-grid--posts">
+      {{ range .Pages.ByLastmod.Reverse }}
+        {{ partial "article-card.html" . }}
+      {{ end }}
+    </div>
+  </section>
+{{ end }}

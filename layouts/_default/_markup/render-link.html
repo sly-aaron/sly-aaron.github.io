@@ -1,0 +1,9 @@
+{{- $raw := or (hasPrefix .Text "<img") (hasPrefix .Text "<figure") -}}
+{{- $code := hasPrefix .Text "<code" -}}
+<a
+  class="article-link{{ if $raw }} article-link--raw{{ else if $code }} article-link--code{{ end }}"
+  href="{{ .Destination | safeURL }}"
+  {{- with .Title }}{{ printf " title=\"%s\"" . | safeHTMLAttr }}{{- end }}
+>
+  {{- .Text | safeHTML -}}
+</a>

@@ -2,24 +2,24 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Tags on Sly Aaron Notes</title>
-    <link>http://localhost:1313/tags/</link>
+    <link>https://sly-aaron.github.io/tags/</link>
     <description>Recent content in Tags on Sly Aaron Notes</description>
     <generator>Hugo</generator>
-    <language>en</language>
-    <lastBuildDate>Fri, 27 Mar 2026 00:00:00 +0000</lastBuildDate>
-    <atom:link href="http://localhost:1313/tags/index.xml" rel="self" type="application/rss+xml" />
+    <language>zh-CN</language>
+    <lastBuildDate>Fri, 27 Mar 2026 23:33:59 +0800</lastBuildDate>
+    <atom:link href="https://sly-aaron.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Incident-Response</title>
-      <link>http://localhost:1313/tags/incident-response/</link>
+      <link>https://sly-aaron.github.io/tags/incident-response/</link>
       <pubDate>Fri, 27 Mar 2026 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/tags/incident-response/</guid>
+      <guid>https://sly-aaron.github.io/tags/incident-response/</guid>
       <description></description>
     </item>
     <item>
       <title>Ctf</title>
-      <link>http://localhost:1313/tags/ctf/</link>
+      <link>https://sly-aaron.github.io/tags/ctf/</link>
       <pubDate>Wed, 25 Mar 2026 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/tags/ctf/</guid>
+      <guid>https://sly-aaron.github.io/tags/ctf/</guid>
       <description></description>
     </item>
   </channel>

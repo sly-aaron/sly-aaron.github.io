@@ -1,0 +1,22 @@
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="brand" href="{{ "/" | relURL }}">
+      <span class="brand__mark">SA</span>
+      <span class="brand__text">
+        <strong>{{ site.Title }}</strong>
+        <small>{{ site.Params.description | default "安全知识库" }}</small>
+      </span>
+    </a>
+
+    <nav class="site-nav" aria-label="主导航">
+      <a class="site-nav__link{{ if .IsHome }} is-active{{ end }}" href="{{ "/" | relURL }}">首页</a>
+      {{ $ctf := site.GetPage "/ctf/" }}
+      <a class="site-nav__link{{ if and $ctf (or (eq .RelPermalink $ctf.RelPermalink) (hasPrefix .RelPermalink $ctf.RelPermalink)) }} is-active{{ end }}" href="{{ "/ctf/" | relURL }}">CTF</a>
+      {{ $forensics := site.GetPage "/digital-forensics/" }}
+      <a class="site-nav__link{{ if and $forensics (or (eq .RelPermalink $forensics.RelPermalink) (hasPrefix .RelPermalink $forensics.RelPermalink)) }} is-active{{ end }}" href="{{ "/digital-forensics/" | relURL }}">电子取证</a>
+      {{ $incident := site.GetPage "/incident-response/" }}
+      <a class="site-nav__link{{ if and $incident (or (eq .RelPermalink $incident.RelPermalink) (hasPrefix .RelPermalink $incident.RelPermalink)) }} is-active{{ end }}" href="{{ "/incident-response/" | relURL }}">应急响应</a>
+      <a class="site-nav__link{{ if eq .Section "tags" }} is-active{{ end }}" href="{{ "/tags/" | relURL }}">标签</a>
+    </nav>
+  </div>
+</header>

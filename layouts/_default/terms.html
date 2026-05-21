@@ -1,0 +1,35 @@
+{{ define "main" }}
+  <section class="hero hero--section">
+    <div class="hero__copy">
+      <p class="eyebrow">Taxonomy</p>
+      <h1>{{ .Title }}</h1>
+      {{ with .Content }}
+        <p class="hero__lead">{{ . | plainify | htmlUnescape }}</p>
+      {{ else }}
+        <p class="hero__lead">快速浏览标签集合，并跳到对应文章。</p>
+      {{ end }}
+    </div>
+
+    <aside class="hero__panel">
+      <div class="metric">
+        <span>标签数</span>
+        <strong>{{ len .Data.Terms }}</strong>
+      </div>
+      <div class="metric">
+        <span>类型</span>
+        <strong>{{ .Data.Plural }}</strong>
+      </div>
+    </aside>
+  </section>
+
+  <section class="block">
+    <div class="tag-cloud tag-cloud--terms">
+      {{ range .Data.Terms.Alphabetical }}
+        <a class="tag-pill" href="{{ .Page.RelPermalink }}">
+          <span>{{ .Page.Title }}</span>
+          <strong>{{ .Count }}</strong>
+        </a>
+      {{ end }}
+    </div>
+  </section>
+{{ end }}

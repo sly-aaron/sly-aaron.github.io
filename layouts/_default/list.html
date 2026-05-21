@@ -1,0 +1,72 @@
+{{ define "main" }}
+  <section class="hero hero--section">
+    <div class="hero__copy">
+      <p class="eyebrow">
+        {{ if .IsSection }}Section{{ else }}Index{{ end }}
+      </p>
+      <h1>{{ .Title }}</h1>
+      {{ with .Params.description }}
+        <p class="hero__lead">{{ . }}</p>
+      {{ else }}
+        {{ with .Summary }}
+          <p class="hero__lead">{{ . | plainify | htmlUnescape }}</p>
+        {{ end }}
+      {{ end }}
+    </div>
+
+    <aside class="hero__panel">
+      <div class="metric">
+        <span>子分区</span>
+        <strong>{{ len .Sections }}</strong>
+      </div>
+      <div class="metric">
+        <span>文章</span>
+        <strong>{{ len .RegularPagesRecursive }}</strong>
+      </div>
+      <div class="metric">
+        <span>路径</span>
+        <strong>{{ .RelPermalink }}</strong>
+      </div>
+    </aside>
+  </section>
+
+  {{ with .Content }}
+    <section class="intro-block prose">
+      {{ . }}
+    </section>
+  {{ end }}
+
+  {{ if .Sections }}
+    <section class="block">
+      <div class="block__head">
+        <div>
+          <p class="eyebrow">Nested sections</p>
+          <h2>子目录</h2>
+        </div>
+      </div>
+      <div class="card-grid card-grid--sections">
+        {{ range .Sections.ByWeight }}
+          {{ partial "section-card.html" (dict "menu" nil "page" . "site" site) }}
+        {{ end }}
+      </div>
+    </section>
+  {{ end }}
+
+  {{ if .RegularPagesRecursive }}
+    <section class="block">
+      <div class="block__head">
+        <div>
+          <p class="eyebrow">Articles</p>
+          <h2>文章索引</h2>
+        </div>
+        <p class="block__lead">按时间排列，卡片式浏览更快地找到内容。</p>
+      </div>
+
+      <div class="card-grid card-grid--posts">
+        {{ range .RegularPagesRecursive.ByLastmod.Reverse }}
+          {{ partial "article-card.html" . }}
+        {{ end }}
+      </div>
+    </section>
+  {{ end }}
+{{ end }}
