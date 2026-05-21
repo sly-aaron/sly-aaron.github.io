@@ -1,5 +1,5 @@
 {{ define "main" }}
-  {{ $sections := slice "/ctf/" "/digital-forensics/" "/incident-response/" }}
+  {{ $sections := hugo.Data.menu.main }}
   {{ $latestPages := site.RegularPages.ByLastmod.Reverse }}
 
   <section class="index-page">
@@ -53,10 +53,11 @@
 
       <div class="index-list">
         {{ range $sections }}
-          {{ with site.GetPage . }}
+          {{ $item := . }}
+          {{ with site.GetPage $item.ref }}
             <a class="index-row" href="{{ .RelPermalink }}">
               <div class="index-row__top">
-                <span class="index-row__title">{{ .Title }}</span>
+                <span class="index-row__title">{{ $item.name }}</span>
                 <span class="index-row__meta">{{ len .RegularPagesRecursive }} 篇</span>
               </div>
               <span class="index-row__desc">{{ .Params.description | default "进入这一类的文章列表。" }}</span>

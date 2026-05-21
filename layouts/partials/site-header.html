@@ -8,14 +8,20 @@
       </span>
     </a>
 
+    {{ $current := . }}
     <nav class="site-nav" aria-label="主导航">
-      <a class="site-nav__link{{ if .IsHome }} is-active{{ end }}" href="{{ "/" | relURL }}">首页</a>
-      {{ $ctf := site.GetPage "/ctf/" }}
-      <a class="site-nav__link{{ if and $ctf (or (eq .RelPermalink $ctf.RelPermalink) (hasPrefix .RelPermalink $ctf.RelPermalink)) }} is-active{{ end }}" href="{{ "/ctf/" | relURL }}">CTF</a>
-      {{ $forensics := site.GetPage "/digital-forensics/" }}
-      <a class="site-nav__link{{ if and $forensics (or (eq .RelPermalink $forensics.RelPermalink) (hasPrefix .RelPermalink $forensics.RelPermalink)) }} is-active{{ end }}" href="{{ "/digital-forensics/" | relURL }}">电子取证</a>
-      {{ $incident := site.GetPage "/incident-response/" }}
-      <a class="site-nav__link{{ if and $incident (or (eq .RelPermalink $incident.RelPermalink) (hasPrefix .RelPermalink $incident.RelPermalink)) }} is-active{{ end }}" href="{{ "/incident-response/" | relURL }}">应急响应</a>
+      <a class="site-nav__link{{ if $current.IsHome }} is-active{{ end }}" href="{{ "/" | relURL }}">首页</a>
+      {{ with hugo.Data.menu.main }}
+        {{ range . }}
+          {{ $item := . }}
+          {{ $page := site.GetPage $item.ref }}
+          {{ $isActive := false }}
+          {{ if $page }}
+            {{ $isActive = or (eq $current.RelPermalink $page.RelPermalink) (hasPrefix $current.RelPermalink $page.RelPermalink) }}
+          {{ end }}
+          <a class="site-nav__link{{ if $isActive }} is-active{{ end }}" href="{{ $item.ref | relURL }}">{{ $item.name }}</a>
+        {{ end }}
+      {{ end }}
       <a class="site-nav__link{{ if eq .Section "tags" }} is-active{{ end }}" href="{{ "/tags/" | relURL }}">标签</a>
       <button class="theme-toggle" type="button" aria-label="切换深浅色主题" aria-pressed="false">
         <span class="theme-toggle__icon" aria-hidden="true">☾</span>

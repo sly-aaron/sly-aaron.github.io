@@ -1,16 +1,14 @@
----
-main:
-  - name: CTF
-    ref: "/ctf/"
-    sub:
-      - name: 测试
-        ref: "/ctf/test/"
-      - name: 青少年CTF S1 · 2026 公益赛
-        ref: "/ctf/qsnctf/"
-  - name: 电子取证
-    ref: "/digital-forensics/"
-  - name: 应急响应
-    ref: "/incident-response/"
-    sub:
-      - name: 第二届solar杯·应急响应挑战赛
-        ref: "/incident-response/solar2/"
+- name: CTF
+  ref: "/ctf/"
+  sub:
+    - name: 测试
+      ref: "/ctf/test/"
+    - name: 青少年CTF S1 · 2026 公益赛
+      ref: "/ctf/qsnctf/"
+- name: 电子取证
+  ref: "/digital-forensics/"
+- name: 应急响应
+  ref: "/incident-response/"
+  sub:
+    - name: 第二届solar杯·应急响应挑战赛
+      ref: "/incident-response/solar2/"
