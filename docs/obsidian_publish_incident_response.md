@@ -1,6 +1,6 @@
 # 应急响应文件夹如何同步到公开博客
 
-这份文档记录的是我这次把私有 Obsidian 里的 `应急响应` 目录同步到公开 Hugo 博客的完整链路。  
+这份文档记录的是我这次把私有 Obsidian 里的 `应急响应` 目录同步到公开 Hugo 博客的完整链路。
 核心思路很简单：
 
 `私有 vault 里先标记要公开的笔记 -> 导出到公开博客仓库的 content/ -> Hugo 构建 -> GitHub Pages 发布`
@@ -111,12 +111,12 @@ content/incident-response/<slug>/index.md
 data/indexes/incident-response.yaml
 ```
 
-当前规则是按关键词把 `比赛 WP` 和 `其他内容` 分开。  
+当前规则是按关键词把 `比赛 WP` 和 `其他内容` 分开。
 你以后要拆成更细的组，只要改这个 YAML 就行。
 
 ## 9. 私有仓库访问要不要私钥
 
-如果你说的是现在这个工作区里的私有 vault，它就是本地目录，**不需要私钥**。  
+如果你说的是现在这个工作区里的私有 vault，它就是本地目录，**不需要私钥**。
 如果你把私有 vault 放到远程 Git 仓库，才需要 Git 认证方式，比如：
 
 - HTTPS + credential manager
