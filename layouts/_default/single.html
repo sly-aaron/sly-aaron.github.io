@@ -1,6 +1,7 @@
 {{ define "main" }}
   {{ $indexSection := .FirstSection | default .CurrentSection }}
   {{ $indexPages := $indexSection.RegularPagesRecursive.ByLastmod.Reverse }}
+  {{ $tags := .Params.tags | default (slice) }}
 
   <article class="post-page">
     <div class="post-layout">
@@ -34,7 +35,7 @@
           <div class="post-header__meta" aria-label="文章信息">
             <time datetime="{{ .Date.Format "2006-01-02" }}">发布 {{ .Date.Format "2006-01-02" }}</time>
             <span>约 {{ .ReadingTime }} 分钟</span>
-            <span>{{ len .Params.tags }} 个标签</span>
+            <span>{{ len $tags }} 个标签</span>
             <span>更新 {{ .Lastmod.Format "2006-01-02" }}</span>
           </div>
           {{ with .Params.description }}
@@ -45,7 +46,7 @@
         {{ .Content }}
 
         <footer class="post-footer">
-          {{ with .Params.tags }}
+          {{ with $tags }}
             <div class="tag-cloud tag-cloud--article">
               {{ range . }}
                 <a class="tag-pill" href="{{ (printf "/tags/%s/" (urlize .)) | relURL }}">
