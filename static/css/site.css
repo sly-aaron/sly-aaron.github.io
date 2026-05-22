@@ -1168,8 +1168,8 @@ samp {
   }
 }
 
-/* Document-style reading mode. This intentionally removes the heavy card
-   treatment from article pages while keeping the useful three-column indexes. */
+/* Document-style reading mode: this intentionally removes the heavy card
+   treatment from article pages while keeping the useful three-column indexes */
 :root {
   --doc-bg: #f7f5ef;
   --doc-surface: #fdfbf6;
@@ -1617,7 +1617,7 @@ a:hover {
   }
 }
 
-/* Text-first index pages for the home page, section indexes, and tag archives. */
+/* Text-first index pages for the home page, section indexes, and tag archives */
 .index-page {
   display: grid;
   gap: 28px;
@@ -1822,7 +1822,7 @@ a:hover {
   }
 }
 
-/* Responsive reading panels for article pages. */
+/* Responsive reading panels for article pages */
 .post-page {
   --reading-panel-top: 76px;
   --reading-drawer-width: min(380px, calc(100vw - 40px));

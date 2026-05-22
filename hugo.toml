@@ -31,7 +31,7 @@ disableKinds = ["taxonomy", "term"]
     useEmbedded = "always"
 
 [params]
-  description = "安全知识库、CTF 记录、电子取证与应急响应笔记。"
+  description = "安全知识库、CTF 记录、电子取证与应急响应笔记"
   geekdocDarkModeDim = false
   geekdocDarkModeCode = false
   geekdocBackToTop = true

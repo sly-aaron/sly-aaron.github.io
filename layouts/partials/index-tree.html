@@ -90,7 +90,7 @@
                 <span class="article-index__meta">{{ $page.Date.Format "2006-01-02" }} / {{ $page.ReadingTime }} min</span>
               </a>
             {{- else -}}
-              <div class="article-index__empty">这一组还没有文章。</div>
+              <div class="article-index__empty">这一组还没有文章</div>
             {{- end -}}
           </div>
         </section>
@@ -113,12 +113,12 @@
                   {{ with $page.Summary }}
                     {{ . | plainify | htmlUnescape | truncate 180 }}
                   {{ else }}
-                    {{ $page.Params.description | default "打开阅读全文。" }}
+                    {{ $page.Params.description | default "打开阅读全文" }}
                   {{ end }}
                 </span>
               </a>
             {{- else -}}
-              <div class="index-empty">这一组还没有文章。</div>
+              <div class="index-empty">这一组还没有文章</div>
             {{- end -}}
           </div>
         </section>
@@ -135,7 +135,7 @@
           <span class="article-index__meta">{{ $page.Date.Format "2006-01-02" }} / {{ $page.ReadingTime }} min</span>
         </a>
       {{- else -}}
-        <div class="article-index__empty">这一层还没有文章。</div>
+        <div class="article-index__empty">这一层还没有文章</div>
       {{- end -}}
     </nav>
   {{- else -}}
@@ -151,12 +151,12 @@
             {{ with $page.Summary }}
               {{ . | plainify | htmlUnescape | truncate 180 }}
             {{ else }}
-              {{ $page.Params.description | default "打开阅读全文。" }}
+              {{ $page.Params.description | default "打开阅读全文" }}
             {{ end }}
           </span>
         </a>
       {{- else -}}
-        <div class="index-empty">这一层还没有文章。</div>
+        <div class="index-empty">这一层还没有文章</div>
       {{- end -}}
     </div>
   {{- end -}}

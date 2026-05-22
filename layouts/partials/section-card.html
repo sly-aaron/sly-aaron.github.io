@@ -27,16 +27,16 @@
       {{ else if $target.Params.description }}
         {{ $summary = $target.Params.description }}
       {{ else }}
-        {{ $summary = "进入这个分区查看文章索引。" }}
+        {{ $summary = "进入这个分区查看文章索引" }}
       {{ end }}
       {{ $count = len $target.RegularPagesRecursive }}
     {{ else }}
       {{ $title = index .item "name" | default $ref }}
-      {{ $summary = "进入这个分区查看文章索引。" }}
+      {{ $summary = "进入这个分区查看文章索引" }}
     {{ end }}
   {{ else }}
     {{ $title = index .item "name" }}
-    {{ $summary = "进入这个分区查看文章索引。" }}
+    {{ $summary = "进入这个分区查看文章索引" }}
   {{ end }}
 {{ end }}
 

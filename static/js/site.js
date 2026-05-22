@@ -55,7 +55,7 @@ window.addEventListener("DOMContentLoaded", () => {
       try {
         localStorage.setItem(storageKey(name), value);
       } catch {
-        // The toggle should still work even when storage is unavailable.
+        // The toggle should still work even when storage is unavailable
       }
     };
 

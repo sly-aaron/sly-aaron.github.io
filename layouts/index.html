@@ -5,10 +5,9 @@
   <section class="index-page">
     <div class="index-hero">
       <div class="index-hero__copy">
-        <p class="eyebrow">Private vault · public highlights</p>
         <h1>{{ site.Title }}</h1>
         <p class="index-hero__lead">
-          {{ site.Params.description | default "安全知识库、CTF 记录、电子取证与应急响应笔记。" }}
+          {{ site.Params.description | default "安全知识库、CTF 记录、电子取证与应急响应笔记" }}
         </p>
       </div>
 
@@ -55,7 +54,7 @@
                 <span class="index-row__title">{{ $item.name }}</span>
                 <span class="index-row__meta">{{ len .RegularPagesRecursive }} 篇</span>
               </div>
-              <span class="index-row__desc">{{ .Params.description | default "进入这一类的文章列表。" }}</span>
+              <span class="index-row__desc">{{ .Params.description | default "进入这一类的文章列表" }}</span>
             </a>
           {{ end }}
         {{ end }}
@@ -81,7 +80,7 @@
               {{ with .Summary }}
                 {{ . | plainify | htmlUnescape | truncate 180 }}
               {{ else }}
-                {{ .Params.description | default "打开阅读全文。" }}
+                {{ .Params.description | default "打开阅读全文" }}
               {{ end }}
             </span>
           </a>

@@ -8,7 +8,7 @@
     </div>
 
     <h3>{{ $page.Title }}</h3>
-    <p>{{ if $summary }}{{ $summary }}{{ else }}{{ $page.Params.description | default "打开阅读全文。" }}{{ end }}</p>
+    <p>{{ if $summary }}{{ $summary }}{{ else }}{{ $page.Params.description | default "打开阅读全文" }}{{ end }}</p>
 
     <div class="post-card__footer">
       <time datetime="{{ $page.Date.Format "2006-01-02" }}">{{ $page.Date.Format "2006-01-02" }}</time>
