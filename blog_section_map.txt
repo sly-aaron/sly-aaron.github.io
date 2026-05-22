@@ -1,6 +1,7 @@
 # 私有 vault 路径前缀 => 公开博客分类
 CTF => ctf
-取证 => digital-forensics
+ctf => ctf
+电子取证 => digital-forensics
 应急响应 => incident-response
 蓝队/应急演练 => incident-response
 草稿区 => skip
