@@ -15,8 +15,31 @@
   {{ end }}
 
   <article class="post-page">
+    <div class="post-tools" aria-label="阅读面板控制">
+      <button
+        class="sidebar-toggle sidebar-toggle--index"
+        type="button"
+        data-reading-panel-toggle="article-index"
+        aria-controls="article-index-panel"
+        aria-expanded="true"
+      >
+        <span class="sidebar-toggle__label">文章索引</span>
+        <span class="sidebar-toggle__state">隐藏</span>
+      </button>
+      <button
+        class="sidebar-toggle sidebar-toggle--toc"
+        type="button"
+        data-reading-panel-toggle="content-index"
+        aria-controls="content-index-panel"
+        aria-expanded="true"
+      >
+        <span class="sidebar-toggle__label">内容索引</span>
+        <span class="sidebar-toggle__state">隐藏</span>
+      </button>
+    </div>
+    <div class="sidebar-backdrop" data-reading-panel-close hidden></div>
     <div class="post-layout">
-      <aside class="post-index" aria-label="文章索引">
+      <aside id="article-index-panel" class="post-index" data-reading-panel="article-index" aria-label="文章索引">
         <div class="post-index__head">
           <p class="sidebar-kicker">文章索引</p>
           {{ if $isIncidentPage }}
@@ -83,7 +106,7 @@
         </footer>
       </main>
 
-      <aside class="post-sidebar" aria-label="内容索引">
+      <aside id="content-index-panel" class="post-sidebar" data-reading-panel="content-index" aria-label="内容索引">
         {{ with .TableOfContents }}
           <nav class="toc-panel" aria-label="内容索引">
             <div class="toc-panel__head">
