@@ -488,6 +488,46 @@ function Test-LocalPort {
     }
 }
 
+function Quote-ProcessArgument {
+    param([string]$Value)
+
+    $text = $Value + ""
+    if ($text.Length -eq 0) { return '""' }
+    if ($text -notmatch '[\s"]') { return $text }
+
+    $text = $text -replace '(\\+)$', '$1$1'
+    $text = $text.Replace('"', '\"')
+    return '"' + $text + '"'
+}
+
+function Join-ProcessArguments {
+    param([string[]]$Arguments)
+
+    return (($Arguments | ForEach-Object { Quote-ProcessArgument $_ }) -join " ")
+}
+
+function Get-PythonLauncher {
+    $python = Get-Command "python.exe" -ErrorAction SilentlyContinue
+    if ($python) {
+        return [pscustomobject]@{
+            FilePath = $python.Source
+            PrefixArgs = @()
+            Display = "python"
+        }
+    }
+
+    $py = Get-Command "py.exe" -ErrorAction SilentlyContinue
+    if ($py) {
+        return [pscustomobject]@{
+            FilePath = $py.Source
+            PrefixArgs = @("-3")
+            Display = "py -3"
+        }
+    }
+
+    throw "Python was not found. Install Python or make sure python.exe / py.exe is in PATH."
+}
+
 if ($SelfTest) {
     $plan = Get-PublishPlan -Vault $DefaultVault -Hugo $DefaultHugo -AllowPrivate:$false
     "Published candidates: $($plan.Notes.Count)"
@@ -595,6 +635,11 @@ $refreshButton = New-Object System.Windows.Forms.Button
 $refreshButton.Text = "Refresh list"
 $refreshButton.Width = 120
 $buttonRow.Controls.Add($refreshButton)
+
+$syncButton = New-Object System.Windows.Forms.Button
+$syncButton.Text = "Sync to content"
+$syncButton.Width = 118
+$buttonRow.Controls.Add($syncButton)
 
 $allowPrivateCheck = New-Object System.Windows.Forms.CheckBox
 $allowPrivateCheck.Text = "Allow private:true"
@@ -723,6 +768,106 @@ function Refresh-PublishList {
     }
 }
 
+function Invoke-SyncToContent {
+    $syncButton.Enabled = $false
+    $refreshButton.Enabled = $false
+    $form.UseWaitCursor = $true
+
+    try {
+        $vault = $vaultBox.Text.Trim()
+        $hugo = $hugoBox.Text.Trim()
+        Add-Log "Preparing content sync"
+
+        $plan = Get-PublishPlan -Vault $vault -Hugo $hugo -AllowPrivate:$allowPrivateCheck.Checked
+        Set-GridRows $plan.Notes
+        $blockedCount = $plan.Blocked.Count
+        $summary.Text = "Candidates: $($plan.Notes.Count); skipped: $($plan.Skipped.Count); blocked: $blockedCount; map: $($plan.MapPath)"
+
+        if ($plan.Notes.Count -eq 0) {
+            [System.Windows.Forms.MessageBox]::Show("No publishable notes were found.", "Nothing to sync", "OK", "Information") | Out-Null
+            Add-Log "Sync skipped: no publishable notes"
+            return
+        }
+
+        if ($blockedCount -gt 0) {
+            foreach ($line in $plan.Blocked) { Add-Log "BLOCKED: $line" }
+            [System.Windows.Forms.MessageBox]::Show(
+                "Sync is blocked by protected files or target collisions. Check the log, fix them, then try again.",
+                "Sync blocked",
+                "OK",
+                "Warning"
+            ) | Out-Null
+            return
+        }
+
+        $privateText = $(if ($allowPrivateCheck.Checked) { "`r`n`r`nWarning: Allow private:true is enabled." } else { "" })
+        $message = "This will write $($plan.Notes.Count) note(s) into the public Hugo content directory.`r`n`r`nIt will not commit or push to GitHub.$privateText`r`n`r`nContinue?"
+        $confirm = [System.Windows.Forms.MessageBox]::Show(
+            $message,
+            "Sync to content",
+            [System.Windows.Forms.MessageBoxButtons]::YesNo,
+            [System.Windows.Forms.MessageBoxIcon]::Warning
+        )
+        if ($confirm -ne [System.Windows.Forms.DialogResult]::Yes) {
+            Add-Log "Sync cancelled by user"
+            return
+        }
+
+        $publishScript = Join-Path $PSScriptRoot "publish_obsidian_to_hugo.py"
+        if (-not (Test-Path -LiteralPath $publishScript)) {
+            throw "Publish script not found: $publishScript"
+        }
+
+        $launcher = Get-PythonLauncher
+        $syncDir = Join-Path $env:TEMP "sly-aaron-blog-gui-sync"
+        if (-not (Test-Path -LiteralPath $syncDir)) {
+            New-Item -ItemType Directory -Path $syncDir | Out-Null
+        }
+        $stdout = Join-Path $syncDir "publish.stdout.log"
+        $stderr = Join-Path $syncDir "publish.stderr.log"
+        Set-Content -LiteralPath $stdout -Value "" -Encoding UTF8
+        Set-Content -LiteralPath $stderr -Value "" -Encoding UTF8
+
+        $args = @()
+        $args += @($launcher.PrefixArgs)
+        $args += @($publishScript, "--vault", $vault, "--hugo", $hugo, "--apply")
+        if ($allowPrivateCheck.Checked) {
+            $args += "--allow-private"
+        }
+
+        $argumentLine = Join-ProcessArguments $args
+        Add-Log "Running publish script with --apply"
+        $process = Start-Process -FilePath $launcher.FilePath -ArgumentList $argumentLine -WorkingDirectory $hugo -WindowStyle Hidden -PassThru -Wait -RedirectStandardOutput $stdout -RedirectStandardError $stderr
+
+        foreach ($line in ((Read-Utf8Text $stdout) -split "\r?\n")) {
+            if ($line.Trim().Length -gt 0) { Add-Log $line }
+        }
+        foreach ($line in ((Read-Utf8Text $stderr) -split "\r?\n")) {
+            if ($line.Trim().Length -gt 0) { Add-Log "WARN: $line" }
+        }
+
+        if ($process.ExitCode -ne 0) {
+            throw "Publish script failed with exit code $($process.ExitCode). Check the log above."
+        }
+
+        Add-Log "Content sync finished"
+        [System.Windows.Forms.MessageBox]::Show(
+            "Content sync finished. Review git diff, then commit and push when you are ready.",
+            "Sync finished",
+            "OK",
+            "Information"
+        ) | Out-Null
+        Refresh-PublishList
+    } catch {
+        [System.Windows.Forms.MessageBox]::Show($_.Exception.Message, "Sync failed", "OK", "Error") | Out-Null
+        Add-Log "Sync failed: $($_.Exception.Message)"
+    } finally {
+        $form.UseWaitCursor = $false
+        $refreshButton.Enabled = $true
+        $syncButton.Enabled = $true
+    }
+}
+
 function Get-PortValue {
     $port = 0
     if (-not [int]::TryParse($portBox.Text.Trim(), [ref]$port) -or $port -lt 1 -or $port -gt 65535) {
@@ -810,6 +955,7 @@ function Update-ServerStatus {
 }
 
 $refreshButton.Add_Click({ Refresh-PublishList })
+$syncButton.Add_Click({ Invoke-SyncToContent })
 $startButton.Add_Click({ Start-HugoPreview })
 $stopButton.Add_Click({ Stop-HugoPreview })
 $openButton.Add_Click({
