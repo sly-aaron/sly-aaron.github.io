@@ -528,6 +528,36 @@ function Get-PythonLauncher {
     throw "Python was not found. Install Python or make sure python.exe / py.exe is in PATH."
 }
 
+function Write-GitPublishStatus {
+    param([string]$Hugo)
+
+    try {
+        if (-not (Test-Path -LiteralPath (Join-Path $Hugo ".git"))) {
+            Add-Log "Git status skipped: Hugo path is not a Git repository"
+            return
+        }
+
+        Add-Log "Changed publish files:"
+        $output = & git -C $Hugo status --short -- content static blog_section_map.txt 2>&1
+        $exitCode = $LASTEXITCODE
+        if ($output) {
+            foreach ($line in $output) {
+                if (($line + "").Trim().Length -gt 0) {
+                    Add-Log ($line + "")
+                }
+            }
+        } else {
+            Add-Log "No pending changes under content, static, or blog_section_map.txt"
+        }
+
+        if ($exitCode -ne 0) {
+            Add-Log "Git status failed with exit code $exitCode"
+        }
+    } catch {
+        Add-Log "Git status failed: $($_.Exception.Message)"
+    }
+}
+
 if ($SelfTest) {
     $plan = Get-PublishPlan -Vault $DefaultVault -Hugo $DefaultHugo -AllowPrivate:$false
     "Published candidates: $($plan.Notes.Count)"
@@ -678,6 +708,11 @@ $mapButton = New-Object System.Windows.Forms.Button
 $mapButton.Text = "Open map"
 $mapButton.Width = 96
 $buttonRow.Controls.Add($mapButton)
+
+$changedButton = New-Object System.Windows.Forms.Button
+$changedButton.Text = "Changed files"
+$changedButton.Width = 104
+$buttonRow.Controls.Add($changedButton)
 
 $serverStatus = New-Object System.Windows.Forms.Label
 $serverStatus.Text = "Preview stopped"
@@ -851,6 +886,7 @@ function Invoke-SyncToContent {
         }
 
         Add-Log "Content sync finished"
+        Write-GitPublishStatus $hugo
         [System.Windows.Forms.MessageBox]::Show(
             "Content sync finished. Review git diff, then commit and push when you are ready.",
             "Sync finished",
@@ -956,6 +992,7 @@ function Update-ServerStatus {
 
 $refreshButton.Add_Click({ Refresh-PublishList })
 $syncButton.Add_Click({ Invoke-SyncToContent })
+$changedButton.Add_Click({ Write-GitPublishStatus $hugoBox.Text.Trim() })
 $startButton.Add_Click({ Start-HugoPreview })
 $stopButton.Add_Click({ Stop-HugoPreview })
 $openButton.Add_Click({

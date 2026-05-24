@@ -80,11 +80,16 @@ git commit -m "publish obsidian notes"
 git push origin main
 ```
 
+同步完成后，GUI 会自动在日志里显示 `content/`、`static/` 和
+`blog_section_map.txt` 的 Git 状态。你也可以随时点 `Changed files`
+重新查看这些待提交改动。
+
 ## 本地预览按钮
 
 - `Start preview`: 用当前端口启动 `hugo server`
 - `Stop preview`: 只停止这个 GUI 启动的 Hugo 进程
 - `Open browser`: 打开 `http://127.0.0.1:<port>/`
+- `Changed files`: 在日志里显示准备发布的 Git 改动，不包含 `public/`
 
 预览日志会写到 `%TEMP%\sly-aaron-blog-gui-preview`，不会污染 Git 仓库。
 
