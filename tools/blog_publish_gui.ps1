@@ -569,6 +569,7 @@ if ($SelfTest) {
 
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
+Add-Type -AssemblyName Microsoft.VisualBasic
 [System.Windows.Forms.Application]::EnableVisualStyles()
 
 function Add-Log {
@@ -611,7 +612,7 @@ $root.RowCount = 6
 $root.Padding = New-Object System.Windows.Forms.Padding(10)
 $root.RowStyles.Add((New-Object System.Windows.Forms.RowStyle([System.Windows.Forms.SizeType]::Absolute, 34))) | Out-Null
 $root.RowStyles.Add((New-Object System.Windows.Forms.RowStyle([System.Windows.Forms.SizeType]::Absolute, 34))) | Out-Null
-$root.RowStyles.Add((New-Object System.Windows.Forms.RowStyle([System.Windows.Forms.SizeType]::Absolute, 44))) | Out-Null
+$root.RowStyles.Add((New-Object System.Windows.Forms.RowStyle([System.Windows.Forms.SizeType]::Absolute, 72))) | Out-Null
 $root.RowStyles.Add((New-Object System.Windows.Forms.RowStyle([System.Windows.Forms.SizeType]::Absolute, 26))) | Out-Null
 $root.RowStyles.Add((New-Object System.Windows.Forms.RowStyle([System.Windows.Forms.SizeType]::Percent, 100))) | Out-Null
 $root.RowStyles.Add((New-Object System.Windows.Forms.RowStyle([System.Windows.Forms.SizeType]::Absolute, 118))) | Out-Null
@@ -658,7 +659,7 @@ $hugoRow.Controls.Add($hugoButton, 2, 0)
 $buttonRow = New-Object System.Windows.Forms.FlowLayoutPanel
 $buttonRow.Dock = "Fill"
 $buttonRow.FlowDirection = "LeftToRight"
-$buttonRow.WrapContents = $false
+$buttonRow.WrapContents = $true
 $root.Controls.Add($buttonRow, 0, 2)
 
 $refreshButton = New-Object System.Windows.Forms.Button
@@ -713,6 +714,11 @@ $changedButton = New-Object System.Windows.Forms.Button
 $changedButton.Text = "Changed files"
 $changedButton.Width = 104
 $buttonRow.Controls.Add($changedButton)
+
+$commitButton = New-Object System.Windows.Forms.Button
+$commitButton.Text = "Commit && push"
+$commitButton.Width = 118
+$buttonRow.Controls.Add($commitButton)
 
 $serverStatus = New-Object System.Windows.Forms.Label
 $serverStatus.Text = "Preview stopped"
@@ -904,6 +910,145 @@ function Invoke-SyncToContent {
     }
 }
 
+function Invoke-CommitAndPush {
+    $commitButton.Enabled = $false
+    $changedButton.Enabled = $false
+    $form.UseWaitCursor = $true
+
+    try {
+        $hugo = $hugoBox.Text.Trim()
+        if (-not (Test-Path -LiteralPath (Join-Path $hugo ".git"))) {
+            throw "Hugo path is not a Git repository: $hugo"
+        }
+
+        $publishPaths = @("content", "static", "blog_section_map.txt")
+        Add-Log "Checking publish changes before commit"
+        $statusOutput = & git -C $hugo status --short -- $publishPaths 2>&1
+        $statusExitCode = $LASTEXITCODE
+        $statusLines = @($statusOutput | ForEach-Object { $_ + "" } | Where-Object { $_.Trim().Length -gt 0 })
+
+        foreach ($line in $statusLines) {
+            Add-Log $line
+        }
+
+        if ($statusExitCode -ne 0) {
+            throw "Git status failed with exit code $statusExitCode"
+        }
+
+        if ($statusLines.Count -eq 0) {
+            Add-Log "Commit skipped: no publish changes"
+            [System.Windows.Forms.MessageBox]::Show(
+                "No pending publish changes under content, static, or blog_section_map.txt.",
+                "Nothing to commit",
+                "OK",
+                "Information"
+            ) | Out-Null
+            return
+        }
+
+        $previewLines = @($statusLines | Select-Object -First 25)
+        $moreText = $(if ($statusLines.Count -gt 25) { "`r`n... and $($statusLines.Count - 25) more file(s)" } else { "" })
+        $message = "This will commit and push only these publish files:`r`n`r`n$($previewLines -join "`r`n")$moreText`r`n`r`npublic/ will not be staged or committed by this button.`r`n`r`nContinue?"
+        $confirm = [System.Windows.Forms.MessageBox]::Show(
+            $message,
+            "Commit and push",
+            [System.Windows.Forms.MessageBoxButtons]::YesNo,
+            [System.Windows.Forms.MessageBoxIcon]::Warning
+        )
+        if ($confirm -ne [System.Windows.Forms.DialogResult]::Yes) {
+            Add-Log "Commit cancelled by user"
+            return
+        }
+
+        $commitMessage = [Microsoft.VisualBasic.Interaction]::InputBox(
+            "Commit message:",
+            "Commit and push",
+            "publish obsidian notes"
+        )
+        if ([string]::IsNullOrWhiteSpace($commitMessage)) {
+            Add-Log "Commit cancelled: empty commit message"
+            return
+        }
+
+        $branchOutput = & git -C $hugo branch --show-current 2>&1
+        $branchExitCode = $LASTEXITCODE
+        if ($branchExitCode -ne 0) {
+            foreach ($line in $branchOutput) { Add-Log ($line + "") }
+            throw "Git branch lookup failed with exit code $branchExitCode"
+        }
+
+        $branch = ($branchOutput | Select-Object -First 1) + ""
+        $branch = $branch.Trim()
+        if ([string]::IsNullOrWhiteSpace($branch)) {
+            throw "Current Git checkout is detached. Switch to a branch before pushing."
+        }
+
+        Add-Log "Staging publish files only"
+        $addOutput = & git -C $hugo add -- $publishPaths 2>&1
+        $addExitCode = $LASTEXITCODE
+        foreach ($line in $addOutput) {
+            if (($line + "").Trim().Length -gt 0) { Add-Log ($line + "") }
+        }
+        if ($addExitCode -ne 0) {
+            throw "Git add failed with exit code $addExitCode"
+        }
+
+        $diffOutput = & git -C $hugo diff --cached --quiet -- $publishPaths 2>&1
+        $diffExitCode = $LASTEXITCODE
+        foreach ($line in $diffOutput) {
+            if (($line + "").Trim().Length -gt 0) { Add-Log ($line + "") }
+        }
+        if ($diffExitCode -eq 0) {
+            Add-Log "Commit skipped: nothing staged under publish paths"
+            [System.Windows.Forms.MessageBox]::Show(
+                "Nothing was staged under content, static, or blog_section_map.txt.",
+                "Nothing to commit",
+                "OK",
+                "Information"
+            ) | Out-Null
+            return
+        } elseif ($diffExitCode -ne 1) {
+            throw "Git diff check failed with exit code $diffExitCode"
+        }
+
+        Add-Log "Committing publish files"
+        $commitOutput = & git -C $hugo commit -m $commitMessage -- $publishPaths 2>&1
+        $commitExitCode = $LASTEXITCODE
+        foreach ($line in $commitOutput) {
+            if (($line + "").Trim().Length -gt 0) { Add-Log ($line + "") }
+        }
+        if ($commitExitCode -ne 0) {
+            throw "Git commit failed with exit code $commitExitCode"
+        }
+
+        Add-Log "Pushing to origin/$branch"
+        $pushOutput = & git -C $hugo push origin $branch 2>&1
+        $pushExitCode = $LASTEXITCODE
+        foreach ($line in $pushOutput) {
+            if (($line + "").Trim().Length -gt 0) { Add-Log ($line + "") }
+        }
+        if ($pushExitCode -ne 0) {
+            throw "Git push failed with exit code $pushExitCode"
+        }
+
+        Add-Log "Commit and push finished"
+        Write-GitPublishStatus $hugo
+        [System.Windows.Forms.MessageBox]::Show(
+            "Commit and push finished.",
+            "Published",
+            "OK",
+            "Information"
+        ) | Out-Null
+    } catch {
+        [System.Windows.Forms.MessageBox]::Show($_.Exception.Message, "Commit and push failed", "OK", "Error") | Out-Null
+        Add-Log "Commit and push failed: $($_.Exception.Message)"
+    } finally {
+        $form.UseWaitCursor = $false
+        $changedButton.Enabled = $true
+        $commitButton.Enabled = $true
+    }
+}
+
 function Get-PortValue {
     $port = 0
     if (-not [int]::TryParse($portBox.Text.Trim(), [ref]$port) -or $port -lt 1 -or $port -gt 65535) {
@@ -993,6 +1138,7 @@ function Update-ServerStatus {
 $refreshButton.Add_Click({ Refresh-PublishList })
 $syncButton.Add_Click({ Invoke-SyncToContent })
 $changedButton.Add_Click({ Write-GitPublishStatus $hugoBox.Text.Trim() })
+$commitButton.Add_Click({ Invoke-CommitAndPush })
 $startButton.Add_Click({ Start-HugoPreview })
 $stopButton.Add_Click({ Stop-HugoPreview })
 $openButton.Add_Click({

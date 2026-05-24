@@ -72,7 +72,7 @@ git status --short content static
 git diff -- content static
 ```
 
-确认没问题后再手动提交推送：
+确认没问题后，可以点击 `Commit & push`，或者手动提交推送：
 
 ```powershell
 git add content static blog_section_map.txt
@@ -84,12 +84,27 @@ git push origin main
 `blog_section_map.txt` 的 Git 状态。你也可以随时点 `Changed files`
 重新查看这些待提交改动。
 
+## 提交推送按钮
+
+点击 `Commit & push` 后，GUI 会：
+
+- 只检查 `content/`、`static/` 和 `blog_section_map.txt`
+- 弹窗显示即将提交的发布文件
+- 让你填写 commit message，默认是 `publish obsidian notes`
+- 执行 `git add -- content static blog_section_map.txt`
+- 执行 `git commit -m "<message>" -- content static blog_section_map.txt`
+- 执行 `git push origin <当前分支>`
+
+这个按钮不会 stage 或 commit `public/`，所以 Hugo 本地预览生成出来的
+`public/` 改动不会被它一起推上去。
+
 ## 本地预览按钮
 
 - `Start preview`: 用当前端口启动 `hugo server`
 - `Stop preview`: 只停止这个 GUI 启动的 Hugo 进程
 - `Open browser`: 打开 `http://127.0.0.1:<port>/`
 - `Changed files`: 在日志里显示准备发布的 Git 改动，不包含 `public/`
+- `Commit & push`: 提交并推送准备发布的 Git 改动，不包含 `public/`
 
 预览日志会写到 `%TEMP%\sly-aaron-blog-gui-preview`，不会污染 Git 仓库。
 
