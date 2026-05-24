@@ -579,6 +579,53 @@ function Add-Log {
     $script:LogBox.AppendText("[$time] $Message`r`n")
 }
 
+function Initialize-GitOperationLog {
+    $gitLogDir = Join-Path $env:TEMP "sly-aaron-blog-gui-git"
+    if (-not (Test-Path -LiteralPath $gitLogDir)) {
+        New-Item -ItemType Directory -Path $gitLogDir | Out-Null
+    }
+
+    $script:GitOperationLogPath = Join-Path $gitLogDir "commit-push.log"
+    Set-Content -LiteralPath $script:GitOperationLogPath -Value "Commit and push started: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")" -Encoding UTF8
+}
+
+function Add-GitOperationLog {
+    param([string]$Message)
+
+    try {
+        if ([string]::IsNullOrWhiteSpace($script:GitOperationLogPath)) { return }
+        $time = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+        Add-Content -LiteralPath $script:GitOperationLogPath -Value "[$time] $Message" -Encoding UTF8
+    } catch {
+        # The GUI log is still useful if the file log cannot be written.
+    }
+}
+
+function Invoke-GitCommand {
+    param(
+        [string]$Hugo,
+        [string[]]$Arguments
+    )
+
+    Add-GitOperationLog ("> git -C `"$Hugo`" " + (Join-ProcessArguments $Arguments))
+    $output = & git -C $Hugo @Arguments 2>&1
+    $exitCode = $LASTEXITCODE
+    $lines = @($output | ForEach-Object { $_ + "" })
+
+    foreach ($line in $lines) {
+        if ($line.Trim().Length -gt 0) {
+            Add-Log $line
+            Add-GitOperationLog $line
+        }
+    }
+
+    Add-GitOperationLog "exit code: $exitCode"
+    return [pscustomobject]@{
+        ExitCode = $exitCode
+        Lines = $lines
+    }
+}
+
 function New-Label {
     param([string]$Text)
 
@@ -916,23 +963,20 @@ function Invoke-CommitAndPush {
     $form.UseWaitCursor = $true
 
     try {
+        Initialize-GitOperationLog
         $hugo = $hugoBox.Text.Trim()
         if (-not (Test-Path -LiteralPath (Join-Path $hugo ".git"))) {
             throw "Hugo path is not a Git repository: $hugo"
         }
 
         $publishPaths = @("content", "static", "blog_section_map.txt")
+        Add-Log "Git operation log: $script:GitOperationLogPath"
         Add-Log "Checking publish changes before commit"
-        $statusOutput = & git -C $hugo status --short -- $publishPaths 2>&1
-        $statusExitCode = $LASTEXITCODE
-        $statusLines = @($statusOutput | ForEach-Object { $_ + "" } | Where-Object { $_.Trim().Length -gt 0 })
+        $statusResult = Invoke-GitCommand -Hugo $hugo -Arguments (@("status", "--short", "--") + $publishPaths)
+        $statusLines = @($statusResult.Lines | Where-Object { $_.Trim().Length -gt 0 })
 
-        foreach ($line in $statusLines) {
-            Add-Log $line
-        }
-
-        if ($statusExitCode -ne 0) {
-            throw "Git status failed with exit code $statusExitCode"
+        if ($statusResult.ExitCode -ne 0) {
+            throw "Git status failed with exit code $($statusResult.ExitCode)"
         }
 
         if ($statusLines.Count -eq 0) {
@@ -970,35 +1014,25 @@ function Invoke-CommitAndPush {
             return
         }
 
-        $branchOutput = & git -C $hugo branch --show-current 2>&1
-        $branchExitCode = $LASTEXITCODE
-        if ($branchExitCode -ne 0) {
-            foreach ($line in $branchOutput) { Add-Log ($line + "") }
-            throw "Git branch lookup failed with exit code $branchExitCode"
+        $branchResult = Invoke-GitCommand -Hugo $hugo -Arguments @("branch", "--show-current")
+        if ($branchResult.ExitCode -ne 0) {
+            throw "Git branch lookup failed with exit code $($branchResult.ExitCode)"
         }
 
-        $branch = ($branchOutput | Select-Object -First 1) + ""
+        $branch = ($branchResult.Lines | Select-Object -First 1) + ""
         $branch = $branch.Trim()
         if ([string]::IsNullOrWhiteSpace($branch)) {
             throw "Current Git checkout is detached. Switch to a branch before pushing."
         }
 
         Add-Log "Staging publish files only"
-        $addOutput = & git -C $hugo add -- $publishPaths 2>&1
-        $addExitCode = $LASTEXITCODE
-        foreach ($line in $addOutput) {
-            if (($line + "").Trim().Length -gt 0) { Add-Log ($line + "") }
-        }
-        if ($addExitCode -ne 0) {
-            throw "Git add failed with exit code $addExitCode"
+        $addResult = Invoke-GitCommand -Hugo $hugo -Arguments (@("add", "--") + $publishPaths)
+        if ($addResult.ExitCode -ne 0) {
+            throw "Git add failed with exit code $($addResult.ExitCode)"
         }
 
-        $diffOutput = & git -C $hugo diff --cached --quiet -- $publishPaths 2>&1
-        $diffExitCode = $LASTEXITCODE
-        foreach ($line in $diffOutput) {
-            if (($line + "").Trim().Length -gt 0) { Add-Log ($line + "") }
-        }
-        if ($diffExitCode -eq 0) {
+        $diffResult = Invoke-GitCommand -Hugo $hugo -Arguments (@("diff", "--cached", "--quiet", "--") + $publishPaths)
+        if ($diffResult.ExitCode -eq 0) {
             Add-Log "Commit skipped: nothing staged under publish paths"
             [System.Windows.Forms.MessageBox]::Show(
                 "Nothing was staged under content, static, or blog_section_map.txt.",
@@ -1007,40 +1041,35 @@ function Invoke-CommitAndPush {
                 "Information"
             ) | Out-Null
             return
-        } elseif ($diffExitCode -ne 1) {
-            throw "Git diff check failed with exit code $diffExitCode"
+        } elseif ($diffResult.ExitCode -ne 1) {
+            throw "Git diff check failed with exit code $($diffResult.ExitCode)"
         }
 
         Add-Log "Committing publish files"
-        $commitOutput = & git -C $hugo commit -m $commitMessage -- $publishPaths 2>&1
-        $commitExitCode = $LASTEXITCODE
-        foreach ($line in $commitOutput) {
-            if (($line + "").Trim().Length -gt 0) { Add-Log ($line + "") }
-        }
-        if ($commitExitCode -ne 0) {
-            throw "Git commit failed with exit code $commitExitCode"
+        $commitResult = Invoke-GitCommand -Hugo $hugo -Arguments (@("commit", "-m", $commitMessage, "--") + $publishPaths)
+        if ($commitResult.ExitCode -ne 0) {
+            throw "Git commit failed with exit code $($commitResult.ExitCode)"
         }
 
         Add-Log "Pushing to origin/$branch"
-        $pushOutput = & git -C $hugo push origin $branch 2>&1
-        $pushExitCode = $LASTEXITCODE
-        foreach ($line in $pushOutput) {
-            if (($line + "").Trim().Length -gt 0) { Add-Log ($line + "") }
-        }
-        if ($pushExitCode -ne 0) {
-            throw "Git push failed with exit code $pushExitCode"
+        $pushResult = Invoke-GitCommand -Hugo $hugo -Arguments @("push", "origin", $branch)
+        if ($pushResult.ExitCode -ne 0) {
+            throw "Git push failed with exit code $($pushResult.ExitCode)"
         }
 
         Add-Log "Commit and push finished"
+        Add-GitOperationLog "Commit and push finished"
         Write-GitPublishStatus $hugo
         [System.Windows.Forms.MessageBox]::Show(
-            "Commit and push finished.",
+            "Commit and push finished.`r`n`r`nLog: $script:GitOperationLogPath",
             "Published",
             "OK",
             "Information"
         ) | Out-Null
     } catch {
-        [System.Windows.Forms.MessageBox]::Show($_.Exception.Message, "Commit and push failed", "OK", "Error") | Out-Null
+        Add-GitOperationLog "FAILED: $($_.Exception.Message)"
+        $logText = $(if ([string]::IsNullOrWhiteSpace($script:GitOperationLogPath)) { "" } else { "`r`n`r`nLog: $script:GitOperationLogPath" })
+        [System.Windows.Forms.MessageBox]::Show("$($_.Exception.Message)$logText", "Commit and push failed", "OK", "Error") | Out-Null
         Add-Log "Commit and push failed: $($_.Exception.Message)"
     } finally {
         $form.UseWaitCursor = $false

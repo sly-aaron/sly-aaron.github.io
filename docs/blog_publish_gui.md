@@ -98,6 +98,12 @@ git push origin main
 这个按钮不会 stage 或 commit `public/`，所以 Hugo 本地预览生成出来的
 `public/` 改动不会被它一起推上去。
 
+如果提交推送失败，弹窗和 GUI 日志会显示详细日志路径：
+
+```text
+%TEMP%\sly-aaron-blog-gui-git\commit-push.log
+```
+
 ## 本地预览按钮
 
 - `Start preview`: 用当前端口启动 `hugo server`
