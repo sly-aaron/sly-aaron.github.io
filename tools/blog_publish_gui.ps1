@@ -586,6 +586,7 @@ function Initialize-GitOperationLog {
     }
 
     $script:GitOperationLogPath = Join-Path $gitLogDir "commit-push.log"
+    $script:GitCommandCounter = 0
     Set-Content -LiteralPath $script:GitOperationLogPath -Value "Commit and push started: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")" -Encoding UTF8
 }
 
@@ -607,22 +608,42 @@ function Invoke-GitCommand {
         [string[]]$Arguments
     )
 
-    Add-GitOperationLog ("> git -C `"$Hugo`" " + (Join-ProcessArguments $Arguments))
-    $output = & git -C $Hugo @Arguments 2>&1
-    $exitCode = $LASTEXITCODE
-    $lines = @($output | ForEach-Object { $_ + "" })
+    $allArguments = @("-C", $Hugo) + $Arguments
+    Add-GitOperationLog ("> git " + (Join-ProcessArguments $allArguments))
 
-    foreach ($line in $lines) {
+    $script:GitCommandCounter += 1
+    $gitLogDir = Split-Path -Parent $script:GitOperationLogPath
+    $stdout = Join-Path $gitLogDir ("git-{0:00}.stdout.log" -f $script:GitCommandCounter)
+    $stderr = Join-Path $gitLogDir ("git-{0:00}.stderr.log" -f $script:GitCommandCounter)
+    Set-Content -LiteralPath $stdout -Value "" -Encoding UTF8
+    Set-Content -LiteralPath $stderr -Value "" -Encoding UTF8
+
+    $argumentLine = Join-ProcessArguments $allArguments
+    $process = Start-Process -FilePath "git" -ArgumentList $argumentLine -WorkingDirectory $Hugo -WindowStyle Hidden -PassThru -Wait -RedirectStandardOutput $stdout -RedirectStandardError $stderr
+    $exitCode = $process.ExitCode
+    $stdoutLines = @((Read-Utf8Text $stdout) -split "\r?\n" | ForEach-Object { $_ + "" })
+    $stderrLines = @((Read-Utf8Text $stderr) -split "\r?\n" | ForEach-Object { $_ + "" })
+
+    foreach ($line in $stdoutLines) {
         if ($line.Trim().Length -gt 0) {
             Add-Log $line
             Add-GitOperationLog $line
         }
     }
 
+    foreach ($line in $stderrLines) {
+        if ($line.Trim().Length -gt 0) {
+            Add-Log "WARN: $line"
+            Add-GitOperationLog "stderr: $line"
+        }
+    }
+
     Add-GitOperationLog "exit code: $exitCode"
     return [pscustomobject]@{
         ExitCode = $exitCode
-        Lines = $lines
+        Lines = @($stdoutLines + $stderrLines)
+        StdoutLines = $stdoutLines
+        StderrLines = $stderrLines
     }
 }
 
