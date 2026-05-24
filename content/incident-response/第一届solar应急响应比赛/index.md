@@ -1,7 +1,7 @@
 ---
 title: "第一届solar应急响应比赛"
-date: 2026-05-21
-lastmod: "2026-05-21T20:39:28+0800"
+date: 2026-05-22
+lastmod: "2026-05-22T14:34:50+0800"
 ---
 <!-- generated-by: obsidian_git_blog_pipeline -->
 

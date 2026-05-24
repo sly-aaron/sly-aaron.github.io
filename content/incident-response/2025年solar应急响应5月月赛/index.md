@@ -1,7 +1,7 @@
 ---
 title: "2025年Solar应急响应5月月赛"
-date: 2026-05-21
-lastmod: "2026-05-21T20:39:28+0800"
+date: 2026-05-23
+lastmod: "2026-05-23T11:37:51+0800"
 ---
 <!-- generated-by: obsidian_git_blog_pipeline -->
 
