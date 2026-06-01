@@ -135,3 +135,33 @@ blog_section_map.txt decides where it goes
 - `blog_section_map.txt` 决定这篇发到博客哪个栏目
 
 如果某篇笔记自己写了 `blog_section`，它会优先覆盖映射表。
+
+## 在 GUI 里修改标题和发布位置
+
+刷新列表后，点选表格里的一篇文章，下面的 `Selected note title and rule`
+区域会自动显示当前文章。
+
+单篇文章临时覆盖：
+
+- `blog_title`: 写入私有 vault 这篇 Markdown 的 front matter，只影响博客显示标题
+- `blog_section`: 写入私有 vault 这篇 Markdown 的 front matter，只影响这一篇发布到哪个栏目
+- `Save note rule`: 保存上面两个字段，留空会移除对应覆盖项
+
+路径映射批量规则：
+
+- `map source`: 私有 vault 里的路径前缀，比如 `应急响应/比赛WP`
+- `map section`: 公开博客里的栏目路径，比如 `incident-response/wp`
+- `Save map rule`: 写入或更新公开博客仓库的 `blog_section_map.txt`
+
+可以这样理解：
+
+```text
+blog_title / blog_section = 只改当前选中的这一篇
+blog_section_map.txt = 改一整类路径的默认发布位置
+```
+
+例如你希望 `应急响应/比赛WP` 下面的所有公开笔记都进入
+`content/incident-response/wp/`，就在 GUI 里选中其中任意一篇，把
+`map source` 改成 `应急响应/比赛WP`，把 `map section` 改成
+`incident-response/wp`，然后点 `Save map rule`。之后这类笔记只要写了
+`public: true`，同步时就会自动进入这个栏目。

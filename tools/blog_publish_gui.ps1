@@ -97,6 +97,132 @@ function Split-FrontMatter {
     }
 }
 
+function Convert-ToYamlScalar {
+    param([string]$Value)
+
+    $text = $Value + ""
+    if ($text.Length -eq 0) { return '""' }
+    if ($text -match '^[\p{L}\p{N}_./-]+$') { return $text }
+    return '"' + ($text.Replace('\', '\\').Replace('"', '\"')) + '"'
+}
+
+function Set-FrontMatterScalar {
+    param(
+        [string]$Path,
+        [string]$Key,
+        [string]$Value
+    )
+
+    $text = Read-Utf8Text $Path
+    $split = Split-FrontMatter $text
+    $escapedKey = [regex]::Escape($Key)
+    $hasValue = -not [string]::IsNullOrWhiteSpace($Value)
+    $newLine = "$Key`: $(Convert-ToYamlScalar $Value)"
+
+    if ($split.HasFrontMatter) {
+        $match = [regex]::Match($text, "(?s)\A---\r?\n(.*?)\r?\n(?:---|\.\.\.)\r?\n?(.*)\z")
+        $front = $match.Groups[1].Value
+        $body = $match.Groups[2].Value
+        $lines = New-Object System.Collections.Generic.List[string]
+        $updated = $false
+
+        foreach ($line in ($front -split "\r?\n")) {
+            if ($line -match "^\s*$escapedKey\s*:") {
+                if ($hasValue) {
+                    $lines.Add($newLine)
+                }
+                $updated = $true
+            } else {
+                $lines.Add($line)
+            }
+        }
+
+        if ($hasValue -and -not $updated) {
+            $lines.Add($newLine)
+        }
+
+        $newText = "---`n" + (($lines.ToArray()) -join "`n").TrimEnd() + "`n---`n" + $body.TrimStart([char[]]@("`r", "`n"))
+    } else {
+        if (-not $hasValue) { return }
+        $newText = "---`n$newLine`n---`n" + $text.TrimStart([char[]]@("`r", "`n"))
+    }
+
+    $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+    [System.IO.File]::WriteAllText($Path, $newText, $utf8NoBom)
+}
+
+function Get-SelectedPublishRow {
+    if (-not $grid.CurrentRow) { return $null }
+    if ($grid.CurrentRow.Index -lt 0) { return $null }
+    return $grid.CurrentRow
+}
+
+function Get-SelectedSourcePath {
+    $row = Get-SelectedPublishRow
+    if (-not $row) { throw "Select a note in the list first." }
+
+    $source = $row.Cells["Source"].Value + ""
+    if ([string]::IsNullOrWhiteSpace($source)) { throw "Selected row has no source path." }
+
+    $vault = $vaultBox.Text.Trim()
+    $fullPath = Join-Path $vault $source
+    if (-not (Test-Path -LiteralPath $fullPath)) {
+        throw "Source note not found: $fullPath"
+    }
+    return $fullPath
+}
+
+function Set-SectionMapRule {
+    param(
+        [string]$MapPath,
+        [string]$SourcePrefix,
+        [string]$Section
+    )
+
+    if ([string]::IsNullOrWhiteSpace($SourcePrefix)) { throw "Map source prefix cannot be empty." }
+    if ([string]::IsNullOrWhiteSpace($Section)) { throw "Map section cannot be empty. Use skip if you want to exclude it." }
+
+    $source = $SourcePrefix.Trim().Replace("\", "/")
+    $target = $Section.Trim().Replace("\", "/")
+    $lines = New-Object System.Collections.Generic.List[string]
+    $updated = $false
+
+    if (Test-Path -LiteralPath $MapPath) {
+        foreach ($rawLine in ((Read-Utf8Text $MapPath) -split "\r?\n")) {
+            $line = $rawLine
+            $trimmed = $line.Trim()
+            if ($trimmed.Length -eq 0 -or $trimmed.StartsWith("#") -or -not $trimmed.Contains("=>")) {
+                $lines.Add($line)
+                continue
+            }
+
+            $comment = ""
+            $body = $line
+            $commentIndex = $line.IndexOf("#")
+            if ($commentIndex -ge 0) {
+                $comment = $line.Substring($commentIndex)
+                $body = $line.Substring(0, $commentIndex)
+            }
+
+            $parts = $body -split "=>", 2
+            if ($parts.Count -eq 2 -and $parts[0].Trim().Replace("\", "/") -ieq $source) {
+                $suffix = $(if ($comment.Length -gt 0) { " $comment" } else { "" })
+                $lines.Add("$source => $target$suffix")
+                $updated = $true
+            } else {
+                $lines.Add($line)
+            }
+        }
+    }
+
+    if (-not $updated) {
+        $lines.Add("$source => $target")
+    }
+
+    $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+    [System.IO.File]::WriteAllText($MapPath, (($lines.ToArray()) -join "`n").TrimEnd() + "`n", $utf8NoBom)
+}
+
 function Test-Truthy {
     param($Value)
 
@@ -676,13 +802,14 @@ $form.MinimumSize = New-Object System.Drawing.Size(980, 620)
 $root = New-Object System.Windows.Forms.TableLayoutPanel
 $root.Dock = "Fill"
 $root.ColumnCount = 1
-$root.RowCount = 6
+$root.RowCount = 7
 $root.Padding = New-Object System.Windows.Forms.Padding(10)
 $root.RowStyles.Add((New-Object System.Windows.Forms.RowStyle([System.Windows.Forms.SizeType]::Absolute, 34))) | Out-Null
 $root.RowStyles.Add((New-Object System.Windows.Forms.RowStyle([System.Windows.Forms.SizeType]::Absolute, 34))) | Out-Null
 $root.RowStyles.Add((New-Object System.Windows.Forms.RowStyle([System.Windows.Forms.SizeType]::Absolute, 72))) | Out-Null
 $root.RowStyles.Add((New-Object System.Windows.Forms.RowStyle([System.Windows.Forms.SizeType]::Absolute, 26))) | Out-Null
 $root.RowStyles.Add((New-Object System.Windows.Forms.RowStyle([System.Windows.Forms.SizeType]::Percent, 100))) | Out-Null
+$root.RowStyles.Add((New-Object System.Windows.Forms.RowStyle([System.Windows.Forms.SizeType]::Absolute, 112))) | Out-Null
 $root.RowStyles.Add((New-Object System.Windows.Forms.RowStyle([System.Windows.Forms.SizeType]::Absolute, 118))) | Out-Null
 $form.Controls.Add($root)
 
@@ -811,13 +938,87 @@ $grid.AutoSizeColumnsMode = "Fill"
 $grid.RowHeadersVisible = $false
 $root.Controls.Add($grid, 0, 4)
 
+$editPanel = New-Object System.Windows.Forms.GroupBox
+$editPanel.Dock = "Fill"
+$editPanel.Text = "Selected note title and rule"
+$root.Controls.Add($editPanel, 0, 5)
+
+$editRoot = New-Object System.Windows.Forms.TableLayoutPanel
+$editRoot.Dock = "Fill"
+$editRoot.ColumnCount = 1
+$editRoot.RowCount = 3
+$editRoot.Padding = New-Object System.Windows.Forms.Padding(8, 4, 8, 6)
+$editRoot.RowStyles.Add((New-Object System.Windows.Forms.RowStyle([System.Windows.Forms.SizeType]::Absolute, 26))) | Out-Null
+$editRoot.RowStyles.Add((New-Object System.Windows.Forms.RowStyle([System.Windows.Forms.SizeType]::Absolute, 30))) | Out-Null
+$editRoot.RowStyles.Add((New-Object System.Windows.Forms.RowStyle([System.Windows.Forms.SizeType]::Absolute, 30))) | Out-Null
+$editPanel.Controls.Add($editRoot)
+
+$selectedRowLayout = New-Object System.Windows.Forms.TableLayoutPanel
+$selectedRowLayout.Dock = "Fill"
+$selectedRowLayout.ColumnCount = 2
+$selectedRowLayout.ColumnStyles.Add((New-Object System.Windows.Forms.ColumnStyle([System.Windows.Forms.SizeType]::Absolute, 92))) | Out-Null
+$selectedRowLayout.ColumnStyles.Add((New-Object System.Windows.Forms.ColumnStyle([System.Windows.Forms.SizeType]::Percent, 100))) | Out-Null
+$editRoot.Controls.Add($selectedRowLayout, 0, 0)
+
+$selectedSourceBox = New-Object System.Windows.Forms.TextBox
+$selectedSourceBox.Dock = "Fill"
+$selectedSourceBox.ReadOnly = $true
+$selectedRowLayout.Controls.Add((New-Label "Selected"), 0, 0)
+$selectedRowLayout.Controls.Add($selectedSourceBox, 1, 0)
+
+$noteOverrideLayout = New-Object System.Windows.Forms.TableLayoutPanel
+$noteOverrideLayout.Dock = "Fill"
+$noteOverrideLayout.ColumnCount = 5
+$noteOverrideLayout.ColumnStyles.Add((New-Object System.Windows.Forms.ColumnStyle([System.Windows.Forms.SizeType]::Absolute, 92))) | Out-Null
+$noteOverrideLayout.ColumnStyles.Add((New-Object System.Windows.Forms.ColumnStyle([System.Windows.Forms.SizeType]::Percent, 50))) | Out-Null
+$noteOverrideLayout.ColumnStyles.Add((New-Object System.Windows.Forms.ColumnStyle([System.Windows.Forms.SizeType]::Absolute, 106))) | Out-Null
+$noteOverrideLayout.ColumnStyles.Add((New-Object System.Windows.Forms.ColumnStyle([System.Windows.Forms.SizeType]::Percent, 50))) | Out-Null
+$noteOverrideLayout.ColumnStyles.Add((New-Object System.Windows.Forms.ColumnStyle([System.Windows.Forms.SizeType]::Absolute, 144))) | Out-Null
+$editRoot.Controls.Add($noteOverrideLayout, 0, 1)
+
+$titleOverrideBox = New-Object System.Windows.Forms.TextBox
+$titleOverrideBox.Dock = "Fill"
+$sectionOverrideBox = New-Object System.Windows.Forms.TextBox
+$sectionOverrideBox.Dock = "Fill"
+$saveNoteButton = New-Object System.Windows.Forms.Button
+$saveNoteButton.Text = "Save note rule"
+$saveNoteButton.Dock = "Fill"
+$noteOverrideLayout.Controls.Add((New-Label "blog_title"), 0, 0)
+$noteOverrideLayout.Controls.Add($titleOverrideBox, 1, 0)
+$noteOverrideLayout.Controls.Add((New-Label "blog_section"), 2, 0)
+$noteOverrideLayout.Controls.Add($sectionOverrideBox, 3, 0)
+$noteOverrideLayout.Controls.Add($saveNoteButton, 4, 0)
+
+$mapEditLayout = New-Object System.Windows.Forms.TableLayoutPanel
+$mapEditLayout.Dock = "Fill"
+$mapEditLayout.ColumnCount = 5
+$mapEditLayout.ColumnStyles.Add((New-Object System.Windows.Forms.ColumnStyle([System.Windows.Forms.SizeType]::Absolute, 92))) | Out-Null
+$mapEditLayout.ColumnStyles.Add((New-Object System.Windows.Forms.ColumnStyle([System.Windows.Forms.SizeType]::Percent, 50))) | Out-Null
+$mapEditLayout.ColumnStyles.Add((New-Object System.Windows.Forms.ColumnStyle([System.Windows.Forms.SizeType]::Absolute, 106))) | Out-Null
+$mapEditLayout.ColumnStyles.Add((New-Object System.Windows.Forms.ColumnStyle([System.Windows.Forms.SizeType]::Percent, 50))) | Out-Null
+$mapEditLayout.ColumnStyles.Add((New-Object System.Windows.Forms.ColumnStyle([System.Windows.Forms.SizeType]::Absolute, 144))) | Out-Null
+$editRoot.Controls.Add($mapEditLayout, 0, 2)
+
+$mapPrefixBox = New-Object System.Windows.Forms.TextBox
+$mapPrefixBox.Dock = "Fill"
+$mapSectionBox = New-Object System.Windows.Forms.TextBox
+$mapSectionBox.Dock = "Fill"
+$saveMapButton = New-Object System.Windows.Forms.Button
+$saveMapButton.Text = "Save map rule"
+$saveMapButton.Dock = "Fill"
+$mapEditLayout.Controls.Add((New-Label "map source"), 0, 0)
+$mapEditLayout.Controls.Add($mapPrefixBox, 1, 0)
+$mapEditLayout.Controls.Add((New-Label "map section"), 2, 0)
+$mapEditLayout.Controls.Add($mapSectionBox, 3, 0)
+$mapEditLayout.Controls.Add($saveMapButton, 4, 0)
+
 $script:LogBox = New-Object System.Windows.Forms.TextBox
 $script:LogBox.Dock = "Fill"
 $script:LogBox.Multiline = $true
 $script:LogBox.ScrollBars = "Vertical"
 $script:LogBox.ReadOnly = $true
 $script:LogBox.Font = New-Object System.Drawing.Font("Consolas", 9)
-$root.Controls.Add($script:LogBox, 0, 5)
+$root.Controls.Add($script:LogBox, 0, 6)
 
 function Set-GridRows {
     param([object[]]$Rows)
@@ -860,11 +1061,95 @@ function Set-GridRows {
     }
 }
 
+function Get-FirstTargetSection {
+    param([string]$Target)
+
+    $targetText = ($Target + "").Replace("\", "/")
+    if ($targetText.StartsWith("content/")) {
+        $targetText = $targetText.Substring(8)
+    }
+    $parts = @($targetText.Split("/") | Where-Object { $_.Length -gt 0 })
+    if ($parts.Count -eq 0) { return "" }
+    return $parts[0]
+}
+
+function Get-DefaultMapPrefix {
+    param([string]$Source)
+
+    $sourceText = ($Source + "").Replace("\", "/").Trim("/")
+    if ($sourceText.Length -eq 0) { return "" }
+    $parts = @($sourceText.Split("/") | Where-Object { $_.Length -gt 0 })
+    if ($parts.Count -ge 2) {
+        return $parts[0]
+    }
+    return [System.IO.Path]::GetFileNameWithoutExtension($sourceText)
+}
+
+function Update-SelectedNoteEditor {
+    $row = Get-SelectedPublishRow
+    if (-not $row) {
+        $selectedSourceBox.Text = ""
+        $titleOverrideBox.Text = ""
+        $sectionOverrideBox.Text = ""
+        $mapPrefixBox.Text = ""
+        $mapSectionBox.Text = ""
+        return
+    }
+
+    $source = $row.Cells["Source"].Value + ""
+    $target = $row.Cells["Target"].Value + ""
+    $rule = $row.Cells["Rule"].Value + ""
+
+    $selectedSourceBox.Text = $source
+    $titleOverrideBox.Text = $row.Cells["Title"].Value + ""
+    if ($rule -match '^front matter blog_section=(.+)$') {
+        $sectionOverrideBox.Text = $matches[1]
+    } else {
+        $sectionOverrideBox.Text = ""
+    }
+    $mapPrefixBox.Text = Get-DefaultMapPrefix $source
+    $mapSectionBox.Text = Get-FirstTargetSection $target
+}
+
+function Save-SelectedNoteOverrides {
+    try {
+        $sourcePath = Get-SelectedSourcePath
+        Set-FrontMatterScalar -Path $sourcePath -Key "blog_title" -Value $titleOverrideBox.Text.Trim()
+        Set-FrontMatterScalar -Path $sourcePath -Key "blog_section" -Value $sectionOverrideBox.Text.Trim()
+        Add-Log "Saved note overrides: $($selectedSourceBox.Text)"
+        Refresh-PublishList
+    } catch {
+        [System.Windows.Forms.MessageBox]::Show($_.Exception.Message, "Save note rule failed", "OK", "Error") | Out-Null
+        Add-Log "Save note rule failed: $($_.Exception.Message)"
+    }
+}
+
+function Save-MapRuleFromEditor {
+    try {
+        $hugo = $hugoBox.Text.Trim()
+        $map = Find-SectionMapPath $vaultBox.Text.Trim() $hugo
+        if ([string]::IsNullOrWhiteSpace($map)) {
+            if (-not (Test-Path -LiteralPath (Join-Path $hugo "hugo.toml"))) {
+                throw "Hugo site not found or hugo.toml missing: $hugo"
+            }
+            $map = Join-Path $hugo "blog_section_map.txt"
+        }
+
+        Set-SectionMapRule -MapPath $map -SourcePrefix $mapPrefixBox.Text -Section $mapSectionBox.Text
+        Add-Log "Saved map rule: $($mapPrefixBox.Text.Trim()) => $($mapSectionBox.Text.Trim())"
+        Refresh-PublishList
+    } catch {
+        [System.Windows.Forms.MessageBox]::Show($_.Exception.Message, "Save map rule failed", "OK", "Error") | Out-Null
+        Add-Log "Save map rule failed: $($_.Exception.Message)"
+    }
+}
+
 function Refresh-PublishList {
     try {
         Add-Log "Scanning publishable notes"
         $plan = Get-PublishPlan -Vault $vaultBox.Text.Trim() -Hugo $hugoBox.Text.Trim() -AllowPrivate:$allowPrivateCheck.Checked
         Set-GridRows $plan.Notes
+        Update-SelectedNoteEditor
         $blockedCount = $plan.Blocked.Count
         $summary.Text = "Candidates: $($plan.Notes.Count); skipped: $($plan.Skipped.Count); blocked: $blockedCount; map: $($plan.MapPath)"
         Add-Log "Scan done: candidates=$($plan.Notes.Count), skipped=$($plan.Skipped.Count), blocked=$blockedCount"
@@ -1189,6 +1474,8 @@ $refreshButton.Add_Click({ Refresh-PublishList })
 $syncButton.Add_Click({ Invoke-SyncToContent })
 $changedButton.Add_Click({ Write-GitPublishStatus $hugoBox.Text.Trim() })
 $commitButton.Add_Click({ Invoke-CommitAndPush })
+$saveNoteButton.Add_Click({ Save-SelectedNoteOverrides })
+$saveMapButton.Add_Click({ Save-MapRuleFromEditor })
 $startButton.Add_Click({ Start-HugoPreview })
 $stopButton.Add_Click({ Stop-HugoPreview })
 $openButton.Add_Click({
@@ -1208,6 +1495,9 @@ $mapButton.Add_Click({
         [System.Windows.Forms.MessageBox]::Show($_.Exception.Message, "Open map failed", "OK", "Error") | Out-Null
     }
 })
+
+$grid.Add_SelectionChanged({ Update-SelectedNoteEditor })
+$grid.Add_CurrentCellChanged({ Update-SelectedNoteEditor })
 
 $timer = New-Object System.Windows.Forms.Timer
 $timer.Interval = 1200
