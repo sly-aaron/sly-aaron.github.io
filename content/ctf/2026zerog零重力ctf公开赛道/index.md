@@ -1,7 +1,7 @@
 ---
 title: "2026ZeroG零重力CTF公开赛道"
-date: 2026-05-23
-lastmod: "2026-05-23T19:25:14+0800"
+date: 2026-06-01
+lastmod: "2026-06-01T19:57:58+0800"
 ---
 <!-- generated-by: obsidian_git_blog_pipeline -->
 

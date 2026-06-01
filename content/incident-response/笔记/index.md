@@ -1,7 +1,7 @@
 ---
-title: "工具"
-date: 2026-05-23
-lastmod: "2026-05-23T11:37:51+0800"
+title: "笔记"
+date: 2026-06-01
+lastmod: "2026-06-01T19:58:37+0800"
 ---
 <!-- generated-by: obsidian_git_blog_pipeline -->
 
