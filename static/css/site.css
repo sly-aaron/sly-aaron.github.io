@@ -135,16 +135,11 @@ samp {
 }
 
 .brand__mark {
-  display: grid;
-  place-items: center;
   width: 42px;
   height: 42px;
   border-radius: 14px;
-  background: #241f1a;
-  color: #fff7ea;
-  font-size: 0.85rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
+  object-fit: cover;
+  border: 1px solid rgba(36, 31, 26, 0.12);
   box-shadow: 0 8px 18px rgba(36, 31, 26, 0.14);
 }
 
@@ -1226,8 +1221,7 @@ a:hover {
   width: 34px;
   height: 34px;
   border-radius: 8px;
-  background: var(--doc-text);
-  color: var(--doc-bg);
+  border-color: var(--doc-line);
   box-shadow: none;
 }
 
